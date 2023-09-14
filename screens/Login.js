@@ -17,10 +17,8 @@ const Login = () => {
     <View style={styles.container}>
       <View style={styles.circle}>
         <Text style={{color:'black', fontSize:70, fontWeight:"bold"}}>Login</Text>
-          <View style={styles.container}>
-            <Image style={styles.tinyLogo}
-              source={require('./image/leave.jpg')}
-            />
+          <View style={styles.logoContainer}>
+            <Image style={{width:10, height:10, top:-110, left:48}} source = {require('C:\Users\justb\SoftdevProject\image\leave-removebg-preview2.png')} />
           </View>
         <Text style={{color:'black', fontSize:14, left:0, alignSelf:'left', width:300}}>Email</Text>
         <SafeAreaView>
@@ -96,15 +94,15 @@ const styles = StyleSheet.create({
     textTransform: "uppercase"
   },
   logoContainer: {
-    paddingTop: 50,
+    paddingTop: 10,
   },
   tinyLogo: {
-    width: 50,
-    height: 50,
+    width: 10,
+    height: 10,
   },
   logo: {
-    width: 66,
-    height: 58,
+    width: 10,
+    height: 10,
   },
 }
 )
