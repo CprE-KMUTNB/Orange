@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
 import React from 'react'
-// import leave.jpg from ./Image/leaves   
 
 const AppButton = ({ onPress, title }) => (
   <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -16,7 +15,7 @@ const ForgotPassword = () => {
   return (
     <View style={styles.container}>
       <View style={styles.circle}>
-        <Text style={{color:'black', fontSize:45, fontWeight:"bold", marginBottom:10}}>Reset Password</Text>
+        <Text style={{color:'black', fontSize:50, fontWeight:"bold", marginBottom:10}}>Reset Password</Text>
         <Text style={{color:'black', fontSize:14, left:0, alignSelf:'left', width:300}}>New Password</Text>
         <SafeAreaView>
           <TextInput
@@ -24,6 +23,7 @@ const ForgotPassword = () => {
           value={text}
           onChangeText={onChangeText}
           placeholder='example'
+          secureTextEntry={true}
          />
         </SafeAreaView>
         <Text style={{color:'black', fontSize:14, left:0, alignSelf:'left', width:300}}>Confirm Password</Text>
@@ -47,11 +47,11 @@ const ForgotPassword = () => {
 
 const styles = StyleSheet.create({
   circle: {
-    height: 600,
-    width: 600,
-    borderRadius: 300,
+    height: 580,
+    width: 580,
+    borderRadius: 290,
     backgroundColor: "#FFE6DF",
-    top:80,
+    top:110,
     alignItems: 'center',
     paddingTop:150
     // justifyContent: "center",
@@ -106,4 +106,5 @@ const styles = StyleSheet.create({
 
 
 export default ForgotPassword
+
 
