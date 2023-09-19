@@ -22,8 +22,8 @@ connection.connect((err) =>{
 
 //----------------------------Sign in--------------------------------------//
 
-//เพิ่ม account ใหม่
-app.post("/create_account", async (req, res) => {
+//confirm password = password มั้ย
+app.get("/check_password_account", async (req, res) => {
     const {email, password} = req.body
 
     try {
@@ -45,10 +45,33 @@ app.post("/create_account", async (req, res) => {
     }
 })	
 
+// //เพิ่ม account ใหม่
+// app.post("/create_account", async (req, res) => {
+//     const {email, password} = req.body
+
+//     try {
+//         connection.query(
+//             "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
+//             [email, password], //แทน ?
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log("Error while inserting a user into the database", err);
+//                     return res.status(400).send();
+//                 }
+//                 return res.status(201).json({message: "New user successfully created!"});
+//             }
+//         )
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })	
+
 //----------------------------Login--------------------------------------//
 
-//รหัสผ่านถูกต้องมั้ย
-app.get("/check_email_password_login", async (req, res) => {
+//รหัสผ่านตรงกับอีเมลที่ใส่มั้ย
+app.get("/login", async (req, res) => {
     const email = req.body.email
     const password = req.body.password;
     try {
@@ -60,10 +83,10 @@ app.get("/check_email_password_login", async (req, res) => {
                     console.log(err);
                     return res.status(400).send();
                 }
-                if (results.map(item => item.ACCOUNT_PASSWORD).toString() != password) {
-                    return res.status(404).send({message: "Email or Password is incorrect"}); //แปลง results เป็น string
+                if (results.map(item => item.ACCOUNT_PASSWORD).toString() != password) { //แปลง results เป็น string
+                    return res.status(404).send({status:"fail", message: "Email or Password is incorrect"}); 
                 }
-                res.status(200).json({message: "Login successfully!"});
+                res.status(200).json({status:"sucess", message: "Login successfully!"});
             })
     }
     catch(err) {
@@ -75,28 +98,32 @@ app.get("/check_email_password_login", async (req, res) => {
 
 //----------------------------Reset password--------------------------------------//
 
-//UPDATE data เปลี่ยน password
-app.patch("/update_account/:email", async (req, res) => {
-    const email = req.params.email
-    const newPassword = req.body.newPassword;
+//confirm password = password มั้ย
+app.post("/reset_password", async (req, res) => {
+    const {email, password, confirm} = req.body
+
+    if (confirm != password) {
+        return res.status(400).json({status:"fail", message: "Password must be the same"});
+    }
+
     try {
         connection.query(
-            "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_EMAIL = ?", //ดึงข้อมูล
-            [newPassword, email],
+            "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_EMAIL = ?",
+            [password, email], //แทน ?
             (err, results, fields) => {
                 if (err) {
-                    console.log(err);
+                    console.log("Error while inserting a user into the database", err);
                     return res.status(400).send();
                 }
-                res.status(200).json({message : "Account updated password successfully!"})
-            })
+                return res.status(201).json({status:"success", message: "New password successfully update!"});
+            }
+        )
     }
     catch(err) {
         console.log(err);
         return res.status(500).send();
     }
-
-})
+})	
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 
@@ -246,6 +273,29 @@ app.get("/is_have_account/:email", async (req, res) =>{
         console.log(err);
         return res.status(500).send();
     }
+})
+
+//UPDATE data เปลี่ยน password
+app.patch("/update_account/:email", async (req, res) => {
+    const email = req.params.email
+    const newPassword = req.body.newPassword;
+    try {
+        connection.query(
+            "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_EMAIL = ?", //ดึงข้อมูล
+            [newPassword, email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).json({message : "Account updated password successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
 })
 
 app.listen(3360, () => console.log('Server is running on port 3360'));

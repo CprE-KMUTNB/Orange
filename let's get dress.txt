@@ -10,7 +10,7 @@ Sign up
 
 Login
 (ไม่ใช้)-มี account อยู่รึเปล่า					: No account with this email
--รหัสผ่านตรงกับอีเมลที่ใส่มั้ย						: Email or Password is incorrect
+/-รหัสผ่านตรงกับอีเมลที่ใส่มั้ย						: Email or Password is incorrect
 
 Reset password
 -confirm password = new password มั้ย	: Password must be the same
