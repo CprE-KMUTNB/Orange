@@ -20,7 +20,9 @@ connection.connect((err) =>{
     console.log('MySQL successfully connected!');
 })
 
-//เพิ่มข้อมูล aaocunt ใหม่
+//----------------------------Sign in--------------------------------------//
+
+//เพิ่ม account ใหม่
 app.post("/create_account", async (req, res) => {
     const {email, password} = req.body
 
@@ -41,9 +43,64 @@ app.post("/create_account", async (req, res) => {
         console.log(err);
         return res.status(500).send();
     }
+})	
+
+//----------------------------Login--------------------------------------//
+
+//รหัสผ่านถูกต้องมั้ย
+app.get("/check_email_password_login", async (req, res) => {
+    const email = req.body.email
+    const password = req.body.password;
+    try {
+        connection.query(
+            "SELECT ACCOUNT_PASSWORD FROM account WHERE ACCOUNT_EMAIL = ? ", //ดึงข้อมูล
+            [email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.map(item => item.ACCOUNT_PASSWORD).toString() != password) {
+                    return res.status(404).send({message: "Email or Password is incorrect"}); //แปลง results เป็น string
+                }
+                res.status(200).json({message: "Login successfully!"});
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
 })
 
-//กึงข้อมูล account ทั้งหมด
+//----------------------------Reset password--------------------------------------//
+
+//UPDATE data เปลี่ยน password
+app.patch("/update_account/:email", async (req, res) => {
+    const email = req.params.email
+    const newPassword = req.body.newPassword;
+    try {
+        connection.query(
+            "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_EMAIL = ?", //ดึงข้อมูล
+            [newPassword, email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).json({message : "Account updated password successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+//----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
+
+//ดึงข้อมูล account ทั้งหมด
 app.get("/read_account", async (req, res) =>{
     try {
         connection.query(
@@ -81,29 +138,6 @@ app.get("/read_account/single/:email", async (req, res) =>{
         console.log(err);
         return res.status(500).send();
     }
-})
-
-//UPDATE data เปลี่ยน password
-app.patch("/update_account/:email", async (req, res) => {
-    const email = req.params.email
-    const newPassword = req.body.newPassword;
-    try {
-        connection.query(
-            "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_EMAIL = ?", //ดึงข้อมูล
-            [newPassword, email],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                res.status(200).json({message : "Account updated password successfully!"})
-            })
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-
 })
 
 //DELETE ลบ account
@@ -191,4 +225,27 @@ app.patch("/format_date", async (req, res) => {
 
 })
 
-app.listen(3000, () => console.log('Server is running on port 3000'));
+//มี account อยู่รึเปล่า
+app.get("/is_have_account/:email", async (req, res) =>{
+    const email = req.params.email; //รับตัวแปร email
+    try {
+        connection.query(
+            "SELECT * FROM account WHERE ACCOUNT_EMAIL = " + mysql.escape(email), //ดึงข้อมูลแบบระวังแฮคมั้ง
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results == '') {
+                        return res.status(404).json({message: "No account with this email"})
+                    }
+                res.status(200).json(results)
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+app.listen(3360, () => console.log('Server is running on port 3360'));
