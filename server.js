@@ -23,19 +23,34 @@ connection.connect((err) =>{
 //----------------------------Sign in--------------------------------------//
 
 //confirm password = password มั้ย
-app.get("/check_password_account", async (req, res) => {
-    const {email, password} = req.body
+app.post("/sign_in", async (req, res) => {
+    const {email, password, confirm} = req.body
 
     try {
+        if (password != confirm) {
+            return res.status(400).json({status:"fail", message: "Password must be the same"});
+        }
+        
         connection.query(
-            "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
-            [email, password], //แทน ?
-            (err, results, fields) => {
+            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ? ",
+            [email],
+            (err, check_email) => {
                 if (err) {
                     console.log("Error while inserting a user into the database", err);
                     return res.status(400).send();
                 }
-                return res.status(201).json({message: "New user successfully created!"});
+                if (check_email.length == 0) {
+                    "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
+                    [email, password], //แทน ?
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log("Error while inserting a user into the database", err);
+                            return res.status(400).send();
+                        }
+                        res.status(201).json({status:"success", message: "New user successfully created!"});
+                    }
+                }
+                res.status(400).json({status:"fail", message: "This email already has an account"});
             }
         )
     }
@@ -102,11 +117,11 @@ app.get("/login", async (req, res) => {
 app.post("/reset_password", async (req, res) => {
     const {email, password, confirm} = req.body
 
-    if (confirm != password) {
-        return res.status(400).json({status:"fail", message: "Password must be the same"});
-    }
-
     try {
+        if (confirm != password) {
+            return res.status(400).json({status:"fail", message: "Password must be the same"});
+        }
+
         connection.query(
             "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_EMAIL = ?",
             [password, email], //แทน ?
