@@ -4,16 +4,20 @@ current_timestamp เวลาปัจจุบัน
 ---------------------------------
 API
 Sign up
--มี account อยู่รึเปล่า -> ถ้าไม่มี เพิ่ม account		: This email already has an account						
--confirm password = password มั้ย			: Password must be the same
-/-เพิ่ม account	
+/-มี account อยู่รึเปล่า -> ถ้าไม่มี เพิ่ม account		: This email already has an account						
+/-confirm password = password มั้ย			: Password must be the same
+/-เพิ่ม account
 
 Login
-(ไม่ใช้)-มี account อยู่รึเปล่า					: No account with this email
+/-มี account อยู่รึเปล่า					: No account with this email
 /-รหัสผ่านตรงกับอีเมลที่ใส่มั้ย					: Email or Password is incorrect
+(เหลือ) เพิ่ม verify email
 
 Reset password
 /-confirm password = new password มั้ย	: Password must be the same
+
+forget password
+-verify reset password code             : Verifucation failed
 
 ---------------------------------
 account เก็บข้อมูลผู้ใช้งาน

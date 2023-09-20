@@ -4,6 +4,9 @@ const mysql = require('mysql');
 const app =  express();
 app.use(express.json()); //แปลงเป็น object
 
+const token_obj = 'this is token'
+const jwt = require('jsonwebtoken')
+
 //MySQL connection
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -20,37 +23,26 @@ connection.connect((err) =>{
     console.log('MySQL successfully connected!');
 })
 
-//----------------------------Sign in--------------------------------------//
+//----------------------------Sign up--------------------------------------//
 
-//confirm password = password มั้ย
-app.post("/sign_in", async (req, res) => {
-    const {email, password, confirm} = req.body
+//ตรวจสอบว่ามีแอคเค้าที่มีเมลนี้หรือยัง
+app.get("/check_account/:email", async (req, res) => {
+    const {password, confirm} = req.body;
+    const email = req.params.email.slice(0,-1);
 
     try {
-        if (password != confirm) {
-            return res.status(400).json({status:"fail", message: "Password must be the same"});
-        }
-        
         connection.query(
-            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ? ",
-            [email],
-            (err, check_email) => {
+            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
+            [email], //แทน ?
+            (err, results, fields) => {
                 if (err) {
-                    console.log("Error while inserting a user into the database", err);
+                    console.log(err);
                     return res.status(400).send();
                 }
-                if (check_email.length == 0) {
-                    "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
-                    [email, password], //แทน ?
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log("Error while inserting a user into the database", err);
-                            return res.status(400).send();
-                        }
-                        res.status(201).json({status:"success", message: "New user successfully created!"});
-                    }
+                if (results.map(item => item.ACCOUNT_EMAIL).toString() == email) {
+                    return res.status(200).json({status:"fail" , message: "This email already has an account"});
                 }
-                res.status(400).json({status:"fail", message: "This email already has an account"});
+                res.status(200).json({status:email , message: "You can create new account with this email"});
             }
         )
     }
@@ -60,38 +52,58 @@ app.post("/sign_in", async (req, res) => {
     }
 })	
 
-// //เพิ่ม account ใหม่
-// app.post("/create_account", async (req, res) => {
-//     const {email, password} = req.body
+//for sign up
+app.post("/sign_up", async (req, res) => {
+    const {email, password, confirm} = req.body
 
-//     try {
-//         connection.query(
-//             "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
-//             [email, password], //แทน ?
-//             (err, results, fields) => {
-//                 if (err) {
-//                     console.log("Error while inserting a user into the database", err);
-//                     return res.status(400).send();
-//                 }
-//                 return res.status(201).json({message: "New user successfully created!"});
-//             }
-//         )
-//     }
-//     catch(err) {
-//         console.log(err);
-//         return res.status(500).send();
-//     }
-// })	
+    try {
+        fetch('http://localhost:3360/check_account/' + new URLSearchParams(email), {
+            method: 'GET', 
+        })
+        .then(res => res.json())
+        .then(status => {
+            console.log(status.status)
+            if (status.status == email) {
+                // ตรวจสอบรหัสที่สร้าง
+                if (password != confirm) {
+                    return res.status(400).json({status:"fail", message: "Password must be the same"});
+                }
+                connection.query(
+                    "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
+                    [email, password], //แทน ?
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log("Error while inserting a user into the database", err);
+                            // if (err.code == 'ER_DUP_ENTRY') {
+                            //     return res.status(400).json({status:"fail", message: "This email already has an account"});
+                            // }
+                            return res.status(400).json({status:"fail", message: "Error while inserting a user into the database"});
+                        }
+                        return res.status(201).json({status:"success", message: "New user successfully created!"});
+                    }
+                )
+            }
+            if (status.status == "fail") {
+                res.status(400).json({status:"fail", message: "This email already has an account"})
+            }
+        })
+        
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})	
 
 //----------------------------Login--------------------------------------//
 
-//รหัสผ่านตรงกับอีเมลที่ใส่มั้ย
+//for login
 app.get("/login", async (req, res) => {
     const email = req.body.email
     const password = req.body.password;
     try {
         connection.query(
-            "SELECT ACCOUNT_PASSWORD FROM account WHERE ACCOUNT_EMAIL = ? ", //ดึงข้อมูล
+            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ? ", //ดึงข้อมูล
             [email],
             (err, results, fields) => {
                 if (err) {
@@ -101,19 +113,51 @@ app.get("/login", async (req, res) => {
                 if (results.map(item => item.ACCOUNT_PASSWORD).toString() != password) { //แปลง results เป็น string
                     return res.status(404).send({status:"fail", message: "Email or Password is incorrect"}); 
                 }
-                res.status(200).json({status:"sucess", message: "Login successfully!"});
+                const token = jwt.sign({ email : results.map(item => item.ACCOUNT_EMAIL).toString()}, token_obj, {expiresIn: '1h'}); //token to verify email
+                res.status(200).json({status:"sucess", message: "Login successfully!", token});
             })
     }
     catch(err) {
         console.log(err);
         return res.status(500).send();
     }
+})
 
+//for verify email
+app.get("/verify_email", async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    res.json({token})
 })
 
 //----------------------------Reset password--------------------------------------//
 
-//confirm password = password มั้ย
+// //forgot password
+// app.get("/forgot_password", async (req, res) => {
+//     const email = req.body.email;
+
+//     try {
+//         connection.query(
+//             "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
+//             [email],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (check_email.length == 0) {
+//                     return res.status(400).json({status:"fail", message: "No account with this email"});
+//                 }
+//                 res.status(200).json({status:"success", message: "New password successfully update!"});
+//             }
+//         )
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })	
+
+//for reset password
 app.post("/reset_password", async (req, res) => {
     const {email, password, confirm} = req.body
 
@@ -312,5 +356,28 @@ app.patch("/update_account/:email", async (req, res) => {
     }
 
 })
+
+//เพิ่ม account ใหม่
+app.post("/create_account", async (req, res) => {
+    const {email, password} = req.body
+
+    try {
+        connection.query(
+            "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
+            [email, password], //แทน ?
+            (err, results, fields) => {
+                if (err) {
+                    console.log("Error while inserting a user into the database", err);
+                    return res.status(400).send();
+                }
+                return res.status(201).json({message: "New user successfully created!"});
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})	
 
 app.listen(3360, () => console.log('Server is running on port 3360'));
