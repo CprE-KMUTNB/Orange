@@ -64,19 +64,17 @@ app.post("/sign_up", async (req, res) => {
         .then(status => {
             console.log(status.status)
             if (status.status == email) {
-                // ตรวจสอบรหัสที่สร้าง
+                // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
                 if (password != confirm) {
                     return res.status(400).json({status:"fail", message: "Password must be the same"});
                 }
                 connection.query(
+                    //เพิ่มข้อมูลลง db
                     "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
                     [email, password], //แทน ?
                     (err, results, fields) => {
                         if (err) {
                             console.log("Error while inserting a user into the database", err);
-                            // if (err.code == 'ER_DUP_ENTRY') {
-                            //     return res.status(400).json({status:"fail", message: "This email already has an account"});
-                            // }
                             return res.status(400).json({status:"fail", message: "Error while inserting a user into the database"});
                         }
                         return res.status(201).json({status:"success", message: "New user successfully created!"});
@@ -110,6 +108,7 @@ app.get("/login", async (req, res) => {
                     console.log(err);
                     return res.status(400).send();
                 }
+                //เช้คว่า email&password ถูกมั้ย
                 if (results.map(item => item.ACCOUNT_PASSWORD).toString() != password) { //แปลง results เป็น string
                     return res.status(404).send({status:"fail", message: "Email or Password is incorrect"}); 
                 }
@@ -123,50 +122,64 @@ app.get("/login", async (req, res) => {
     }
 })
 
-//for verify email
-app.get("/verify_email", async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1];
-    res.json({token})
+//forgot password
+app.get("/forgot_password", async (req, res) => {
+    const email = req.body.email;
+
+    try {
+        connection.query(
+            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
+            [email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                //เช้คว่ามีอีเมลนี้ใน db มั้ย
+                if (results.length == 0) {
+                    return res.status(400).json({status:"fail", message: "No account with this email"});
+                }
+                res.status(200).json({status:"success", message: "There is an account with this email"});
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//----------------------------Verify reset password code--------------------------------------//
+
+//verify OTP
+app.get("/verify_OTP", async (req, res) => {
+    const {email, otp1, otp2, otp3, otp4} = req.body;
+    try {
+        if (otp1 == 1 && otp2 == 1 && otp3 == 1 && otp4 ==1) {
+            return res.status(200).json({status:"success", message: "OTP is correct"});
+        }
+        res.status(400).json({status:"fail", message: "OTP is incorrect"});
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
 })
 
 //----------------------------Reset password--------------------------------------//
-
-// //forgot password
-// app.get("/forgot_password", async (req, res) => {
-//     const email = req.body.email;
-
-//     try {
-//         connection.query(
-//             "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
-//             [email],
-//             (err, results, fields) => {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.status(400).send();
-//                 }
-//                 if (check_email.length == 0) {
-//                     return res.status(400).json({status:"fail", message: "No account with this email"});
-//                 }
-//                 res.status(200).json({status:"success", message: "New password successfully update!"});
-//             }
-//         )
-//     }
-//     catch(err) {
-//         console.log(err);
-//         return res.status(500).send();
-//     }
-// })	
 
 //for reset password
 app.post("/reset_password", async (req, res) => {
     const {email, password, confirm} = req.body
 
     try {
+        //เช้คว่า password ตรงกันมั้ย
         if (confirm != password) {
             return res.status(400).json({status:"fail", message: "Password must be the same"});
         }
 
         connection.query(
+            //อัพเดตข้อมูลใน db
             "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_EMAIL = ?",
             [password, email], //แทน ?
             (err, results, fields) => {

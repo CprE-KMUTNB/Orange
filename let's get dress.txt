@@ -3,7 +3,7 @@ group concat กรุปแล้วบอกว่ามีไรบ้าง
 current_timestamp เวลาปัจจุบัน
 ---------------------------------
 API
-Sign up
+/Sign up
 /-มี account อยู่รึเปล่า -> ถ้าไม่มี เพิ่ม account		: This email already has an account						
 /-confirm password = password มั้ย			: Password must be the same
 /-เพิ่ม account
@@ -11,7 +11,12 @@ Sign up
 Login
 /-มี account อยู่รึเปล่า					: No account with this email
 /-รหัสผ่านตรงกับอีเมลที่ใส่มั้ย					: Email or Password is incorrect
-(เหลือ) เพิ่ม verify email
+/-forgot password
+-verify email
+
+Verify reset password code
+-Resend OTP
+-check OTP
 
 Reset password
 /-confirm password = new password มั้ย	: Password must be the same
