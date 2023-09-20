@@ -14,6 +14,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		7699B88040F8A987B510C191 /* libPods-SoftdevProject-SoftdevProjectTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-SoftdevProject-SoftdevProjectTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		DBA6EE4A04D14E6686BC3288 /* Cuprum-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5E8915FA7B65429496521970 /* Cuprum-Italic-VariableFont_wght.ttf */; };
+		F92E6054060945B9AF55A22A /* Cuprum-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B5F4BDE1008648D386ECF156 /* Cuprum-VariableFont_wght.ttf */; };
+		763E6BD5CB42494FA19311FE /* Cuprum-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7890A9FD638E4EE9A625E0D9 /* Cuprum-Bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +47,9 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = SoftdevProject/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-SoftdevProject-SoftdevProjectTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SoftdevProject-SoftdevProjectTests.release.xcconfig"; path = "Target Support Files/Pods-SoftdevProject-SoftdevProjectTests/Pods-SoftdevProject-SoftdevProjectTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		5E8915FA7B65429496521970 /* Cuprum-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; name = "Cuprum-Italic-VariableFont_wght.ttf"; path = "../assets/fonts/Cuprum-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		B5F4BDE1008648D386ECF156 /* Cuprum-VariableFont_wght.ttf */ = {isa = PBXFileReference; name = "Cuprum-VariableFont_wght.ttf"; path = "../assets/fonts/Cuprum-VariableFont_wght.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		7890A9FD638E4EE9A625E0D9 /* Cuprum-Bold.ttf */ = {isa = PBXFileReference; name = "Cuprum-Bold.ttf"; path = "../assets/fonts/Cuprum-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +128,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				7422644CF59147BBA04A4E51 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -147,6 +154,17 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		7422644CF59147BBA04A4E51 /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				5E8915FA7B65429496521970 /* Cuprum-Italic-VariableFont_wght.ttf */,
+				B5F4BDE1008648D386ECF156 /* Cuprum-VariableFont_wght.ttf */,
+				7890A9FD638E4EE9A625E0D9 /* Cuprum-Bold.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -244,6 +262,9 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				DBA6EE4A04D14E6686BC3288 /* Cuprum-Italic-VariableFont_wght.ttf in Resources */,
+				F92E6054060945B9AF55A22A /* Cuprum-VariableFont_wght.ttf in Resources */,
+				763E6BD5CB42494FA19311FE /* Cuprum-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
