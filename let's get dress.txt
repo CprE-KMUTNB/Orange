@@ -1,0 +1,63 @@
+จดคำสั่ง
+group concat กรุปแล้วบอกว่ามีไรบ้าง
+current_timestamp เวลาปัจจุบัน
+---------------------------------
+API
+/Sign up
+/-มี account อยู่รึเปล่า -> ถ้าไม่มี เพิ่ม account		: This email already has an account						
+/-confirm password = password มั้ย			: Password must be the same
+/-เพิ่ม account
+
+Login
+/-มี account อยู่รึเปล่า					: No account with this email
+/-รหัสผ่านตรงกับอีเมลที่ใส่มั้ย					: Email or Password is incorrect
+/-forgot password
+-verify email
+
+Verify reset password code
+-Resend OTP
+-check OTP
+
+Reset password
+/-confirm password = new password มั้ย	: Password must be the same
+
+forget password
+-verify reset password code             : Verifucation failed
+
+---------------------------------
+account เก็บข้อมูลผู้ใช้งาน
+-id
+-email
+-password
+-weight
+-height
+-Bust
+-waist
+-Hip
+-premium
+
+Payment detail
+-id
+-payment method
+-next billdate
+-history?
+-status (ยกเลิกpreium?)
+
+payment method (bank,credit card,true money)
+-id
+-method
+-name
+
+history
+-นับครั้ง
+-DATE
+
+หลังบ้าน
+-สถานที่
+-ตีม
+-new content
+
+ส่งเมล
+-reset password
+-verify email
+-question and concern
