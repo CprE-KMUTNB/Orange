@@ -61,7 +61,7 @@ const Login = ({navigation}) => {
             </SafeAreaView>
             <AppButtonClear 
              onPress={onPressResetPassword}
-             title={"ResetPassword"}/>
+             title={"Forgot Password"}/>
             <AppButton title={"   Login   "}/>
         </View>
         <AppText style={{color:'black', alignSelf:'center',width: 300, height:20, top:210 , left:50}}>Don't have an account?</AppText>
@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     fontSize: 16,
+    borderRadius: 7
   },
   title: {
     textAlign: 'center',

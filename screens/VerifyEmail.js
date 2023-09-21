@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
         top:-500,
         alignItems: 'center',
         paddingTop:150
-        // justifyContent: "center",
         
     },
     ellipse: {
@@ -84,6 +83,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
         fontFamily: "Cuprum-VariableFont_wght",
+        borderRadius: 7,
       },
       title: {
         textAlign: 'center',

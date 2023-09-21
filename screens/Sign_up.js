@@ -22,8 +22,11 @@ const AppButtonButtom = ({ onPress, title }) => (
 )
 
 const Sign_up = ({navigation}) => {
-  const onPress = () => {
+  const onPressLogin = () => {
     navigation.navigate('Login')
+  }
+  const onPressFillInformation = () => {
+    navigation.navigate('FillInformation')
   }
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
@@ -37,7 +40,7 @@ const Sign_up = ({navigation}) => {
           <View style={styles.logoContainer}>
             <Image style={{width:30, height:30, top:-100, left:-66}} source = {require('../assets/leave-removebg-preview2.png')} />
           </View>
-        <AppText style={{alignSelf:'left', width:300, top:-50}}>Email</AppText>
+        <AppText style={{textAlign:'left', width:300, top:-50}}>Email</AppText>
         <SafeAreaView>
           <TextInput
           style={{...styles.input, height: 40, width: 300, backgroundColor:'white', top:-50, fontFamily: "Cuprum-VariableFont_wght"}}
@@ -66,11 +69,13 @@ const Sign_up = ({navigation}) => {
           secureTextEntry={true}
          />
         </SafeAreaView>
-          <AppButton title={"   Sign up   "}/>
+          <AppButton 
+          onPress={onPressFillInformation}
+          title={"   Sign up   "}/>
       </View>
-      <AppText style={{color:'black', alignSelf:'center',width: 300, height:20, top:210 , left:45}}>Already have an account?</AppText>
+      <AppText style={{color:'black', alignItems:'center',width: 300, height:20, top:210 , left:45}}>Already have an account?</AppText>
       <AppButtonButtom 
-      onPress={onPress}
+      onPress={onPressLogin}
       title={"Login"}/>
     </View>
   )
@@ -101,6 +106,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     fontFamily: "Cuprum-VariableFont_wght",
+    borderRadius: 7,
   },
   title: {
     textAlign: 'center',

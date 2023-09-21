@@ -11,10 +11,13 @@ const AppText = (props) => (
   <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 16}}>{props.children}</Text>
 )
 
-const ResetPassword = () => {
+const ResetPassword = ({navigation}) => {
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
   const [number, onChangeNumber] = React.useState('');
+  const onPressLogin2 = () => {
+    navigation.navigate('Login')
+  }
   // console.log(Dimensions.get('window').width, Dimensions.get('window').height)
   return (
     <View style={styles.container}>
@@ -41,7 +44,9 @@ const ResetPassword = () => {
           secureTextEntry={true}
          />
         </SafeAreaView>
-          <AppButton title={"   Submit   "}/>
+          <AppButton 
+          onPress={onPressLogin2}
+          title={"   Submit   "}/>
       </View>
     </View>
   )
@@ -56,7 +61,6 @@ const styles = StyleSheet.create({
     top:-500,
     alignItems: 'center',
     paddingTop:150
-    // justifyContent: "center",
     
   },
   ellipse: {
@@ -82,6 +86,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     fontFamily: "Cuprum-VariableFont_wght",
+    borderRadius: 7
   },
   title: {
     textAlign: 'center',
