@@ -1,21 +1,43 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, Text } from 'react-native'
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from './screens/Login'
 import Sign_up from './screens/Sign_up'
-import ForgotPassword from './screens/forgetPassword'
+import ResetPassword from './screens/ResetPassword';
 import VerifyEmail from './screens/VerifyEmail'
-import {NavigationContainer} from '@react-navigation/native';
+
+const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <VerifyEmail />
-    </NavigationContainer>
-     
+    // <NavigationContainer>
+    //   <Stack.Navigator>
+    //     <Stack.Screen
+    //       name = "Login"
+    //       component = {Login}
+    //       options = {{headerShown: false}}
+    //     />
+    //     <Stack.Screen
+    //       name="Sign_up"
+    //       component={Sign_up}
+    //       options={{headerShown: false}}
+    //     />
+    //     <Stack.Screen
+    //       name="ResetPassword"
+    //       component={ResetPassword}
+    //       options={{headerShown: false}}
+    //     />
+    //     {/* <Stack.Screen name="Profile" component={ProfileScreen} /> */}
+    //   </Stack.Navigator>
+    // </NavigationContainer>
+    <View>
+      <VerifyEmail/>
+    </View>
   )
 }
 
-// ค้างที่หัวข้อ usage (navigation bet screens)
+
+
 
 export default App
-

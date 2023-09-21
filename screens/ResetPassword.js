@@ -7,29 +7,34 @@ const AppButton = ({ onPress, title }) => (
   </TouchableOpacity>
 );
 
-const ForgotPassword = () => {
+const AppText = (props) => (
+  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 16}}>{props.children}</Text>
+)
+
+const ResetPassword = () => {
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
   const [number, onChangeNumber] = React.useState('');
   // console.log(Dimensions.get('window').width, Dimensions.get('window').height)
   return (
     <View style={styles.container}>
+      <View style={{...styles.ellipse, transform: [{scaleX: 1.4}],}}/>
       <View style={styles.circle}>
-        <Text style={{color:'black', fontSize:50, fontWeight:"bold", marginBottom:10}}>Reset Password</Text>
-        <Text style={{color:'black', fontSize:14, left:0, alignSelf:'left', width:300}}>New Password</Text>
+        <Text style={{color:'black', fontSize:55, fontFamily: "Cuprum-Bold", marginBottom:10}}>Reset Password</Text>
+        <AppText style={{color:'black', fontSize: 16, left:0, textAlign:'left', width:300}}>New Password</AppText>
         <SafeAreaView>
           <TextInput
-          style={{...styles.input, height: 40, width: 300, backgroundColor:'white'}}
+          style={{...styles.input, height: 40, width: 300, backgroundColor:'white', fontFamily: "Cuprum-VariableFont_wght"}}
           value={text}
           onChangeText={onChangeText}
           placeholder='example'
           secureTextEntry={true}
          />
         </SafeAreaView>
-        <Text style={{color:'black', fontSize:14, left:0, alignSelf:'left', width:300}}>Confirm Password</Text>
+        <AppText style={{color:'black', fontSize: 16, left:0, textAlign:'left', width:300}}>Confirm Password</AppText>
         <SafeAreaView>
           <TextInput
-          style={{...styles.input, height: 40, width: 300,  backgroundColor:'white'}}
+          style={{...styles.input, height: 40, width: 300,  backgroundColor:'white', fontFamily: "Cuprum-VariableFont_wght"}}
           value={password}
           onChangeText={onChangePassword}
           placeholder='example'
@@ -38,9 +43,6 @@ const ForgotPassword = () => {
         </SafeAreaView>
           <AppButton title={"   Submit   "}/>
       </View>
-      {/* <View style={styles.logoContainer}>
-        <Image style={{width:50, height:50, top:0}} source = {require('C:/Users/justb/SoftdevProject/image/leave-removebg-preview.png')} />
-      </View> */}
     </View>
   )
 }
@@ -51,12 +53,22 @@ const styles = StyleSheet.create({
     width: 580,
     borderRadius: 290,
     backgroundColor: "#FFE6DF",
-    top:110,
+    top:-500,
     alignItems: 'center',
     paddingTop:150
     // justifyContent: "center",
     
   },
+  ellipse: {
+    height: 600,
+    width: 600,
+    borderRadius: 300,
+    backgroundColor: "#FFE6DF",
+    top: 100,
+    alignItems: 'center',
+    paddingTop:90
+  
+},
   container: {
     backgroundColor: "#FF9176",
     alignItems: "center",
@@ -69,11 +81,13 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
+    fontFamily: "Cuprum-VariableFont_wght",
   },
   title: {
     textAlign: 'center',
     marginVertical: 8,
-    color:"black"
+    color:"black",
+    fontFamily: "Cuprum-Bold"
   },
   appButtonContainer: {
     elevation: 0,
@@ -88,7 +102,8 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     alignSelf: "center",
-    textTransform: "uppercase"
+    textTransform: "uppercase",
+    fontFamily: "Cuprum-VariableFont_wght",
   },
   logoContainer: {
     paddingTop: 10,
@@ -105,6 +120,6 @@ const styles = StyleSheet.create({
 )
 
 
-export default ForgotPassword
+export default ResetPassword
 
 
