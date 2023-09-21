@@ -20,7 +20,7 @@ const AppButtonButtom = ({ onPress, title }) => (
 )
 
 const AppText = (props) => (
-    <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 16}}>{props.children}</Text>
+    <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18}}>{props.children}</Text>
 )
 
 const VerifyEmail = () => {
@@ -31,8 +31,8 @@ const VerifyEmail = () => {
             <View style={{...styles.ellipse, transform: [{scaleX: 1.4}],}}/>
             <View style={styles.circle}>
             <Text style={{color:'black', fontSize:45, fontFamily: "Cuprum-Bold"}}>Verify your email</Text>
-            <AppText style={{color:'black', fontSize:14, marginTop: 10}}>A 4-digit code has been sent to</AppText>
-            <Text style={{color:'black', fontSize:14, fontFamily: "Cuprum-Bold", left:-26}}>sample@email.com</Text>
+            <AppText style={{color:'black', marginTop: 10}}>A 4-digit code has been sent to</AppText>
+            <Text style={{color:'black', fontFamily: "Cuprum-Bold", left:-26}}>sample@email.com</Text>
                 <AppButtonClear title={"Change"}/>
             <SafeAreaView>
                 <TextInput

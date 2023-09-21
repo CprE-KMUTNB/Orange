@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon server/server.js",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "bundle": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
@@ -14,6 +14,8 @@
   "dependencies": {
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
+    "axios": "^1.5.0",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "mysql": "^2.18.1",

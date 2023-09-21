@@ -1,7 +1,27 @@
 const express = require('express')
 const mysql = require('mysql');
+const cors = require("cors")
+const { networkInterfaces } = require('os');
+
+const nets = networkInterfaces();
+const results = Object.create(null); // Or just '{}', an empty object
+
+for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+        // 'IPv4' is in Node <= 17, from 18 it's a number 4 or 6
+        const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4
+        if (net.family === familyV4Value && !net.internal) {
+            if (!results[name]) {
+                results[name] = [];
+            }
+            results[name].push(net.address);
+        }
+    }
+}
 
 const app =  express();
+app.use(cors());
 app.use(express.json()); //แปลงเป็น object
 
 const token_obj = 'this is token'
@@ -21,6 +41,12 @@ connection.connect((err) =>{
         return;
     }
     console.log('MySQL successfully connected!');
+})
+
+//----------------------------Test--------------------------------------//
+app.get("/test", (req, res) => {
+    console.log("REQUEST GET");
+    res.status(200).json({message: "SERVER OKAY"})
 })
 
 //----------------------------Sign up--------------------------------------//
@@ -393,4 +419,4 @@ app.post("/create_account", async (req, res) => {
     }
 })	
 
-app.listen(3360, () => console.log('Server is running on port 3360'));
+app.listen(3360, results['Wi-Fi'][0], () => console.log('Server is running on port', results['Wi-Fi'][0],':3360'));

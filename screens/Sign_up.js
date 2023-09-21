@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, Tou
 import React from 'react'
 
 const AppText = (props) => (
-  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 16, color: 'black'}}>{props.children}</Text>
+  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
 )
 
 const AppButton = ({ onPress, title }) => (
@@ -36,9 +36,9 @@ const Sign_up = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.circle}>
-        <Text style={{color:'black', fontSize:80, fontFamily: "Cuprum-Bold"}}>Sign up</Text>
+        <Text style={{color:'black', fontSize:80, fontFamily: "Cuprum-Bold", paddingBottom: 20}}>Sign up</Text>
           <View style={styles.logoContainer}>
-            <Image style={{width:30, height:30, top:-100, left:-66}} source = {require('../assets/leave-removebg-preview2.png')} />
+            <Image style={{width:30, height:30, top:-120, left:-66}} source = {require('../assets/leave-removebg-preview2.png')} />
           </View>
         <AppText style={{textAlign:'left', width:300, top:-50}}>Email</AppText>
         <SafeAreaView>
@@ -73,7 +73,7 @@ const Sign_up = ({navigation}) => {
           onPress={onPressFillInformation}
           title={"   Sign up   "}/>
       </View>
-      <AppText style={{color:'black', alignItems:'center',width: 300, height:20, top:210 , left:45}}>Already have an account?</AppText>
+      <AppText style={{color:'black', alignItems:'center',width: 300, height:25, top:210 , left:33}}>Already have an account?</AppText>
       <AppButtonButtom 
       onPress={onPressLogin}
       title={"Login"}/>
@@ -107,6 +107,9 @@ const styles = StyleSheet.create({
     padding: 10,
     fontFamily: "Cuprum-VariableFont_wght",
     borderRadius: 7,
+    fontSize: 18,
+    justifyContent: 'center',
+
   },
   title: {
     textAlign: 'center',
@@ -137,11 +140,11 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     paddingHorizontal: 2,
     marginTop: 0,
-    top: 187,
-    left: 85
+    top: 183,
+    left: 87
   },
   appButtonTextButtom: {
-    fontSize: 16,
+    fontSize: 18,
     width: 50,
     color: "white",
     left: 0,

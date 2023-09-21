@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
 import React from 'react'
+import axios from 'axios'
 
 const AppButton = ({ onPress, title }) => (
   <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -18,12 +19,20 @@ const AppButtonButtom = ({ onPress, title }) => (
 )
 
 const AppText = (props) => (
-  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 16}}>{props.children}</Text>
+  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18}}>{props.children}</Text>
 )
 
 const Login = ({navigation}) => {
   const onPressSignup = () => {
     navigation.navigate('Sign_up')
+    // const url = "http://172.20.10.8:3360/test";
+    // console.log("Sending request to", url);
+    // axios.get(url)
+    //   .then(({data}) => console.log(data))
+    //   .catch(async error => {
+    //     console.error("AXIOS ERROR:");
+    //     console.error(await error);
+    //   });
   }
   const onPressResetPassword = () => {
     navigation.navigate('ResetPassword')
@@ -64,7 +73,7 @@ const Login = ({navigation}) => {
              title={"Forgot Password"}/>
             <AppButton title={"   Login   "}/>
         </View>
-        <AppText style={{color:'black', alignSelf:'center',width: 300, height:20, top:210 , left:50}}>Don't have an account?</AppText>
+        <AppText style={{color:'black', alignSelf:'center',width: 300, height:20, top:210 , left:37}}>Don't have an account?</AppText>
           <AppButtonButtom
            onPress={onPressSignup}
            title={"Sign up"}/>
@@ -97,14 +106,15 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
-    fontSize: 16,
+    fontSize: 18,
     borderRadius: 7
   },
   title: {
     textAlign: 'center',
     marginVertical: 8,
     color:"black",
-    fontFamily: "Cuprum-Bold"
+    fontFamily: "Cuprum-Bold",
+    fontSize: 18,
   },
   appButtonContainer: {
     elevation: 0,
@@ -147,11 +157,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     marginTop: 0,
     top: 187,
-    left: 72
+    left: 78
   },
   appButtonTextButtom: {
-    fontSize: 16,
-    width: 50,
+    fontSize: 18,
+    width: 55,
     color: "white",
     left: 0,
     textDecorationLine: "underline",

@@ -8,7 +8,7 @@ const AppButton = ({ onPress, title }) => (
 );
 
 const AppText = (props) => (
-  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 16}}>{props.children}</Text>
+  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18}}>{props.children}</Text>
 )
 
 const ResetPassword = ({navigation}) => {
@@ -24,7 +24,7 @@ const ResetPassword = ({navigation}) => {
       <View style={{...styles.ellipse, transform: [{scaleX: 1.4}],}}/>
       <View style={styles.circle}>
         <Text style={{color:'black', fontSize:55, fontFamily: "Cuprum-Bold", marginBottom:10}}>Reset Password</Text>
-        <AppText style={{color:'black', fontSize: 16, left:0, textAlign:'left', width:300}}>New Password</AppText>
+        <AppText style={{color:'black', textAlign:'left', width:300}}>New Password</AppText>
         <SafeAreaView>
           <TextInput
           style={{...styles.input, height: 40, width: 300, backgroundColor:'white', fontFamily: "Cuprum-VariableFont_wght"}}
@@ -34,7 +34,7 @@ const ResetPassword = ({navigation}) => {
           secureTextEntry={true}
          />
         </SafeAreaView>
-        <AppText style={{color:'black', fontSize: 16, left:0, textAlign:'left', width:300}}>Confirm Password</AppText>
+        <AppText style={{color:'black', textAlign:'left', width:300}}>Confirm Password</AppText>
         <SafeAreaView>
           <TextInput
           style={{...styles.input, height: 40, width: 300,  backgroundColor:'white', fontFamily: "Cuprum-VariableFont_wght"}}
@@ -86,7 +86,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     fontFamily: "Cuprum-VariableFont_wght",
-    borderRadius: 7
+    borderRadius: 7,
+    fontSize: 18,
   },
   title: {
     textAlign: 'center',

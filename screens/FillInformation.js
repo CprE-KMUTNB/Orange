@@ -8,7 +8,7 @@ const AppButton = ({ onPress, title }) => (
 )
 
 const AppText = (props) => (
-    <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 16}}>{props.children}</Text>
+    <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18}}>{props.children}</Text>
 )
 
 const FillInformation = ({navigation}) => {
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
       margin: 12,
       borderWidth: 1,
       padding: 10,
-      fontSize: 16,
+      fontSize: 18,
       color: 'black',
       backgroundColor: 'white',
       borderRadius: 7
