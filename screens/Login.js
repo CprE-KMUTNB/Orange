@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
-import React from 'react'  
+import React from 'react'
 
 const AppButton = ({ onPress, title }) => (
   <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -17,7 +17,17 @@ const AppButtonButtom = ({ onPress, title }) => (
     </TouchableOpacity>
 )
 
-const Login = () => {
+const AppText = (props) => (
+  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 16}}>{props.children}</Text>
+)
+
+const Login = ({navigation}) => {
+  const onPressSignup = () => {
+    navigation.navigate('Sign_up')
+  }
+  const onPressResetPassword = () => {
+    navigation.navigate('ResetPassword')
+  }
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
   const [confirm_password, onChangeConfirmPassword] = React.useState('');
@@ -25,35 +35,39 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
-        <View style={styles.circle}>
-            <Text style={{color:'black', fontSize:80, fontWeight:"bold", flex: 0}}>Login</Text>
+        <View style={{...styles.circle}}>
+            <Text style={{color:'black', fontSize:80, flex: 0, fontFamily: "Cuprum-Bold"}}>Login</Text>
                 <View style={styles.logoContainer}>
-                {/* <Image style={{width:50, height:50, top:-115, left:52}} source = {require('D:\project-softdev\image\leave-removebg-preview2.png')} /> */}
+                <Image style={{width:30, height:30, top:-100, left:43}} source = {require('../assets/leave-removebg-preview2.png')} />
                 </View>
-            <Text style={{color:'black', fontSize:14, left:0, alignSelf:'left', width:300, top:-40}}>Email</Text>
+            <AppText style={{color:'black', width:300, top:-40}}>Email</AppText>
             <SafeAreaView>
                 <TextInput
-                style={{...styles.input, height: 40, width: 300, backgroundColor:'white', top:-40}}
+                style={{...styles.input, height: 40, width: 300, backgroundColor:'white', top:-40, fontFamily: "Cuprum-VariableFont_wght"}}
                 value={text}
                 onChangeText={onChangeText}
                 placeholder='sample@email.com'
             />
             </SafeAreaView>
-            <Text style={{color:'black', fontSize:14, left:0, alignSelf:'left', width:300, top:-40}}>Password</Text>
+            <AppText style={{color:'black', textAlign:'left', width:300, top:-40}}>Password</AppText>
             <SafeAreaView>
                 <TextInput
-                style={{...styles.input, height: 40, width: 300,  backgroundColor:'white', top:-40}}
+                style={{...styles.input, height: 40, width: 300,  backgroundColor:'white', top:-40, fontFamily: "Cuprum-VariableFont_wght"}}
                 value={password}
                 onChangeText={onChangePassword}
                 placeholder='example'
                 secureTextEntry={true}
             />
             </SafeAreaView>
-            <AppButtonClear title={"Forgot Password"}/>
-                <AppButton title={"   Login   "}/>
+            <AppButtonClear 
+             onPress={onPressResetPassword}
+             title={"ResetPassword"}/>
+            <AppButton title={"   Login   "}/>
         </View>
-        <Text style={{color:'black', alignSelf:'center',width: 300, height:20, top:210 , left:50}}>Don't have an account?</Text>
-        <AppButtonButtom title={"Sign up"}/>
+        <AppText style={{color:'black', alignSelf:'center',width: 300, height:20, top:210 , left:50}}>Don't have an account?</AppText>
+          <AppButtonButtom
+           onPress={onPressSignup}
+           title={"Sign up"}/>
     </View>
   )
 }
@@ -66,7 +80,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFE6DF",
     top:110,
     alignItems: 'center',
-    paddingTop:100
+    paddingTop:100,
+    fontFamily: "Cuprum-VariableFont_wght",
     // justifyContent: "center",
     
   },
@@ -82,11 +97,13 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
+    fontSize: 16,
   },
   title: {
     textAlign: 'center',
     marginVertical: 8,
-    color:"black"
+    color:"black",
+    fontFamily: "Cuprum-Bold"
   },
   appButtonContainer: {
     elevation: 0,
@@ -101,7 +118,8 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     alignSelf: "center",
-    textTransform: "uppercase"
+    textTransform: "uppercase",
+    fontFamily: "Cuprum-VariableFont_wght"
   },
   appButtonContainerClear: {
     elevation: 0,
@@ -113,11 +131,12 @@ const styles = StyleSheet.create({
     top: -40
   },
   appButtonTextClear: {
-    fontSize: 14,
+    fontSize: 16,
     width: 300,
     color: "black",
-    left: 190,
-    textDecorationLine: "underline"
+    left: 195,
+    textDecorationLine: "underline",
+    fontFamily: "Cuprum-VariableFont_wght"
   },
   appButtonContainerButtom: {
     elevation: 0,
@@ -130,12 +149,12 @@ const styles = StyleSheet.create({
     left: 72
   },
   appButtonTextButtom: {
-    fontSize: 14,
-    fontFamily: "sans-serif-thin",
+    fontSize: 16,
     width: 50,
     color: "white",
     left: 0,
-    textDecorationLine: "underline"
+    textDecorationLine: "underline",
+    fontFamily: "Cuprum-VariableFont_wght"
   },
   logoContainer: {
     paddingTop: 10,
