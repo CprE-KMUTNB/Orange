@@ -100,8 +100,8 @@ app.post("/sign_up", async (req, res) => {
                     [email, password], //แทน ?
                     (err, results, fields) => {
                         if (err) {
-                            console.log("Error while inserting a user into the database", err);
-                            return res.status(400).json({status:"fail", message: "Error while inserting a user into the database"});
+                            console.log("Error while inserting an account into the database", err);
+                            return res.status(400).json({status:"fail", message: "Error while inserting an account into the database"});
                         }
                         return res.status(201).json({status:"success", message: "New user successfully created!"});
                     }
@@ -118,6 +118,40 @@ app.post("/sign_up", async (req, res) => {
         return res.status(500).send();
     }
 })	
+
+//----------------------------Fill information--------------------------------------//
+
+//for fill your information
+app.post("/fill_information", async (req, res) => {
+    const {weight, height, bust, waist, hip, email} = req.body
+
+    try {
+        //ใส่ข้อมูลครบทุกอันมั้ย
+        if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0) {
+            //ต้องกรอกแค่ตัวเลขเท่านั้น
+            if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
+                connection.query(
+                    //เพิ่มข้อมูลลง db
+                    "UPDATE account SET WEIGHT = ?, HEIGHT = ?,BUST = ?, WAIST = ?, HIP = ?  WHERE ACCOUNT_EMAIL = ?", //insert ข้อมูล
+                    [weight, height, bust, waist, hip, email],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log("Error while updating an information of the database", err);
+                            return res.status(400).json({status:"fail", message: "Error while updating an information of the database"});
+                        }
+                    }
+                )
+                return res.status(200).json({status:"success", message: "Your information successfully updated"})
+            }
+            return res.status(400).json({status:"fail", message: "ํTheese information should only be numbers"})
+        }
+        res.status(400).json({status:"fail", message: "You need to fill all informations"})
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
 
 //----------------------------Login--------------------------------------//
 
@@ -148,7 +182,7 @@ app.get("/login", async (req, res) => {
     }
 })
 
-//forgot password
+// ปุ่ม forgot password
 app.get("/forgot_password", async (req, res) => {
     const email = req.body.email;
 
@@ -222,6 +256,7 @@ app.post("/reset_password", async (req, res) => {
         return res.status(500).send();
     }
 })	
+
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 
