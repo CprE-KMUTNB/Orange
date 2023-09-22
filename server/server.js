@@ -83,12 +83,11 @@ app.post("/sign_up", async (req, res) => {
     const {email, password, confirm} = req.body
 
     try {
-        fetch('http://localhost:3360/check_account/' + new URLSearchParams(email), {
+        fetch('http://192.168.1.49:3360/check_account/' + new URLSearchParams(email), {
             method: 'GET', 
         })
         .then(res => res.json())
         .then(status => {
-            console.log(status.status)
             if (status.status == email) {
                 // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
                 if (password != confirm) {
@@ -110,8 +109,7 @@ app.post("/sign_up", async (req, res) => {
             if (status.status == "fail") {
                 res.status(400).json({status:"fail", message: "This email already has an account"})
             }
-        })
-        
+        })  
     }
     catch(err) {
         console.log(err);
@@ -260,8 +258,8 @@ app.post("/reset_password", async (req, res) => {
 //----------------------------See profile--------------------------------------//
 
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
-app.get("/profile", async (req, res) => {
-    const email = req.body.email
+app.get("/profile/:email", async (req, res) => {
+    const email = req.params.email.slice(0,-1)
     try {
         connection.query(
             //ดึงข้อมูลของแอคเค้ามา
@@ -288,37 +286,44 @@ app.get("/profile", async (req, res) => {
 
 //----------------------------Edit profile--------------------------------------//
 
-//format next bill date ตั้งเวลา next bill date เป็น 28 วันถัดไปจากปัจจุบัน
+//for edit profile email = เดิม newemail = email ใหม่
 app.patch("/edit_profile", async (req, res) => {
-    const {weight, height, bust, waist, hip, email, password, id} = req.body
+    const {email, weight, height, bust, waist, hip, newemail, password} = req.body
 
     try {
-        //ส่งข้อมูลมาครบถ้วยมั้ย
-        if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0 && email.length != 0 && password.length != 0) {
-            //ต้องกรอกแค่ตัวเลขเท่านั้น
-            if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
-                connection.query(
-                    "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, BUST = ?, WAIST = ?, HIP = ? WHERE ACCOUNT_ID = ?",
-                    [email, password, weight, height, bust, waist, hip, id],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-                    })
-                    return res.status(200).json({status:"success", message : "Profile updated password successfully!"})
+        fetch('http://192.168.1.49:3360/profile/' + new URLSearchParams(email), {
+        method: 'GET'
+    })
+    .then(res => res.json())
+    .then(status => {
+        //ดึงเลข id มาเพื่ออัพเดตแถวนั้น
+        if (status.status == "success") {
+            //ส่งข้อมูลมาครบถ้วนมั้ย
+            if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0 && newemail.length != 0 && password.length != 0) {
+                //ต้องกรอกแค่ตัวเลขเท่านั้น
+                if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
+                    connection.query(
+                        "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, BUST = ?, WAIST = ?, HIP = ? WHERE ACCOUNT_ID = ?",
+                        [newemail, password, weight, height, bust, waist, hip, status.message[0].ACCOUNT_ID],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                        })
+                        return res.status(200).json({status:"success", message : "Profile updated password successfully!"})
+                }
+                return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
             }
-            return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
+            return res.status(400).json({status:"fail", message : "You need to fill all informations"})
         }
-        res.status(400).json({status:"fail", message : "You need to fill all informations"})
-    }
+        return res.status(400).json({status:"fail", message : "Error, Can't find this email in the database"})
+    })}
     catch(err) {
         console.log(err);
         return res.status(500).send();
     }
-
 })
-
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 

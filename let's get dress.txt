@@ -5,24 +5,67 @@ current_timestamp เวลาปัจจุบัน
 API
 /Sign up
 /-มี account อยู่รึเปล่า -> ถ้าไม่มี เพิ่ม account		: This email already has an account						
-/-confirm password = password มั้ย			: Password must be the same
+/-confirm password = password มั้ย			    : Password must be the same
 /-เพิ่ม account
+
+/Fill Information
+/-ใส่ตัวเลขทั้งหมดมั้ย                         : ํTheese information should only be numbers
+/-ใส่ข้อมูลครบทุกอันมั้ย                        : You need to fill all informations
 
 Login
 /-มี account อยู่รึเปล่า					: No account with this email
 /-รหัสผ่านตรงกับอีเมลที่ใส่มั้ย					: Email or Password is incorrect
-/-forgot password
--verify email
+    forgot password
+    -ตรวจสอบว่ามีอีเมลในฐานข้อมูลมั้ย ถ้ามีก็ส่งเมลไปหา แล้วไปหน้า verify reset password
+
+Verify Email
+-Change email
+-Check OTP
+-Resend OTP
+-Count down 10 mins
+
+/Reset password
+/-confirm password = new password มั้ย	: Password must be the same  
 
 Verify reset password code
 -Resend OTP
--check OTP
+-check OTP                              : Verification failed
+-Count down 10 mins
 
-Reset password
-/-confirm password = new password มั้ย	: Password must be the same
+/Menu bar
 
-forget password
--verify reset password code             : Verifucation failed
+See New Content
+-แสดง New content Limit 20
+
+See profile
+/-IS_PREMIUM = 0
+/-แสดงข้อมูล account
+
+/Edit profile
+/-update ข้อมูล
+
+See profile premium
+/-IS_PREMIUM = 1
+/-แสดงข้อมูล account
+
+Payment Detail
+-แสดงข้อมูลการจ่ายเงิน (วิธีการชำระเงิน วันตัดรอบบิล ประวัติ(ย้อนหลัง20ครั้ง))
+
+Cancel Premium
+-ถ้า yes status=0
+-เปลี่ยน NEXT_BILL_DATE?
+
+Outfit Recommendation
+
+See recommendation
+
+Ask Question and concern
+-เก็บข้อมูลเมล?
+-ส่งไปเมล dev?
+
+/Finish Question and concern
+
+/Sign out
 
 ---------------------------------
 account เก็บข้อมูลผู้ใช้งาน
@@ -36,7 +79,7 @@ account เก็บข้อมูลผู้ใช้งาน
 -Hip
 -premium
 
-Payment detail
+premium เก็บข้อมูลผู้ใช้งานที่เป็น premium หรือเคยสมัคร
 -id
 -payment method
 -next billdate
@@ -52,10 +95,12 @@ history
 -นับครั้ง
 -DATE
 
-หลังบ้าน
--สถานที่
--ตีม
--new content
+content
+-id
+-pic
+-theme
+-place
+-title?
 
 ส่งเมล
 -reset password
