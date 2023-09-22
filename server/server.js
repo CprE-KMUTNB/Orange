@@ -257,6 +257,35 @@ app.post("/reset_password", async (req, res) => {
     }
 })	
 
+//----------------------------See profile--------------------------------------//
+
+//for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
+app.get("/profile", async (req, res) => {
+    const email = req.body.email
+    try {
+        connection.query(
+            //ดึงข้อมูลของแอคเค้ามา
+            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
+            [email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log("Error while connecting to the database", err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this email in the database"});
+                }
+                res.status(200).json({status:"success", message: results});
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //----------------------------Edit profile--------------------------------------//
 
 //format next bill date ตั้งเวลา next bill date เป็น 28 วันถัดไปจากปัจจุบัน
