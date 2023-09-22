@@ -257,6 +257,39 @@ app.post("/reset_password", async (req, res) => {
     }
 })	
 
+//----------------------------Edit profile--------------------------------------//
+
+//format next bill date ตั้งเวลา next bill date เป็น 28 วันถัดไปจากปัจจุบัน
+app.patch("/edit_profile", async (req, res) => {
+    const {weight, height, bust, waist, hip, email, password, id} = req.body
+
+    try {
+        //ส่งข้อมูลมาครบถ้วยมั้ย
+        if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0 && email.length != 0 && password.length != 0) {
+            //ต้องกรอกแค่ตัวเลขเท่านั้น
+            if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
+                connection.query(
+                    "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, BUST = ?, WAIST = ?, HIP = ? WHERE ACCOUNT_ID = ?",
+                    [email, password, weight, height, bust, waist, hip, id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    })
+                    return res.status(200).json({status:"success", message : "Profile updated password successfully!"})
+            }
+            return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
+        }
+        res.status(400).json({status:"fail", message : "You need to fill all informations"})
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 
