@@ -62,7 +62,6 @@ app.post("/sign_up", async (req, res) => {
         })
         .then(res => res.json())
         .then(status => {
-            console.log(status.status)
             if (status.status == email) {
                 // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
                 if (password != confirm) {
@@ -96,7 +95,7 @@ app.post("/sign_up", async (req, res) => {
 //----------------------------Fill information--------------------------------------//
 
 //for fill your information
-app.post("/fill_information", async (req, res) => {
+app.patch("/fill_information", async (req, res) => {
     const {weight, height, bust, waist, hip, email} = req.body
 
     try {
@@ -203,7 +202,7 @@ app.get("/verify_OTP", async (req, res) => {
 //----------------------------Reset password--------------------------------------//
 
 //for reset password
-app.post("/reset_password", async (req, res) => {
+app.patch("/reset_password", async (req, res) => {
     const {email, password, confirm} = req.body
 
     try {
@@ -222,6 +221,35 @@ app.post("/reset_password", async (req, res) => {
                     return res.status(400).send();
                 }
                 return res.status(201).json({status:"success", message: "New password successfully update!"});
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})	
+
+//----------------------------See profile--------------------------------------//
+
+//for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
+app.get("/profile", async (req, res) => {
+    const email = req.body.email
+    try {
+        connection.query(
+            //ดึงข้อมูลของแอคเค้ามา
+            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
+            [email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log("Error while connecting to the database", err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this email in the database"});
+                }
+                res.status(200).json({status:"success", message: results});
             }
         )
     }
