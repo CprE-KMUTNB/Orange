@@ -25,7 +25,10 @@ app.use(cors());
 app.use(express.json()); //แปลงเป็น object
 
 const token_obj = 'this is token'
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+
+const { error } = require('console');
 
 //MySQL connection
 const connection = mysql.createConnection({
@@ -51,12 +54,17 @@ app.get("/test", (req, res) => {
 
 //----------------------------Sign up--------------------------------------//
 
-//ตรวจสอบว่ามีแอคเค้าที่มีเมลนี้หรือยัง
-app.get("/check_account/:email", async (req, res) => {
+//for sign up
+app.get("/sign_up", async (req, res) => {
     const {password, confirm} = req.body;
-    const email = req.params.email.slice(0,-1);
+    const email = req.body.email
 
     try {
+        // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
+        if (password != confirm) {
+            return res.status(400).json({status:"fail", message: "Password must be the same"});
+        }
+
         connection.query(
             "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
             [email], //แทน ?
@@ -66,50 +74,11 @@ app.get("/check_account/:email", async (req, res) => {
                     return res.status(400).send();
                 }
                 if (results.map(item => item.ACCOUNT_EMAIL).toString() == email) {
-                    return res.status(200).json({status:"fail" , message: "This email already has an account"});
+                    return res.status(400).json({status:"fail" , message: "This email already has an account"});
                 }
-                res.status(200).json({status:email , message: "You can create new account with this email"});
+                res.status(200).json({status:"success" , message: "You can create new account with this email"});
             }
         )
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})	
-
-//for sign up
-app.post("/sign_up", async (req, res) => {
-    const {email, password, confirm} = req.body
-
-    try {
-        fetch('http://192.168.1.49:3360/check_account/' + new URLSearchParams(email), {
-            method: 'GET', 
-        })
-        .then(res => res.json())
-        .then(status => {
-            if (status.status == email) {
-                // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
-                if (password != confirm) {
-                    return res.status(400).json({status:"fail", message: "Password must be the same"});
-                }
-                connection.query(
-                    //เพิ่มข้อมูลลง db
-                    "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
-                    [email, password], //แทน ?
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log("Error while inserting an account into the database", err);
-                            return res.status(400).json({status:"fail", message: "Error while inserting an account into the database"});
-                        }
-                        return res.status(201).json({status:"success", message: "New user successfully created!"});
-                    }
-                )
-            }
-            if (status.status == "fail") {
-                res.status(400).json({status:"fail", message: "This email already has an account"})
-            }
-        })  
     }
     catch(err) {
         console.log(err);
@@ -121,7 +90,7 @@ app.post("/sign_up", async (req, res) => {
 
 //for fill your information
 app.post("/fill_information", async (req, res) => {
-    const {weight, height, bust, waist, hip, email} = req.body
+    const {weight, height, bust, waist, hip, email, password} = req.body
 
     try {
         //ใส่ข้อมูลครบทุกอันมั้ย
@@ -130,8 +99,8 @@ app.post("/fill_information", async (req, res) => {
             if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
                 connection.query(
                     //เพิ่มข้อมูลลง db
-                    "UPDATE account SET WEIGHT = ?, HEIGHT = ?,BUST = ?, WAIST = ?, HIP = ?  WHERE ACCOUNT_EMAIL = ?", //insert ข้อมูล
-                    [weight, height, bust, waist, hip, email],
+                    "INSERT INTO account(`ACCOUNT_EMAIL`, `ACCOUNT_PASSWORD`, `WEIGHT`, `HEIGHT`, `BUST`, `WAIST`, `HIP`) VALUES (?,?,?,?,?,?,?)", //insert ข้อมูล
+                    [email, password, weight, height, bust, waist, hip],
                     (err, results, fields) => {
                         if (err) {
                             console.log("Error while updating an information of the database", err);
@@ -170,7 +139,15 @@ app.get("/login", async (req, res) => {
                 if (results.map(item => item.ACCOUNT_PASSWORD).toString() != password) { //แปลง results เป็น string
                     return res.status(404).send({status:"fail", message: "Email or Password is incorrect"}); 
                 }
-                const token = jwt.sign({ email : results.map(item => item.ACCOUNT_EMAIL).toString()}, token_obj, {expiresIn: '1h'}); //token to verify email
+                // const token = jwt.sign({ email : results.map(item => item.ACCOUNT_EMAIL).toString()}, token_obj, {expiresIn: '1h'}); //token to verify email
+
+                // const mailConfigurations = {
+                //     from: 's6501012610033@email.kmutnb.ac.th',
+                //     to: email,
+                //     subject: 'Email Verification',
+                //     text: 'Hello!, You have recently visited our app and login with this email. Please follow the given link to verify your email http://localhost:3000/verify/${token}  Thanks' 
+                // };
+
                 res.status(200).json({status:"sucess", message: "Login successfully!", token});
             })
     }
@@ -209,26 +186,26 @@ app.get("/forgot_password", async (req, res) => {
 
 //----------------------------Verify reset password code--------------------------------------//
 
-//verify OTP
-app.get("/verify_OTP", async (req, res) => {
-    const {email, otp1, otp2, otp3, otp4} = req.body;
-    try {
-        if (otp1 == 1 && otp2 == 1 && otp3 == 1 && otp4 ==1) {
-            return res.status(200).json({status:"success", message: "OTP is correct"});
-        }
-        res.status(400).json({status:"fail", message: "OTP is incorrect"});
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
+// //verify OTP
+// app.get("/verify_OTP", async (req, res) => {
+//     const {email, otp1, otp2, otp3, otp4} = req.body;
+//     try {
+//         if (otp1 == 1 && otp2 == 1 && otp3 == 1 && otp4 ==1) {
+//             return res.status(200).json({status:"success", message: "OTP is correct"});
+//         }
+//         res.status(400).json({status:"fail", message: "OTP is incorrect"});
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })
 
 //----------------------------Reset password--------------------------------------//
 
 //for reset password
 app.post("/reset_password", async (req, res) => {
-    const {email, password, confirm} = req.body
+    const {id, password, confirm} = req.body
 
     try {
         //เช้คว่า password ตรงกันมั้ย
@@ -238,8 +215,8 @@ app.post("/reset_password", async (req, res) => {
 
         connection.query(
             //อัพเดตข้อมูลใน db
-            "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_EMAIL = ?",
-            [password, email], //แทน ?
+            "UPDATE account SET ACCOUNT_PASSWORD = ? WHERE ACCOUNT_ID = ?",
+            [password, id], //แทน ?
             (err, results, fields) => {
                 if (err) {
                     console.log("Error while inserting a user into the database", err);
@@ -258,13 +235,13 @@ app.post("/reset_password", async (req, res) => {
 //----------------------------See profile--------------------------------------//
 
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
-app.get("/profile/:email", async (req, res) => {
-    const email = req.params.email.slice(0,-1)
+app.get("/profile", async (req, res) => {
+    const id = req.body.id
     try {
         connection.query(
             //ดึงข้อมูลของแอคเค้ามา
-            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
-            [email],
+            "SELECT * FROM account WHERE ACCOUNT_ID = ?",
+            [id],
             (err, results, fields) => {
                 if (err) {
                     console.log("Error while connecting to the database", err);
@@ -284,46 +261,270 @@ app.get("/profile/:email", async (req, res) => {
     }
 })
 
-//----------------------------Edit profile--------------------------------------//
-
-//for edit profile email = เดิม newemail = email ใหม่
-app.patch("/edit_profile", async (req, res) => {
-    const {email, weight, height, bust, waist, hip, newemail, password} = req.body
+//ตรวจสอบว่ามี account id นี้ในตาราง premium รึยัง
+app.get("/search_premium/:id", async (req, res) => {
+    const id = req.params.id
 
     try {
-        fetch('http://192.168.1.49:3360/profile/' + new URLSearchParams(email), {
-        method: 'GET'
-    })
-    .then(res => res.json())
-    .then(status => {
-        //ดึงเลข id มาเพื่ออัพเดตแถวนั้น
-        if (status.status == "success") {
-            //ส่งข้อมูลมาครบถ้วนมั้ย
-            if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0 && newemail.length != 0 && password.length != 0) {
-                //ต้องกรอกแค่ตัวเลขเท่านั้น
-                if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
-                    connection.query(
-                        "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, BUST = ?, WAIST = ?, HIP = ? WHERE ACCOUNT_ID = ?",
-                        [newemail, password, weight, height, bust, waist, hip, status.message[0].ACCOUNT_ID],
-                        (err, results, fields) => {
-                            if (err) {
-                                console.log(err);
-                                return res.status(400).send();
-                            }
-                        })
-                        return res.status(200).json({status:"success", message : "Profile updated password successfully!"})
+        connection.query(
+            "SELECT * FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
                 }
-                return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "This email never upgrade to premium"});
+                }
+                res.status(200).json({status:"success", message : "This email has upgraded to premium", results: results})
             }
-            return res.status(400).json({status:"fail", message : "You need to fill all informations"})
-        }
-        return res.status(400).json({status:"fail", message : "Error, Can't find this email in the database"})
-    })}
+        )
+    }
     catch(err) {
         console.log(err);
         return res.status(500).send();
     }
 })
+
+//upgrade to premium
+app.post("/upgrade_premium", async (req, res) => {
+    const {id,method} = req.body
+
+    try {
+        fetch('http://192.168.1.49:3360/search_premium/' + new URLSearchParams(id), {
+            method: 'GET'
+        })
+        .then(res => res.json())
+        .then(status => {
+            //ยังไม่เคยสมัคร premium มาก่อน
+            if (status.status == "fail") {
+                connection.query(
+                    "INSERT INTO premium(ACCOUNT_ID, PAYMENT_METHOD, NEXT_BILL_DATE) VALUES(?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
+                    [id,method],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    }
+                )
+            }
+            //เคยสมัคร premium แล้ว
+            else {
+                connection.query(
+                    "UPDATE premium JOIN account SET STATUS = 1, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+                    [id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    }
+                )
+            }
+            //update history
+            connection.query(
+                "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
+                [id],
+                (err, results, fields) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(400).send();
+                    }
+                }
+            )
+            return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
+        })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//----------------------------Edit profile--------------------------------------//
+
+//for edit profile รวมทั้ง premium และปกติ email = เดิม newemail = email ใหม่
+app.patch("/edit_profile", async (req, res) => {
+    const {weight, height, bust, waist, hip, newemail, password, id} = req.body
+
+    try {
+        //ส่งข้อมูลมาครบถ้วนมั้ย
+        if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0 && newemail.length != 0 && password.length != 0) {
+            //ต้องกรอกแค่ตัวเลขเท่านั้น
+            if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
+                connection.query(
+                    "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, BUST = ?, WAIST = ?, HIP = ? WHERE ACCOUNT_ID = ?",
+                    [newemail, password, weight, height, bust, waist, hip, id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    })
+                    return res.status(200).json({status:"success", message : "Profile updated successfully!"})
+            }
+            return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
+        }
+        res.status(400).json({status:"fail", message : "You need to fill all informations"})
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//----------------------------Payment Detail--------------------------------------//
+
+//for payment detail payment method, next bill date
+app.get("/payment_detail", async (req, res) => {
+    const id = req.body.id
+
+    try {
+        connection.query(
+            "SELECT premium.PAYMENT_METHOD, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE FROM account JOIN premium WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//for payment detail history
+app.get("/payment_history", async (req, res) => {
+    const id = req.body.id
+
+    try {
+        connection.query(
+            "SELECT DATE_FORMAT(history.bill_date, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID AND account.ACCOUNT_ID = ? ORDER BY HISTORY_ID DESC LIMIT 5",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this email in the database"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//----------------------------Cancel Premium--------------------------------------//
+
+//for cancel premium overlay confirm = คำตอบของ Are you sure to cancel Premium? yes/no
+app.patch("/cancel_premium", async (req, res) => {
+    const {confirm,id} = req.body
+
+    try {
+        if (confirm == "yes") {
+            connection.query(
+                "UPDATE premium JOIN account SET STATUS = 0 WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+                [id],
+                (err, results, fields) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(400).send();
+                    }
+                }
+            )
+            return res.status(200).json({status:"success", message : "Cancel premium successfully!"})
+        }
+        res.status(400).json({status:"fail", message : "Doesn't cancel premium yet"})
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//----------------------------Ask Question and concern--------------------------------------//
+
+//for question and concern
+app.post("/concern", async (req, res) => {
+    const {text, id} = req.body
+
+    try {
+        //เก็บข้อความไว้ในฐานข้อมูล
+        connection.query(
+            "INSERT INTO concern(`ACCOUNT_ID`, `TEXT`) VALUES (?,?)",
+            [id,text],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                //ส่งอีเมลตอบกลับว่าได้รับข้อความแล้ว
+                connection.query(
+                    "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
+                    [id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+
+                        const transporter = nodemailer.createTransport({
+                            service: 'gmail',
+                            auth: {
+                                user: 's6501012610033@email.kmutnb.ac.th',
+                                pass: ''
+                            }
+                        });
+
+                        const text_sending = {
+                            from: 's6501012610033@email.kmutnb.ac.th',
+                            to: results[0].ACCOUNT_EMAIL,
+                            subject: 'Oreange app recieved feedback notification',
+                            text: 'Your question and concern has been received. Thank you for your feedback.'
+                        };
+
+                        transporter.sendMail(text_sending, (error, info) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                            console.log(err);
+                            return res.status(200).send();
+                        });
+                        return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
+                    }
+                )
+            }
+        )
+        
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+
+
+
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 
