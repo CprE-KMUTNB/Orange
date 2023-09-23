@@ -286,7 +286,7 @@ app.get("/profile", async (req, res) => {
 
 //----------------------------Edit profile--------------------------------------//
 
-//for search profile
+//just search profile
 app.get("/search_profile/:email", async (req, res) => {
     const email = req.params.email.slice(0,-1)
     try {
@@ -313,7 +313,7 @@ app.get("/search_profile/:email", async (req, res) => {
     }
 })
 
-//for edit profile email = เดิม newemail = email ใหม่
+//for edit profile รวมทั้ง premium และปกติ email = เดิม newemail = email ใหม่
 app.patch("/edit_profile", async (req, res) => {
     const {email, weight, height, bust, waist, hip, newemail, password} = req.body
 
@@ -352,6 +352,35 @@ app.patch("/edit_profile", async (req, res) => {
     }
 })
 
+//----------------------------Payment Detail--------------------------------------//
+
+//for payment detail payment method, next bill date
+app.get("/payment_detail", async (req, res) => {
+    const email = req.body.email
+
+    try {
+        connection.query(
+            "SELECT premium.PAYMENT_METHOD, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE FROM account JOIN premium WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_EMAIL = ?",
+            [email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this email in the database"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //----------------------------Cancel Premium--------------------------------------//
 
 //for cancel premium overlay confirm = คำตอบของ Are you sure to cancel Premium? yes/no
@@ -359,16 +388,10 @@ app.patch("/cancel_premium", async (req, res) => {
     const {confirm,email} = req.body
 
     try {
-        fetch('http://192.168.1.49:3360/search_profile/' + new URLSearchParams(email), {
-        method: 'GET'
-    })
-    .then(res => res.json())
-    .then(status => {
-        //ยืนยันว่าจะยกเลิกการสมัคร premium มั้ย
         if (confirm == "yes") {
             connection.query(
-                "UPDATE premium SET STATUS = 0 WHERE ACCOUNT_ID = ?",
-                [status.message[0].ACCOUNT_ID],
+                "UPDATE premium JOIN account SET STATUS = 0 WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_EMAIL = ?",
+                [email],
                 (err, results, fields) => {
                     if (err) {
                         console.log(err);
@@ -378,8 +401,8 @@ app.patch("/cancel_premium", async (req, res) => {
             )
             return res.status(200).json({status:"success", message : "Cancel premium successfully!"})
         }
-        return res.status(400).json({status:"fail", message : "Doesn't cancel premium yet"})
-    })}
+        res.status(400).json({status:"fail", message : "Doesn't cancel premium yet"})
+    }
     catch(err) {
         console.log(err);
         return res.status(500).send();
