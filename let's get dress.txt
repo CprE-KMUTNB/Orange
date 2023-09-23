@@ -1,6 +1,7 @@
 จดคำสั่ง
 group concat กรุปแล้วบอกว่ามีไรบ้าง
 current_timestamp เวลาปัจจุบัน
+results[0].ACCOUNT_EMAIL
 ---------------------------------
 API
 /Sign up
@@ -44,7 +45,7 @@ See New Content
     /-เคยสมัครรึยัง
     /-ถ้ายังให้ insert
     /-ถ้ามีแล้ว update
-    -update history
+    /-update history
     -ส่งเมลว่าได้รับเงิน
     -ส่งเมลว่ายกเลิก
     -ส่งเมลเตือนให้จ่ายเงิน
@@ -69,9 +70,9 @@ Outfit Recommendation
 
 See recommendation
 
-Ask Question and concern
--เก็บข้อมูลเมล?
--ส่งไปเมล dev?
+/Ask Question and concern
+/-เก็บข้อมูลเมล?
+/-ส่งไปเมลตอบรับ
 
 /Finish Question and concern
 

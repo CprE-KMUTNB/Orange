@@ -28,14 +28,6 @@ const token_obj = 'this is token'
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
-// const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//         user: secure_configuration.EMAIL_USERNAME,
-//         pass: secure_configuration.PASSWORD
-//     }
-// });
-
 const { error } = require('console');
 
 //MySQL connection
@@ -269,38 +261,6 @@ app.get("/profile", async (req, res) => {
     }
 })
 
-//----------------------------Edit profile--------------------------------------//
-
-//for edit profile รวมทั้ง premium และปกติ email = เดิม newemail = email ใหม่
-app.patch("/edit_profile", async (req, res) => {
-    const {weight, height, bust, waist, hip, newemail, password, id} = req.body
-
-    try {
-        //ส่งข้อมูลมาครบถ้วนมั้ย
-        if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0 && newemail.length != 0 && password.length != 0) {
-            //ต้องกรอกแค่ตัวเลขเท่านั้น
-            if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
-                connection.query(
-                    "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, BUST = ?, WAIST = ?, HIP = ? WHERE ACCOUNT_ID = ?",
-                    [newemail, password, weight, height, bust, waist, hip, id],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-                    })
-                    return res.status(200).json({status:"success", message : "Profile updated successfully!"})
-            }
-            return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
-        }
-        res.status(400).json({status:"fail", message : "You need to fill all informations"})
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
-
 //ตรวจสอบว่ามี account id นี้ในตาราง premium รึยัง
 app.get("/search_premium/:id", async (req, res) => {
     const id = req.params.id
@@ -364,6 +324,7 @@ app.post("/upgrade_premium", async (req, res) => {
                     }
                 )
             }
+            //update history
             connection.query(
                 "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
                 [id],
@@ -376,6 +337,38 @@ app.post("/upgrade_premium", async (req, res) => {
             )
             return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
         })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//----------------------------Edit profile--------------------------------------//
+
+//for edit profile รวมทั้ง premium และปกติ email = เดิม newemail = email ใหม่
+app.patch("/edit_profile", async (req, res) => {
+    const {weight, height, bust, waist, hip, newemail, password, id} = req.body
+
+    try {
+        //ส่งข้อมูลมาครบถ้วนมั้ย
+        if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0 && newemail.length != 0 && password.length != 0) {
+            //ต้องกรอกแค่ตัวเลขเท่านั้น
+            if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
+                connection.query(
+                    "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, BUST = ?, WAIST = ?, HIP = ? WHERE ACCOUNT_ID = ?",
+                    [newemail, password, weight, height, bust, waist, hip, id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    })
+                    return res.status(200).json({status:"success", message : "Profile updated successfully!"})
+            }
+            return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
+        }
+        res.status(400).json({status:"fail", message : "You need to fill all informations"})
     }
     catch(err) {
         console.log(err);
@@ -474,6 +467,7 @@ app.post("/concern", async (req, res) => {
     const {text, id} = req.body
 
     try {
+        //เก็บข้อความไว้ในฐานข้อมูล
         connection.query(
             "INSERT INTO concern(`ACCOUNT_ID`, `TEXT`) VALUES (?,?)",
             [id,text],
@@ -482,15 +476,45 @@ app.post("/concern", async (req, res) => {
                     console.log(err);
                     return res.status(400).send();
                 }
-                return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
+                //ส่งอีเมลตอบกลับว่าได้รับข้อความแล้ว
+                connection.query(
+                    "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
+                    [id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+
+                        const transporter = nodemailer.createTransport({
+                            service: 'gmail',
+                            auth: {
+                                user: 's6501012610033@email.kmutnb.ac.th',
+                                pass: ''
+                            }
+                        });
+
+                        const text_sending = {
+                            from: 's6501012610033@email.kmutnb.ac.th',
+                            to: results[0].ACCOUNT_EMAIL,
+                            subject: 'Oreange app recieved feedback notification',
+                            text: 'Your question and concern has been received. Thank you for your feedback.'
+                        };
+
+                        transporter.sendMail(text_sending, (error, info) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                            console.log(err);
+                            return res.status(200).send();
+                        });
+                        return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
+                    }
+                )
             }
         )
-        // const Question_and_concern = {
-        //     from: 's6501012610033@email.kmutnb.ac.th',
-        //     to: 'smtwinkle451@gmail.com',
-        //     subject: 'Question and concern',
-        //     text: text
-        // };
+        
     }
     catch(err) {
         console.log(err);
@@ -500,11 +524,7 @@ app.post("/concern", async (req, res) => {
 
 
 
-// transporter.sendMail(Question_and_concern, function(error, info){
-//     if (error) throw Error(error);
-//     console.log('Email Sent Successfully');
-//     console.log(info);
-// });
+
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 
