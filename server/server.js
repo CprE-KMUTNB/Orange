@@ -62,12 +62,17 @@ app.get("/test", (req, res) => {
 
 //----------------------------Sign up--------------------------------------//
 
-//ตรวจสอบว่ามีแอคเค้าที่มีเมลนี้หรือยัง
-app.get("/check_account/:email", async (req, res) => {
+//for sign up
+app.get("/sign_up", async (req, res) => {
     const {password, confirm} = req.body;
-    const email = req.params.email.slice(0,-1);
+    const email = req.body.email
 
     try {
+        // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
+        if (password != confirm) {
+            return res.status(400).json({status:"fail", message: "Password must be the same"});
+        }
+
         connection.query(
             "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
             [email], //แทน ?
@@ -77,50 +82,11 @@ app.get("/check_account/:email", async (req, res) => {
                     return res.status(400).send();
                 }
                 if (results.map(item => item.ACCOUNT_EMAIL).toString() == email) {
-                    return res.status(400).json({status:"fail" , message: "This email already has an account", results: results});
+                    return res.status(400).json({status:"fail" , message: "This email already has an account"});
                 }
-                res.status(200).json({status:email , message: "You can create new account with this email"});
+                res.status(200).json({status:"success" , message: "You can create new account with this email"});
             }
         )
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})	
-
-//for sign up
-app.post("/sign_up", async (req, res) => {
-    const {email, password, confirm} = req.body
-
-    try {
-        fetch('http://192.168.1.49:3360/check_account/' + new URLSearchParams(email), {
-            method: 'GET', 
-        })
-        .then(res => res.json())
-        .then(status => {
-            if (status.status == email) {
-                // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
-                if (password != confirm) {
-                    return res.status(400).json({status:"fail", message: "Password must be the same"});
-                }
-                connection.query(
-                    //เพิ่มข้อมูลลง db
-                    "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล
-                    [email, password], //แทน ?
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log("Error while inserting an account into the database", err);
-                            return res.status(400).json({status:"fail", message: "Error while inserting an account into the database"});
-                        }
-                        return res.status(201).json({status:"success", message: "New user successfully created!"});
-                    }
-                )
-            }
-            if (status.status == "fail") {
-                res.status(400).json({status:"fail", message: "This email already has an account"})
-            }
-        })  
     }
     catch(err) {
         console.log(err);
@@ -132,7 +98,7 @@ app.post("/sign_up", async (req, res) => {
 
 //for fill your information
 app.post("/fill_information", async (req, res) => {
-    const {weight, height, bust, waist, hip, email} = req.body
+    const {weight, height, bust, waist, hip, email, password} = req.body
 
     try {
         //ใส่ข้อมูลครบทุกอันมั้ย
@@ -141,8 +107,8 @@ app.post("/fill_information", async (req, res) => {
             if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
                 connection.query(
                     //เพิ่มข้อมูลลง db
-                    "UPDATE account SET WEIGHT = ?, HEIGHT = ?,BUST = ?, WAIST = ?, HIP = ?  WHERE ACCOUNT_EMAIL = ?", //insert ข้อมูล
-                    [weight, height, bust, waist, hip, email],
+                    "INSERT INTO account(`ACCOUNT_EMAIL`, `ACCOUNT_PASSWORD`, `WEIGHT`, `HEIGHT`, `BUST`, `WAIST`, `HIP`) VALUES (?,?,?,?,?,?,?)", //insert ข้อมูล
+                    [email, password, weight, height, bust, waist, hip],
                     (err, results, fields) => {
                         if (err) {
                             console.log("Error while updating an information of the database", err);
@@ -503,7 +469,7 @@ app.patch("/cancel_premium", async (req, res) => {
 
 //----------------------------Ask Question and concern--------------------------------------//
 
-//for cancel premium overlay confirm = คำตอบของ Are you sure to cancel Premium? yes/no
+//for question and concern
 app.post("/concern", async (req, res) => {
     const {text, id} = req.body
 
