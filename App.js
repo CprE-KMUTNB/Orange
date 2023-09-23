@@ -8,7 +8,10 @@ import ResetPassword from './screens/ResetPassword';
 import VerifyEmail from './screens/VerifyEmail'
 import FillInformation from './screens/FillInformation';
 import NewContent from './screens/NewContent';
-// import Banner from './screens/banner';
+import Profile from './screens/Profile';
+import EditProfile from './screens/EditProfile';
+import OutfitsRec from './screens/OutfitsRec';
+import Questions from './screens/Questions';
 
 
 const Stack = createNativeStackNavigator();
@@ -42,11 +45,16 @@ const App = () => {
     //       component={VerifyEmail}
     //       options={{headerShown: false}}
     //     />
+    //     <Stack.Screen
+    //       name="NewContent"
+    //       component={NewContent}
+    //       options={{headerShown: false}}
+    //     />
     //     {/* <Stack.Screen name="Profile" component={ProfileScreen} /> */}
     //   </Stack.Navigator>
     // </NavigationContainer>
     <View>
-      <Login/>
+      <Questions/>
     </View>
   )
 }

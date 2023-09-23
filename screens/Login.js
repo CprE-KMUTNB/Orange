@@ -125,12 +125,10 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   appButtonText: {
-    fontSize: 18,
+    fontSize: 20,
     color: "white",
-    fontWeight: "bold",
     alignSelf: "center",
-    textTransform: "uppercase",
-    fontFamily: "Cuprum-VariableFont_wght"
+    fontFamily: "Cuprum-Bold"
   },
   appButtonContainerClear: {
     elevation: 0,

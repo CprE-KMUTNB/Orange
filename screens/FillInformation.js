@@ -12,6 +12,9 @@ const AppText = (props) => (
 )
 
 const FillInformation = ({navigation}) => {
+  const onPressNewContent = () => {
+    navigation.navigate('NewContent')
+  }
     const [number1, onChangeWeight] = React.useState('');
     const [number2, onChangeHeight] = React.useState('');
     const [number3, onChangeBust] = React.useState('');
@@ -62,7 +65,9 @@ const FillInformation = ({navigation}) => {
                         placeholder=""
                         keyboardType="numeric"
                     />
-                    <AppButton title={"Submit"}/>  
+                    <AppButton 
+                    onPress={onPressNewContent}
+                    title={"Submit"}/>  
                 </View>
                
         </View>
