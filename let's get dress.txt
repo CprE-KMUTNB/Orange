@@ -40,23 +40,28 @@ See New Content
 See profile
 /-IS_PREMIUM = 0
 /-แสดงข้อมูล account
--upgrade to premium?
+    /upgrade to premium?
+    /-เคยสมัครรึยัง
+    /-ถ้ายังให้ insert
+    /-ถ้ามีแล้ว update
 
 /Edit profile
 /-update ข้อมูล
 
-See profile premium
+/See profile premium
 /-IS_PREMIUM = 1
 /-แสดงข้อมูล account
 
-Payment Detail
--แสดงข้อมูลการจ่ายเงิน (วิธีการชำระเงิน วันตัดรอบบิล ประวัติ(ย้อนหลัง20ครั้ง))
+/Payment Detail
+/-แสดงข้อมูลการจ่ายเงิน (วิธีการชำระเงิน วันตัดรอบบิล ประวัติ(ย้อนหลัง20ครั้ง))
 
 /Cancel Premium
 /-ถ้า yes status=0                    : Doesn't cancel premium yet
 -เปลี่ยน NEXT_BILL_DATE?
 
 Outfit Recommendation
+-คำนวนจากสัดส่วน
+-คำนวนจาก theme place
 
 See recommendation
 

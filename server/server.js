@@ -25,7 +25,8 @@ app.use(cors());
 app.use(express.json()); //แปลงเป็น object
 
 const token_obj = 'this is token'
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { error } = require('console');
 
 //MySQL connection
 const connection = mysql.createConnection({
@@ -66,7 +67,7 @@ app.get("/check_account/:email", async (req, res) => {
                     return res.status(400).send();
                 }
                 if (results.map(item => item.ACCOUNT_EMAIL).toString() == email) {
-                    return res.status(200).json({status:"fail" , message: "This email already has an account"});
+                    return res.status(400).json({status:"fail" , message: "This email already has an account", results: results});
                 }
                 res.status(200).json({status:email , message: "You can create new account with this email"});
             }
@@ -346,6 +347,83 @@ app.patch("/edit_profile", async (req, res) => {
         }
         return res.status(400).json({status:"fail", message : "Error, Can't find this email in the database"})
     })}
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//ตรวจสอบว่ามี account id นี้ในตาราง premium รึยัง
+app.get("/search_premium/:email", async (req, res) => {
+    const email = req.params.email.slice(0,-1)
+
+    try {
+        connection.query(
+            "SELECT * FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID WHERE account.ACCOUNT_EMAIL = ?",
+            [email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "This email never upgrade to premium"});
+                }
+                res.status(200).json({status:"success", message : "This email has upgraded to premium", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//upgrade to premium
+app.post("/upgrade_premium", async (req, res) => {
+    const {email,method} = req.body
+
+    try {
+        fetch('http://192.168.1.49:3360/search_premium/' + new URLSearchParams(email), {
+            method: 'GET'
+        })
+        .then(res => res.json())
+        .then(status => {
+            if (status.status == "fail") {
+                fetch('http://192.168.1.49:3360/check_account/' + new URLSearchParams(email), {
+                    method: 'GET'
+                })
+                .then(res => res.json())
+                .then(status => {
+                    connection.query(
+                        "INSERT INTO premium(ACCOUNT_ID, PAYMENT_METHOD, NEXT_BILL_DATE) VALUES(?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
+                        [status.results[0].ACCOUNT_ID,method],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                        }
+                    )
+                })
+                
+                return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
+
+            }
+            connection.query(
+                "UPDATE premium JOIN account SET STATUS = 1, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_EMAIL = ?",
+                [email],
+                (err, results, fields) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(400).send();
+                    }
+                }
+            )
+            return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
+        })
+    }
     catch(err) {
         console.log(err);
         return res.status(500).send();
