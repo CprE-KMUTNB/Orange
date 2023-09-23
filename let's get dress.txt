@@ -51,8 +51,8 @@ See profile premium
 Payment Detail
 -แสดงข้อมูลการจ่ายเงิน (วิธีการชำระเงิน วันตัดรอบบิล ประวัติ(ย้อนหลัง20ครั้ง))
 
-Cancel Premium
--ถ้า yes status=0
+/Cancel Premium
+/-ถ้า yes status=0                    : Doesn't cancel premium yet
 -เปลี่ยน NEXT_BILL_DATE?
 
 Outfit Recommendation

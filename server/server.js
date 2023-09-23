@@ -258,8 +258,8 @@ app.post("/reset_password", async (req, res) => {
 //----------------------------See profile--------------------------------------//
 
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
-app.get("/profile/:email", async (req, res) => {
-    const email = req.params.email.slice(0,-1)
+app.get("/profile", async (req, res) => {
+    const email = req.body.email
     try {
         connection.query(
             //ดึงข้อมูลของแอคเค้ามา
@@ -286,12 +286,39 @@ app.get("/profile/:email", async (req, res) => {
 
 //----------------------------Edit profile--------------------------------------//
 
+//for search profile
+app.get("/search_profile/:email", async (req, res) => {
+    const email = req.params.email.slice(0,-1)
+    try {
+        connection.query(
+            //ดึงข้อมูลของแอคเค้ามา
+            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
+            [email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log("Error while connecting to the database", err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this email in the database"});
+                }
+                res.status(200).json({status:"success", message: results});
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //for edit profile email = เดิม newemail = email ใหม่
 app.patch("/edit_profile", async (req, res) => {
     const {email, weight, height, bust, waist, hip, newemail, password} = req.body
 
     try {
-        fetch('http://192.168.1.49:3360/profile/' + new URLSearchParams(email), {
+        fetch('http://192.168.1.49:3360/search_profile/' + new URLSearchParams(email), {
         method: 'GET'
     })
     .then(res => res.json())
@@ -311,13 +338,47 @@ app.patch("/edit_profile", async (req, res) => {
                                 return res.status(400).send();
                             }
                         })
-                        return res.status(200).json({status:"success", message : "Profile updated password successfully!"})
+                        return res.status(200).json({status:"success", message : "Profile updated successfully!"})
                 }
                 return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
             }
             return res.status(400).json({status:"fail", message : "You need to fill all informations"})
         }
         return res.status(400).json({status:"fail", message : "Error, Can't find this email in the database"})
+    })}
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//----------------------------Cancel Premium--------------------------------------//
+
+//for cancel premium overlay confirm = คำตอบของ Are you sure to cancel Premium? yes/no
+app.patch("/cancel_premium", async (req, res) => {
+    const {confirm,email} = req.body
+
+    try {
+        fetch('http://192.168.1.49:3360/search_profile/' + new URLSearchParams(email), {
+        method: 'GET'
+    })
+    .then(res => res.json())
+    .then(status => {
+        //ยืนยันว่าจะยกเลิกการสมัคร premium มั้ย
+        if (confirm == "yes") {
+            connection.query(
+                "UPDATE premium SET STATUS = 0 WHERE ACCOUNT_ID = ?",
+                [status.message[0].ACCOUNT_ID],
+                (err, results, fields) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(400).send();
+                    }
+                }
+            )
+            return res.status(200).json({status:"success", message : "Cancel premium successfully!"})
+        }
+        return res.status(400).json({status:"fail", message : "Doesn't cancel premium yet"})
     })}
     catch(err) {
         console.log(err);
