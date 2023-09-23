@@ -37,13 +37,17 @@ Verify reset password code
 See New Content
 -แสดง New content Limit 20
 
-See profile
+/See profile
 /-IS_PREMIUM = 0
 /-แสดงข้อมูล account
-    /upgrade to premium?
+    upgrade to premium?
     /-เคยสมัครรึยัง
     /-ถ้ายังให้ insert
     /-ถ้ามีแล้ว update
+    -update history
+    -ส่งเมลว่าได้รับเงิน
+    -ส่งเมลว่ายกเลิก
+    -ส่งเมลเตือนให้จ่ายเงิน
 
 /Edit profile
 /-update ข้อมูล
@@ -112,3 +116,6 @@ content
 -reset password
 -verify email
 -question and concern
+
+-ต้องใส่ข้อมูลให้ครบ
+-fill information ก่อน insert
