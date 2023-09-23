@@ -381,6 +381,33 @@ app.get("/payment_detail", async (req, res) => {
     }
 })
 
+//for payment detail history
+app.get("/payment_history", async (req, res) => {
+    const email = req.body.email
+
+    try {
+        connection.query(
+            "SELECT DATE_FORMAT(history.bill_date, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID AND account.ACCOUNT_EMAIL = ?",
+            [email],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this email in the database"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //----------------------------Cancel Premium--------------------------------------//
 
 //for cancel premium overlay confirm = คำตอบของ Are you sure to cancel Premium? yes/no
