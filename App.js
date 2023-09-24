@@ -12,6 +12,7 @@ import Profile from './screens/Profile';
 import EditProfile from './screens/EditProfile';
 import OutfitsRec from './screens/OutfitsRec';
 import Questions from './screens/Questions';
+import ProfilePremium from './screens/ProfilePremium';
 
 
 const Stack = createNativeStackNavigator();
@@ -54,7 +55,7 @@ const App = () => {
     //   </Stack.Navigator>
     // </NavigationContainer>
     <View>
-      <Questions/>
+      <ProfilePremium/>
     </View>
   )
 }
