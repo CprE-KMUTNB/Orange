@@ -1,5 +1,6 @@
-import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal } from 'react-native'
 import React from 'react'
+import Icon from 'react-native-vector-icons/Feather'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -18,8 +19,9 @@ const Profile = () => {
         <View style={styles.squareTop}>
           <Text style={styles.headerText}>Profile</Text>
         </View>
+        <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
         <View style={styles.innerCon}>
-          <AppText style={styles.normalText1}>Personal </AppText>
+          <AppText style={{...styles.normalText1, ...styles.innerPos}}>Personal <Text style={styles.iconPos}> <Icon name='settings' size={25}/> </Text> </AppText>
           <AppText style={styles.normalText2}>Email : </AppText>
           <AppText style={styles.normalText2}>Password : </AppText>
           <AppText style={styles.normalText2}>Weight : </AppText>
@@ -36,7 +38,7 @@ const Profile = () => {
 
 const styles = StyleSheet.create({
   squareTop: {
-    height: 90,
+    height: 70,
     width: Dimensions.get('window').width,
     backgroundColor: "#FF9176",
     alignItems: 'center',
@@ -62,8 +64,9 @@ innerCon: {
   width: Dimensions.get('window').width*0.8,
   height: Dimensions.get('window').height*0.52,
   borderRadius: 15,
-  marginTop: 30,
-  alignItems: 'center'
+  marginTop: 10,
+  alignItems: 'center',
+  justifyContent: 'center'
 },
 appButtonContainer: {
   elevation: 0,
@@ -83,7 +86,7 @@ appButtonText: {
 },
 normalText1: {
   paddingLeft: 15,
-  paddingTop: 20,
+  // paddingTop: -10,
   marginRight: 'auto'
 },
 normalText2: {
@@ -91,6 +94,12 @@ normalText2: {
   paddingLeft: 30,
   marginRight: 'auto'
 },
+iconPos: {
+  left: 10,
+  marginRight: 'auto',
+  top: -47,
+  color: 'black'
+}
   
 }
 )

@@ -61,12 +61,12 @@ const styles = StyleSheet.create({
     squareTop: {
       height: 90,
       width: Dimensions.get('window').width,
-      backgroundColor: "#FF9176",
+      backgroundColor: "#F2E1DD",
       alignItems: 'center',
       paddingTop:5,
       fontFamily: "Cuprum-VariableFont_wght",
       justifyContent: "center",
-      elevation: 5
+      elevation: 10
     },
     container: {
       backgroundColor: "white",
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
     },
     scrollView: {
-        backgroundColor: "#FAFAFA",
+        backgroundColor: "white",
         width: Dimensions.get('window').width,
         flex: 1,
     },
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
         // paddingVertical: 0,
         marginTop: 15,
-        backgroundColor: '#F5EEED',
+        backgroundColor: '#white',
         alignItems: 'center'
     },
     smallImgContainer: {
@@ -160,13 +160,13 @@ const styles = StyleSheet.create({
         fontFamily: "Cuprum-VariableFont_wght",
     },
     bigConBg: {
-        backgroundColor: 'white',
+        backgroundColor: '#white',
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height * 0.5,
         alignItems: 'center'
     },
     smallConGroup: {
-        backgroundColor: 'white',
+        backgroundColor: 'f6f6f6',
         width: Dimensions.get('window').width*0.9,
         borderRadius: 10,
         padding: 10,
