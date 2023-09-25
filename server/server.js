@@ -28,6 +28,14 @@ const token_obj = 'this is token'
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 's6501012610033@email.kmutnb.ac.th',
+        pass: ''
+    }
+});
+
 const { error } = require('console');
 
 //MySQL connection
@@ -148,7 +156,23 @@ app.get("/login", async (req, res) => {
                 //     text: 'Hello!, You have recently visited our app and login with this email. Please follow the given link to verify your email http://localhost:3000/verify/${token}  Thanks' 
                 // };
 
-                res.status(200).json({status:"sucess", message: "Login successfully!", token});
+                const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
+
+                const text_sending = {
+                    from: 's6501012610033@email.kmutnb.ac.th',
+                    to: results[0].ACCOUNT_EMAIL,
+                    subject: 'Orange - OTP verification',
+                    text:"Dear User:\n\nThank you for coming back to our app. Please use this OTP to complete your Login procedures on Orange. Do not share this OTP to anyone\n\n" + OTP + "\n\nRegards,\n\nOrange"
+                };
+
+                transporter.sendMail(text_sending, (err, info) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(400).send();
+                    }
+                });
+
+                res.status(200).json({status:"sucess", message: "Login successfully!"});
             })
     }
     catch(err) {
@@ -188,7 +212,7 @@ app.get("/forgot_password", async (req, res) => {
 
 // //verify OTP
 // app.get("/verify_OTP", async (req, res) => {
-//     const {email, otp1, otp2, otp3, otp4} = req.body;
+//     const {id, otp1, otp2, otp3, otp4} = req.body;
 //     try {
 //         if (otp1 == 1 && otp2 == 1 && otp3 == 1 && otp4 ==1) {
 //             return res.status(200).json({status:"success", message: "OTP is correct"});
@@ -261,9 +285,9 @@ app.get("/profile", async (req, res) => {
     }
 })
 
-//ตรวจสอบว่ามี account id นี้ในตาราง premium รึยัง
-app.get("/search_premium/:id", async (req, res) => {
-    const id = req.params.id
+//upgrade to premium
+app.post("/upgrade_premium", async (req, res) => {
+    const {id,method} = req.body
 
     try {
         connection.query(
@@ -276,45 +300,34 @@ app.get("/search_premium/:id", async (req, res) => {
                 }
                 if (results.length === 0)
                 {
-                    return res.status(400).json({status:"fail", message: "This email never upgrade to premium"});
-                }
-                res.status(200).json({status:"success", message : "This email has upgraded to premium", results: results})
-            }
-        )
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
-
-//upgrade to premium
-app.post("/upgrade_premium", async (req, res) => {
-    const {id,method} = req.body
-
-    try {
-        fetch('http://192.168.1.49:3360/search_premium/' + new URLSearchParams(id), {
-            method: 'GET'
-        })
-        .then(res => res.json())
-        .then(status => {
-            //ยังไม่เคยสมัคร premium มาก่อน
-            if (status.status == "fail") {
-                connection.query(
-                    "INSERT INTO premium(ACCOUNT_ID, PAYMENT_METHOD, NEXT_BILL_DATE) VALUES(?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
-                    [id,method],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
+                    //ยังไม่เคยสมัคร premium มาก่อน
+                    connection.query(
+                        "INSERT INTO premium(ACCOUNT_ID, PAYMENT_METHOD, NEXT_BILL_DATE) VALUES(?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
+                        [id,method],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
                         }
-                    }
-                )
-            }
-            //เคยสมัคร premium แล้ว
-            else {
+                    )
+                }
+                else {
+                    //เคยสมัคร premium แล้ว
+                    connection.query(
+                        "UPDATE premium JOIN account SET STATUS = 1, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+                        [id],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                        }
+                    )
+                }
+                //update history
                 connection.query(
-                    "UPDATE premium JOIN account SET STATUS = 1, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+                    "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
                     [id],
                     (err, results, fields) => {
                         if (err) {
@@ -323,20 +336,25 @@ app.post("/upgrade_premium", async (req, res) => {
                         }
                     }
                 )
-            }
-            //update history
-            connection.query(
-                "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
-                [id],
-                (err, results, fields) => {
+
+                //ส่งเมลยืนยันการสมัคร premium
+                const text_sending = {
+                    from: 's6501012610033@email.kmutnb.ac.th',
+                    to: results[0].ACCOUNT_EMAIL,
+                    subject: 'Thank you for your subscription to Orange premium',
+                    text:"Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 200.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\n\nOrange Team"
+                };
+
+                transporter.sendMail(text_sending, (err, info) => {
                     if (err) {
                         console.log(err);
                         return res.status(400).send();
                     }
-                }
-            )
-            return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
-        })
+                });
+
+                return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
+            }
+        )
     }
     catch(err) {
         console.log(err);
@@ -432,6 +450,29 @@ app.get("/payment_history", async (req, res) => {
     }
 })
 
+//เปลี่ยนเลขบัตร
+app.patch("/change_method", async (req, res) => {
+    const {method,id} = req.body
+
+    try {
+        connection.query(
+            "UPDATE account JOIN premium SET premium.PAYMENT_METHOD = ? WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+            [method,id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+            }
+        )
+        return res.status(200).json({status:"success", message : "Change credit card number successfully!"})
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //----------------------------Cancel Premium--------------------------------------//
 
 //for cancel premium overlay confirm = คำตอบของ Are you sure to cancel Premium? yes/no
@@ -448,6 +489,31 @@ app.patch("/cancel_premium", async (req, res) => {
                         console.log(err);
                         return res.status(400).send();
                     }
+
+                    //ส่งเมลแจ้งว่ายกเลิกการสมัคร premium แล้ว
+                    connection.query(
+                        "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
+                        [id],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+
+                        const text_sending = {
+                            from: 's6501012610033@email.kmutnb.ac.th',
+                            to: results[0].ACCOUNT_EMAIL,
+                            subject: 'Cancelation of Orange premium',
+                            text:"Dear User :\n\nSorry to see you've cancelled your Orange premium.\n\nIf you're having second thoughts, we'll welcome you back any time.\n\nRegards,\n\nOrange Team"
+                        };
+
+                        transporter.sendMail(text_sending, (err, info) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                        });
+                    })
                 }
             )
             return res.status(200).json({status:"success", message : "Cancel premium successfully!"})
@@ -486,30 +552,20 @@ app.post("/concern", async (req, res) => {
                             return res.status(400).send();
                         }
 
-                        const transporter = nodemailer.createTransport({
-                            service: 'gmail',
-                            auth: {
-                                user: 's6501012610033@email.kmutnb.ac.th',
-                                pass: ''
-                            }
-                        });
-
                         const text_sending = {
                             from: 's6501012610033@email.kmutnb.ac.th',
                             to: results[0].ACCOUNT_EMAIL,
-                            subject: 'Oreange app recieved feedback notification',
-                            text: 'Your question and concern has been received. Thank you for your feedback.'
+                            subject: 'Thank you for your feedback to Orange',
+                            text:"Dear User :\n\nThank you for taking time to contact Orange to explain the issues you have encountered recently. We regret any inconvenience you have experienced, and we assure you that we are anxious to retain you as a satisfied customer.\n\nOur Customer Satisfaction Team is reviewing the information you sent us and conducting a full investigation in order to resolve this matter fairly.\n\nSincerely,\n\nOrange Team"
                         };
 
-                        transporter.sendMail(text_sending, (error, info) => {
+                        transporter.sendMail(text_sending, (err, info) => {
                             if (err) {
                                 console.log(err);
                                 return res.status(400).send();
                             }
-                            console.log(err);
-                            return res.status(200).send();
+                            return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
                         });
-                        return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
                     }
                 )
             }
@@ -521,10 +577,6 @@ app.post("/concern", async (req, res) => {
         return res.status(500).send();
     }
 })
-
-
-
-
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 

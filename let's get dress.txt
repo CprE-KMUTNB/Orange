@@ -41,14 +41,13 @@ See New Content
 /See profile
 /-IS_PREMIUM = 0
 /-แสดงข้อมูล account
-    upgrade to premium?
+    /upgrade to premium?
     /-เคยสมัครรึยัง
     /-ถ้ายังให้ insert
     /-ถ้ามีแล้ว update
     /-update history
-    -ส่งเมลว่าได้รับเงิน
-    -ส่งเมลว่ายกเลิก
-    -ส่งเมลเตือนให้จ่ายเงิน
+    /-รับเลขบัตรเครดิต
+    /-ส่งเมลว่าได้รับเงิน
 
 /Edit profile
 /-update ข้อมูล
@@ -57,12 +56,15 @@ See New Content
 /-IS_PREMIUM = 1
 /-แสดงข้อมูล account
 
-/Payment Detail
+Payment Detail
 /-แสดงข้อมูลการจ่ายเงิน (วิธีการชำระเงิน วันตัดรอบบิล ประวัติ(ย้อนหลัง20ครั้ง))
+/-เปลี่ยนเลขบัตร
+-ส่งเมลบอกตอนตัดบัตร
 
 /Cancel Premium
 /-ถ้า yes status=0                    : Doesn't cancel premium yet
 -เปลี่ยน NEXT_BILL_DATE?
+/-ส่งเมลบอก
 
 Outfit Recommendation
 -คำนวนจากสัดส่วน
