@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, TextInput, Modal } from 'react-native'
 import React, {useState} from 'react'
+import Icon from 'react-native-vector-icons/Feather'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -27,6 +28,7 @@ const Questions = () => {
           <Text style={styles.headerText}>Questions</Text>
           <AppText>and Concerns</AppText>
         </View>
+        <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
         <View style={styles.inputContainer}>
            <TextInput
               editable
@@ -198,6 +200,13 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     fontFamily: "Cuprum-Bold"
   },
+  iconPos: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'flex-start',
+    top: -45,
+    padding: 10
+  }
 }
 )
 

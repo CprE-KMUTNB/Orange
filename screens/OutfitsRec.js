@@ -2,6 +2,7 @@ import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions
 import React, { useState } from 'react'
 import DropdownComponent from './Dropdown'
 import DropdownComponent2 from './Dropdown2'
+import Icon from 'react-native-vector-icons/Feather'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -28,6 +29,7 @@ const OutfitsRec = ({navigation}) => {
             <Text style={styles.headerText}>Outfit</Text>
             <AppText>Recommendation</AppText>
         </View>
+        <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
         <View style={styles.innerCon}>
           <AppText style={styles.normalText}>Place</AppText>
           <DropdownComponent/>
@@ -182,6 +184,12 @@ const styles = StyleSheet.create({
   logo: {
     width: 150,
     height: 200,
+  },
+  iconPos: {
+    // alignItems: 'flex-start',
+    top: -50,
+    padding: 10,
+    marginRight: 'auto'
   }
   
   

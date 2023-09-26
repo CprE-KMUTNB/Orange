@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import Banner from './Banner'
+import Icon from 'react-native-vector-icons/Feather'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -13,6 +14,7 @@ const NewContent = () => {
             <View style={styles.squareTop}>
                 <Text style={styles.headerText}>New Content</Text>
             </View>
+            <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.bigConBg}>
                     <Text style={styles.middleTextHeader}>New Updates</Text>
@@ -79,6 +81,7 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         width: Dimensions.get('window').width,
         flex: 1,
+        top: -30
     },
     halfConL:{
         // backgroundColor: 'black',
@@ -173,6 +176,11 @@ const styles = StyleSheet.create({
         marginTop: 20,
         height: 650
     },
+    iconPos: {
+        top: -60,
+        padding: 10,
+        marginRight: 'auto'
+      }
   }
   )
   
