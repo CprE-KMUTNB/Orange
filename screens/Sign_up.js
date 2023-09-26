@@ -28,6 +28,9 @@ const Sign_up = ({navigation}) => {
   const onPressFillInformation = () => {
     navigation.navigate('FillInformation')
   }
+  const onPressProfilePremium = () => {
+    navigation.navigate('ProfilePremium')
+  }
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
   const [confirm_password, onChangeConfirmPassword] = React.useState('');
@@ -70,7 +73,7 @@ const Sign_up = ({navigation}) => {
          />
         </SafeAreaView>
           <AppButton 
-          onPress={onPressFillInformation}
+          onPress={onPressProfilePremium}
           title={"   Sign up   "}/>
       </View>
       <AppText style={{color:'black', alignItems:'center',width: 300, height:25, top:210 , left:33}}>Already have an account?</AppText>

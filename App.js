@@ -14,7 +14,6 @@ import OutfitsRec from './screens/OutfitsRec';
 import Questions from './screens/Questions';
 import ProfilePremium from './screens/ProfilePremium';
 
-
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -51,11 +50,26 @@ const App = () => {
     //       component={NewContent}
     //       options={{headerShown: false}}
     //     />
+    //     <Stack.Screen
+    //       name="Profile"
+    //       component={Profile}
+    //       options={{headerShown: false}}
+    //     />
+    //     <Stack.Screen
+    //       name="ProfilePremium"
+    //       component={ProfilePremium}
+    //       options={{headerShown: false}}
+    //     />
+    //     <Stack.Screen
+    //       name="EditProfile"
+    //       component={EditProfile}
+    //       options={{headerShown: false}}
+    //     />
     //     {/* <Stack.Screen name="Profile" component={ProfileScreen} /> */}
     //   </Stack.Navigator>
     // </NavigationContainer>
     <View>
-      <ProfilePremium/>
+      <OutfitsRec/>
     </View>
   )
 }

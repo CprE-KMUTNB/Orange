@@ -8,6 +8,7 @@ import { Dropdown } from 'react-native-element-dropdown'
     { label: 'Dark', value: '3' },
     { label: 'Vivid', value: '4' },
     { label: 'Earth tone', value: '5' },
+    { label: 'Pastel', value: '6' },
    ,
   ]
 

@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/Feather'
+import EditProfile from './EditProfile'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -12,7 +13,7 @@ const AppButton = ({ onPress, title }) => (
   </TouchableOpacity>
 )
 
-const Profile = () => {
+const Profile = ({navigation}) => {
   return (
     <SafeAreaView>
       <View style={styles.container}>
