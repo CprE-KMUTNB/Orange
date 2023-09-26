@@ -24,9 +24,17 @@ const app =  express();
 app.use(cors());
 app.use(express.json()); //แปลงเป็น object
 
-const token_obj = 'this is token'
 const jwt = require('jsonwebtoken');
+const token_obj = 'this is token'
 const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 's6501012610033@email.kmutnb.ac.th',
+        pass: ''
+    }
+});
 
 const { error } = require('console');
 
@@ -135,20 +143,25 @@ app.get("/login", async (req, res) => {
                     console.log(err);
                     return res.status(400).send();
                 }
+
+                //เช้คว่ามีอีเมลนี้ใน db มั้ย
+                if (results.length == 0) {
+                    return res.status(400).json({status:"fail", message: "No account with this email"});
+                }
+
                 //เช้คว่า email&password ถูกมั้ย
-                if (results.map(item => item.ACCOUNT_PASSWORD).toString() != password) { //แปลง results เป็น string
+                if (results[0].ACCOUNT_PASSWORD != password) {
                     return res.status(404).send({status:"fail", message: "Email or Password is incorrect"}); 
                 }
-                // const token = jwt.sign({ email : results.map(item => item.ACCOUNT_EMAIL).toString()}, token_obj, {expiresIn: '1h'}); //token to verify email
 
-                // const mailConfigurations = {
-                //     from: 's6501012610033@email.kmutnb.ac.th',
-                //     to: email,
-                //     subject: 'Email Verification',
-                //     text: 'Hello!, You have recently visited our app and login with this email. Please follow the given link to verify your email http://localhost:3000/verify/${token}  Thanks' 
-                // };
-
-                res.status(200).json({status:"sucess", message: "Login successfully!", token});
+                //ส่ง OTP ไปที่ email
+                fetch('http://192.168.1.49:3360/send_login_OTP/' + new URLSearchParams(email), {
+                    method: 'GET', 
+                })
+                .then(res => res.json())
+                .then(outcome => {
+                    res.status(200).json({status:"sucess", message: "can go to Verify Email", token: outcome.token});
+                })
             })
     }
     catch(err) {
@@ -174,7 +187,15 @@ app.get("/forgot_password", async (req, res) => {
                 if (results.length == 0) {
                     return res.status(400).json({status:"fail", message: "No account with this email"});
                 }
-                res.status(200).json({status:"success", message: "There is an account with this email"});
+
+                //ส่ง OTP ไปที่ email
+                fetch('http://192.168.1.49:3360/send_password_OTP/' + new URLSearchParams(email), {
+                    method: 'GET', 
+                })
+                .then(res => res.json())
+                .then(outcome => {
+                    res.status(200).json({status:"success", message: "can go to Verify reset password code overlay", token: outcome.token});
+                })
             }
         )
     }
@@ -184,22 +205,62 @@ app.get("/forgot_password", async (req, res) => {
     }
 })
 
-//----------------------------Verify reset password code--------------------------------------//
+//----------------------------Verify Email--------------------------------------//
 
-// //verify OTP
-// app.get("/verify_OTP", async (req, res) => {
-//     const {email, otp1, otp2, otp3, otp4} = req.body;
-//     try {
-//         if (otp1 == 1 && otp2 == 1 && otp3 == 1 && otp4 ==1) {
-//             return res.status(200).json({status:"success", message: "OTP is correct"});
-//         }
-//         res.status(400).json({status:"fail", message: "OTP is incorrect"});
-//     }
-//     catch(err) {
-//         console.log(err);
-//         return res.status(500).send();
-//     }
-// })
+//send otp / for resend otp
+app.get("/send_login_OTP/:email", async (req, res) => {
+    const email = req.params.email.slice(0,-1)
+    try {
+        const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
+        const token = jwt.sign({OTP : OTP}, token_obj, {expiresIn: '10m'});
+
+        const text_sending = {
+            from: 's6501012610033@email.kmutnb.ac.th',
+            to: email,
+            subject: 'OTP verification on Orange',
+            text:"Dear User :\n\nThank you for coming back to our app. Please use this OTP to complete your Login procedures on Orange. Do not share this OTP to anyone.\n\n" + OTP + "\n\nRegards,\nOrange Team"
+        };
+
+        transporter.sendMail(text_sending, (err, info) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).send();
+            }
+        });
+
+        return res.status(200).json({token: token});
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//to check OTP
+app.get("/verify_OTP", async (req, res) => {
+    const {token, user_OTP} = req.body
+    try { 
+        const payloadBase64 = token.split('.')[1];
+        const decodedJson = Buffer.from(payloadBase64, 'base64').toString();
+        const decoded = JSON.parse(decodedJson)
+        const isTokenExpired = (Date.now() >= decoded.exp * 1000)
+
+        //ยังไม่หมดอายุ
+        if (isTokenExpired == false) {
+            const decode = jwt.verify(token, token_obj);
+            if (decode.OTP == user_OTP) {
+                return res.status(200).json({status:"success", message: "OTP is correct"});
+            }
+            return res.status(400).json({status:"fail", message: "OTP is incorrect"});
+        }
+        //หมดอายุแล้ว
+        res.status(400).json({status:"fail", message: "OTP is expired"});
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
 
 //----------------------------Reset password--------------------------------------//
 
@@ -232,6 +293,37 @@ app.post("/reset_password", async (req, res) => {
     }
 })	
 
+//----------------------------Verify reset password code--------------------------------------//
+
+//send otp / for resend otp
+app.get("/send_password_OTP/:email", async (req, res) => {
+    const email = req.params.email.slice(0,-1)
+    try {
+        const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
+        const token = jwt.sign({OTP : OTP}, token_obj, {expiresIn: '10m'});
+
+        const text_sending = {
+            from: 's6501012610033@email.kmutnb.ac.th',
+            to: email,
+            subject: 'OTP verification to reset password on Orange',
+            text:"Dear User :\n\nA request has been received to change the password for your Orange account. Please use this OTP to reset your password. Do not share this OTP to anyone.\n\n" + OTP + "\n\nIf you did not initiate this request, please contact us immediately at our Question and concern.\n\nRegards,\nOrange Team"
+        };
+
+        transporter.sendMail(text_sending, (err, info) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).send();
+            }
+        });
+
+        return res.status(200).json({token: token});
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //----------------------------See profile--------------------------------------//
 
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
@@ -261,9 +353,9 @@ app.get("/profile", async (req, res) => {
     }
 })
 
-//ตรวจสอบว่ามี account id นี้ในตาราง premium รึยัง
-app.get("/search_premium/:id", async (req, res) => {
-    const id = req.params.id
+//upgrade to premium
+app.post("/upgrade_premium", async (req, res) => {
+    const {id,method} = req.body
 
     try {
         connection.query(
@@ -276,45 +368,34 @@ app.get("/search_premium/:id", async (req, res) => {
                 }
                 if (results.length === 0)
                 {
-                    return res.status(400).json({status:"fail", message: "This email never upgrade to premium"});
-                }
-                res.status(200).json({status:"success", message : "This email has upgraded to premium", results: results})
-            }
-        )
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
-
-//upgrade to premium
-app.post("/upgrade_premium", async (req, res) => {
-    const {id,method} = req.body
-
-    try {
-        fetch('http://192.168.1.49:3360/search_premium/' + new URLSearchParams(id), {
-            method: 'GET'
-        })
-        .then(res => res.json())
-        .then(status => {
-            //ยังไม่เคยสมัคร premium มาก่อน
-            if (status.status == "fail") {
-                connection.query(
-                    "INSERT INTO premium(ACCOUNT_ID, PAYMENT_METHOD, NEXT_BILL_DATE) VALUES(?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
-                    [id,method],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
+                    //ยังไม่เคยสมัคร premium มาก่อน
+                    connection.query(
+                        "INSERT INTO premium(ACCOUNT_ID, PAYMENT_METHOD, NEXT_BILL_DATE) VALUES(?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
+                        [id,method],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
                         }
-                    }
-                )
-            }
-            //เคยสมัคร premium แล้ว
-            else {
+                    )
+                }
+                else {
+                    //เคยสมัคร premium แล้ว
+                    connection.query(
+                        "UPDATE premium JOIN account SET STATUS = 1, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+                        [id],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                        }
+                    )
+                }
+                //update history
                 connection.query(
-                    "UPDATE premium JOIN account SET STATUS = 1, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+                    "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
                     [id],
                     (err, results, fields) => {
                         if (err) {
@@ -323,20 +404,25 @@ app.post("/upgrade_premium", async (req, res) => {
                         }
                     }
                 )
-            }
-            //update history
-            connection.query(
-                "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
-                [id],
-                (err, results, fields) => {
+
+                //ส่งเมลยืนยันการสมัคร premium
+                const text_sending = {
+                    from: 's6501012610033@email.kmutnb.ac.th',
+                    to: results[0].ACCOUNT_EMAIL,
+                    subject: 'Thank you for your subscription to Orange premium',
+                    text:"Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 199.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\nOrange Team"
+                };
+
+                transporter.sendMail(text_sending, (err, info) => {
                     if (err) {
                         console.log(err);
                         return res.status(400).send();
                     }
-                }
-            )
-            return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
-        })
+                });
+
+                return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
+            }
+        )
     }
     catch(err) {
         console.log(err);
@@ -432,6 +518,29 @@ app.get("/payment_history", async (req, res) => {
     }
 })
 
+//เปลี่ยนเลขบัตร
+app.patch("/change_method", async (req, res) => {
+    const {method,id} = req.body
+
+    try {
+        connection.query(
+            "UPDATE account JOIN premium SET premium.PAYMENT_METHOD = ? WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+            [method,id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+            }
+        )
+        return res.status(200).json({status:"success", message : "Change credit card number successfully!"})
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //----------------------------Cancel Premium--------------------------------------//
 
 //for cancel premium overlay confirm = คำตอบของ Are you sure to cancel Premium? yes/no
@@ -448,6 +557,31 @@ app.patch("/cancel_premium", async (req, res) => {
                         console.log(err);
                         return res.status(400).send();
                     }
+
+                    //ส่งเมลแจ้งว่ายกเลิกการสมัคร premium แล้ว
+                    connection.query(
+                        "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
+                        [id],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+
+                        const text_sending = {
+                            from: 's6501012610033@email.kmutnb.ac.th',
+                            to: results[0].ACCOUNT_EMAIL,
+                            subject: 'Cancelation of Orange premium',
+                            text:"Dear User :\n\nSorry to see you've cancelled your Orange premium.\n\nIf you're having second thoughts, we'll welcome you back any time.\n\nRegards,\nOrange Team"
+                        };
+
+                        transporter.sendMail(text_sending, (err, info) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                        });
+                    })
                 }
             )
             return res.status(200).json({status:"success", message : "Cancel premium successfully!"})
@@ -486,30 +620,20 @@ app.post("/concern", async (req, res) => {
                             return res.status(400).send();
                         }
 
-                        const transporter = nodemailer.createTransport({
-                            service: 'gmail',
-                            auth: {
-                                user: 's6501012610033@email.kmutnb.ac.th',
-                                pass: ''
-                            }
-                        });
-
                         const text_sending = {
                             from: 's6501012610033@email.kmutnb.ac.th',
                             to: results[0].ACCOUNT_EMAIL,
-                            subject: 'Oreange app recieved feedback notification',
-                            text: 'Your question and concern has been received. Thank you for your feedback.'
+                            subject: 'Thank you for your feedback to Orange',
+                            text:"Dear User :\n\nThank you for taking time to contact Orange to explain the issues you have encountered recently. We regret any inconvenience you have experienced, and we assure you that we are anxious to retain you as a satisfied customer.\n\nOur Customer Satisfaction Team is reviewing the information you sent us and conducting a full investigation in order to resolve this matter fairly.\n\nSincerely,\nOrange Team"
                         };
 
-                        transporter.sendMail(text_sending, (error, info) => {
+                        transporter.sendMail(text_sending, (err, info) => {
                             if (err) {
                                 console.log(err);
                                 return res.status(400).send();
                             }
-                            console.log(err);
-                            return res.status(200).send();
+                            return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
                         });
-                        return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
                     }
                 )
             }
@@ -521,10 +645,6 @@ app.post("/concern", async (req, res) => {
         return res.status(500).send();
     }
 })
-
-
-
-
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 

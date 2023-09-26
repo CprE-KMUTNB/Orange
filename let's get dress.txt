@@ -13,25 +13,25 @@ API
 /-ใส่ตัวเลขทั้งหมดมั้ย                         : ํTheese information should only be numbers
 /-ใส่ข้อมูลครบทุกอันมั้ย                        : You need to fill all informations
 
-Login
+/Login
 /-มี account อยู่รึเปล่า					: No account with this email
 /-รหัสผ่านตรงกับอีเมลที่ใส่มั้ย					: Email or Password is incorrect
-    forgot password
-    -ตรวจสอบว่ามีอีเมลในฐานข้อมูลมั้ย ถ้ามีก็ส่งเมลไปหา แล้วไปหน้า verify reset password
+    /forgot password
+    /-ตรวจสอบว่ามีอีเมลในฐานข้อมูลมั้ย ถ้ามีก็ส่งเมลไปหา แล้วไปหน้า verify reset password
 
-Verify Email
--Change email
--Check OTP
--Resend OTP
--Count down 10 mins
+/Verify Email
+/-Change email                          : กลับไปหน้า login
+/-Check OTP
+/-Resend OTP
+/-Count down 10 mins
 
 /Reset password
 /-confirm password = new password มั้ย	: Password must be the same  
 
-Verify reset password code
--Resend OTP
--check OTP                              : Verification failed
--Count down 10 mins
+/Verify reset password code
+/-Resend OTP
+/-check OTP                              : Verification failed
+/-Count down 10 mins
 
 /Menu bar
 
@@ -41,14 +41,13 @@ See New Content
 /See profile
 /-IS_PREMIUM = 0
 /-แสดงข้อมูล account
-    upgrade to premium?
+    /upgrade to premium?
     /-เคยสมัครรึยัง
     /-ถ้ายังให้ insert
     /-ถ้ามีแล้ว update
     /-update history
-    -ส่งเมลว่าได้รับเงิน
-    -ส่งเมลว่ายกเลิก
-    -ส่งเมลเตือนให้จ่ายเงิน
+    /-รับเลขบัตรเครดิต
+    /-ส่งเมลว่าได้รับเงิน
 
 /Edit profile
 /-update ข้อมูล
@@ -57,12 +56,15 @@ See New Content
 /-IS_PREMIUM = 1
 /-แสดงข้อมูล account
 
-/Payment Detail
+Payment Detail
 /-แสดงข้อมูลการจ่ายเงิน (วิธีการชำระเงิน วันตัดรอบบิล ประวัติ(ย้อนหลัง20ครั้ง))
+/-เปลี่ยนเลขบัตร
+-ส่งเมลบอกตอนตัดบัตร/เปลี่ยน NEXT_BILL_DATE
 
 /Cancel Premium
 /-ถ้า yes status=0                    : Doesn't cancel premium yet
 -เปลี่ยน NEXT_BILL_DATE?
+/-ส่งเมลบอก
 
 Outfit Recommendation
 -คำนวนจากสัดส่วน
@@ -118,4 +120,4 @@ content
 -verify email
 -question and concern
 
--ต้องใส่ข้อมูลให้ครบ
+-เข้ารหัส
