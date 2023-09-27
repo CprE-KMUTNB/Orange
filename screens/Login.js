@@ -37,6 +37,9 @@ const Login = ({navigation}) => {
   const onPressResetPassword = () => {
     navigation.navigate('ResetPassword')
   }
+  const onPressVerifyEmail = () => {
+    navigation.navigate('VerifyEmail')
+  };
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
   const [confirm_password, onChangeConfirmPassword] = React.useState('');
@@ -71,7 +74,10 @@ const Login = ({navigation}) => {
             <AppButtonClear 
              onPress={onPressResetPassword}
              title={"Forgot Password"}/>
-            <AppButton title={"   Login   "}/>
+            <AppButton 
+              title={"   Login   "}
+              onPress={onPressVerifyEmail}
+            />
         </View>
         <AppText style={{color:'black', alignSelf:'center',width: 300, height:20, top:210 , left:37}}>Don't have an account?</AppText>
           <AppButtonButtom
@@ -86,7 +92,7 @@ const styles = StyleSheet.create({
     height: 580,
     width: 580,
     borderRadius: 290,
-    backgroundColor: "#FFE6DF",
+    backgroundColor: "#fdf4e2",
     top:110,
     alignItems: 'center',
     paddingTop:100,
@@ -95,7 +101,7 @@ const styles = StyleSheet.create({
     
   },
   container: {
-    backgroundColor: "#FF9176",
+    backgroundColor: "#e9a564",
     alignItems: "center",
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height

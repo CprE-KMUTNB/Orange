@@ -24,10 +24,10 @@ const Questions = () => {
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <View style={styles.squareTop}>
+        {/* <View style={styles.squareTop}>
           <Text style={styles.headerText}>Questions</Text>
           <AppText>and Concerns</AppText>
-        </View>
+        </View> */}
         <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
         <View style={styles.inputContainer}>
            <TextInput

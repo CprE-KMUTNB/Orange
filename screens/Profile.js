@@ -17,9 +17,9 @@ const Profile = ({navigation}) => {
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <View style={styles.squareTop}>
+        {/* <View style={styles.squareTop}>
           <Text style={styles.headerText}>Profile</Text>
-        </View>
+        </View> */}
         <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
         <View style={styles.innerCon}>
           <AppText style={{...styles.normalText1, ...styles.innerPos}}>Personal <Text style={styles.iconPos}> <Icon name='settings' size={25}/> </Text> </AppText>

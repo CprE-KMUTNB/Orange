@@ -11,9 +11,9 @@ const NewContent = () => {
   return (
     <SafeAreaView>
         <View style={styles.container}>
-            <View style={styles.squareTop}>
+            {/* <View style={styles.squareTop}>
                 <Text style={styles.headerText}>New Content</Text>
-            </View>
+            </View> */}
             <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.bigConBg}>

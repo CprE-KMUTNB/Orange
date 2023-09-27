@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
+import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity,} from 'react-native'
 import React from 'react'
+
 
 const AppButton = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -13,7 +14,7 @@ const AppText = (props) => (
 
 const FillInformation = ({navigation}) => {
   const onPressNewContent = () => {
-    navigation.navigate('NewContent')
+    navigation.navigate('New Content')
   }
     const [number1, onChangeWeight] = React.useState('');
     const [number2, onChangeHeight] = React.useState('');

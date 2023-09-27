@@ -25,10 +25,10 @@ const OutfitsRec = ({navigation}) => {
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <View style={styles.squareTop}>
+        {/* <View style={styles.squareTop}>
             <Text style={styles.headerText}>Outfit</Text>
             <AppText>Recommendation</AppText>
-        </View>
+        </View> */}
         <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
         <View style={styles.innerCon}>
           <AppText style={styles.normalText}>Place</AppText>

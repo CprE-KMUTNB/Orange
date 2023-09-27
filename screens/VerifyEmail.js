@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
-import React from 'react'
+import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView, Button, TouchableOpacity,  KeyboardAvoidingView, Dimensions} from 'react-native'
+import React , { useState, useRef } from 'react'
+import OTPTextView from 'react-native-otp-textinput'
 
 const AppButton = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -23,27 +24,56 @@ const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18}}>{props.children}</Text>
 )
 
-const VerifyEmail = () => {
-    const [number, onChangeNumber] = React.useState('');
+const VerifyEmail = ( {navigation}) => {
+  const [otpInput, setOtpInput] = useState("");
+  const input = useRef(null);
+  const clear = () => input.current?.clear();
+  const updateOtpText = () => input.current?.setValue(otpInput);
+  const showTextAlert = () => otpInput && Alert.alert(otpInput);
+  const handleCellTextChange = async (text, i) => {
+    if (i === 0) {
+      const clippedText = await Clipboard.getString();
+      if (clippedText.slice(0, 1) === text) {
+        input.current?.setValue(clippedText, true);
+      }
+    }
+  };
+  const onPressLogin = () => {
+    navigation.navigate('Login')
+  };
+  const onPressNewContent = () => {
+    navigation.navigate('New Content')
+  }
 
     return (
         <View style={styles.container}>
             <View style={{...styles.ellipse, transform: [{scaleX: 1.4}],}}/>
-            <View style={styles.circle}>
-            <Text style={{color:'black', fontSize:45, fontFamily: "Cuprum-Bold"}}>Verify your email</Text>
-            <AppText style={{color:'black', marginTop: 10}}>A 4-digit code has been sent to</AppText>
-            <Text style={{color:'black', fontFamily: "Cuprum-Bold", left:-26}}>sample@email.com</Text>
-                <AppButtonClear title={"Change"}/>
-            <SafeAreaView>
-                <TextInput
-                style={{...styles.otpinput, fontFamily: "Cuprum-VariableFont_wght"}}
-                onChangeText={onChangeNumber}
-                value={number}
-                placeholder=""
-                keyboardType="numeric"
+            <View style={styles.circle}> 
+              <Text style={{color:'black', fontSize:45, fontFamily: "Cuprum-Bold"}}>Verify your email</Text>
+              <AppText style={{color:'black', marginTop: 10}}>A 4-digit code has been sent to</AppText>
+              <Text style={{color:'black', fontFamily: "Cuprum-Bold", left:-32, fontSize: 18}}>sample@email.com</Text>
+              <AppButtonClear 
+                title={"Change"}
+                onPress={onPressLogin}
+              />
+              <SafeAreaView>
+                <OTPTextView
+                  ref={input}
+                  containerStyle={styles.textInputContainer}
+                  handleTextChange={setOtpInput}
+                  handleCellTextChange={handleCellTextChange}
+                  inputCount={4}
+                  keyboardType="numeric"
                 />
-            </SafeAreaView>
-                {/* ทำกล่อง otp แยกข้างล่างดีกว่า หาโหลดเอาล้ากาน*/}
+              </SafeAreaView>
+              <AppText style={{color:'black', marginTop: 5, left: -20}}>The OTP will be expired in</AppText>
+              <Text style={{color:'black', top: -20, fontFamily: "Cuprum-Bold", fontSize: 18, left: 90}}>9:59</Text>
+              <AppButton 
+                title={'Verify'}
+                onPress={onPressNewContent}
+              />
+            <AppText style={{color:'black', marginTop: 5, top:210, left: -30}}>Didn't recieve the code?</AppText>
+            <AppButtonButtom title={'Resend'} />
             </View> 
         </View>
     )
@@ -97,14 +127,14 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 10,
         paddingHorizontal: 12,
-        marginTop: 10
+        marginTop: 10,
+        width: 120
       },
       appButtonText: {
         fontSize: 18,
         color: "white",
         fontWeight: "bold",
         alignSelf: "center",
-        textTransform: "uppercase",
         fontFamily: "Cuprum-VariableFont_wght",
       },
       appButtonContainerClear: {
@@ -114,14 +144,14 @@ const styles = StyleSheet.create({
         paddingVertical: 0,
         paddingHorizontal: 0,
         marginTop: 0,
-        top: -18,
+        top: -23,
         left: 63
       },
       appButtonTextClear: {
-        fontSize: 14,
+        fontSize: 18,
         width: 50,
         color: "#E76F51",
-        left: 0,
+        left: 8,
         textDecorationLine: "underline",
         fontFamily: "Cuprum-VariableFont_wght",
       },
@@ -132,12 +162,12 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
         paddingHorizontal: 2,
         marginTop: 0,
-        top: 187,
-        left: 72
+        top: 184,
+        left: 80
       },
       appButtonTextButtom: {
-        fontSize: 14,
-        fontFamily: "sans-serif-thin",
+        fontSize: 18,
+        fontFamily: "Cuprum-VariableFont_wght",
         width: 50,
         color: "white",
         left: 0,
@@ -155,8 +185,64 @@ const styles = StyleSheet.create({
         borderColor: "#E76F51", 
         borderWidth:2,
         fontFamily: "Cuprum-VariableFont_wght"
-      }
-
+      },
+      otpinputContainer: {
+        margin: 12,
+        padding: 0, // Adjust the padding here as needed
+        height: 40,
+        width: 40,
+        top: -40,
+        borderRadius: 7,
+        borderColor: "#E76F51",
+        borderWidth: 2,
+      },
+    safeAreaView: {
+      flex: 1,
+    },
+    // container: {
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    //   backgroundColor: '#F5FCFF',
+    //   padding: 5,
+    //   paddingVertical: 20,
+    // },
+    welcome: {
+      fontSize: 20,
+      textAlign: 'center',
+      margin: 10,
+    },
+    instructions: {
+      fontSize: 18,
+      fontWeight: '500',
+      textAlign: 'center',
+      color: '#333333',
+      marginBottom: 10,
+    },
+    textInputContainer: {
+      marginBottom: 20,
+    },
+    roundedTextInput: {
+      borderRadius: 10,
+      borderWidth: 4,
+    },
+    buttonWrapper: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      marginBottom: 20,
+      width: '60%',
+      gap: 20,
+    },
+    textInput: {
+      height: 40,
+      width: '80%',
+      borderColor: '#000',
+      borderWidth: 1,
+      padding: 10,
+      fontSize: 16,
+      letterSpacing: 5,
+      marginBottom: 10,
+      textAlign: 'center',
+    },
 }
 )
 export default VerifyEmail
