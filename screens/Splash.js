@@ -13,7 +13,7 @@ const Splash = ({navigation}) => {
     <TouchableOpacity onPress = {onPressLogin}>
       <View style={styles.container} >
         <View style={styles.imgDiv}>
-          <Image style={{width: '100%', height: '100%', objectFit: 'scale-down'}} source = {require('../assets/logo5.png')} />
+          <Image style={{width: '100%', height: '100%', objectFit: 'scale-down'}} source = {require('../assets/logo8.png')} />
         </View>
         <AppText
         style={styles.textdeco}>Tap anywhere to start</AppText>
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         // backgroundColor: '#F6A158',
-        backgroundColor: '#eaa565',
+        backgroundColor: '#f2a676',
         paddingBottom: 70
     },
     imgDiv: {

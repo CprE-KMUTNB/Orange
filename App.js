@@ -17,6 +17,8 @@ import ProfilePremium from './screens/ProfilePremium';
 import MainDrawer from './screens/MainDrawer';
 import StackNavigator from './screens/StackNavigation';
 import Splash from './screens/Splash';
+import Ads from './screens/Ads';
+import CardInfo from './screens/CardInfo';
 
 
 const Stack = createNativeStackNavigator();
@@ -26,65 +28,9 @@ const App = () => {
     <NavigationContainer>
       <StackNavigator/>
     </NavigationContainer>
-  // )
-  // }
-    // <NavigationContainer>
-    //   <Stack.Navigator>
-    //     <Stack.Screen
-    //       name = "Login"
-    //       component = {Login}
-    //       options = {{headerShown: false}}
-    //     />
-    //     <Stack.Screen
-    //       name="Sign_up"
-    //       component={Sign_up}
-    //       options={{headerShown: false}}
-    //     />
-    //     <Stack.Screen
-    //       name="ResetPassword"
-    //       component={ResetPassword}
-    //       options={{headerShown: false}}
-    //     />
-    //     <Stack.Screen
-    //       name="FillInformation"
-    //       component={FillInformation}
-    //       options={{headerShown: false}}
-    //     />
-    //     <Stack.Screen
-    //       name="VerifyEmail"
-    //       component={VerifyEmail}
-    //       options={{headerShown: false}}
-    //     />
-    //     <Stack.Screen
-    //       name="NewContent"
-    //       component={NewContent}
-    //       options={{headerShown: false}}
-    //     />
-    //     <Stack.Screen
-    //       name="Profile"
-    //       component={Profile}
-    //       options={{headerShown: false}}
-    //     />
-    //     <Stack.Screen
-    //       name="ProfilePremium"
-    //       component={ProfilePremium}
-    //       options={{headerShown: false}}
-    //     />
-    //     <Stack.Screen
-    //       name="EditProfile"
-    //       component={EditProfile}
-    //       options={{headerShown: false}}
-    //     />
-   
-    //    </Stack.Navigator>
-    //   <MainDrawer/>
-    // </NavigationContainer> 
     // <View>
-    //   <VerifyEmail/>
+    //   <ProfilePremium/>
     // </View>
-    // <>
-    // <MainDrawer/>
-    // </>
   )
 }
 

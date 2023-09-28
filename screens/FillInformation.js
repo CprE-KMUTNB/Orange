@@ -18,14 +18,15 @@ const FillInformation = ({navigation}) => {
   }
     const [number1, onChangeWeight] = React.useState('');
     const [number2, onChangeHeight] = React.useState('');
-    const [number3, onChangeBust] = React.useState('');
-    const [number4, onChangeWaist] = React.useState('');
-    const [number5, onChangeHip] = React.useState('');
+    const [number3, onChangeShoulder] = React.useState('');
+    const [number4, onChangeBust] = React.useState('');
+    const [number5, onChangeWaist] = React.useState('');
+    const [number6, onChangeHip] = React.useState('');
     return (
         <View style={styles.container}>
             <View style={{...styles.ellipse}}/>
-                <Text style={{color:'black', fontSize:40, flex: 0, fontFamily: "Cuprum-Bold", top:-500}}>Fill Your Information</Text>
-                <View style={{...styles.circle, top:-500}}>
+                <Text style={{color:'black', fontSize:40, flex: 0, fontFamily: "Cuprum-Bold", top:-540}}>Fill Your Information</Text>
+                <View style={{...styles.circle, top:-550}}>
                     <AppText style={{color:'black', textAlign:'left', width:300}}>Weight</AppText>
                     <TextInput
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
@@ -42,11 +43,19 @@ const FillInformation = ({navigation}) => {
                         placeholder=""
                         keyboardType="numeric"
                     />
+                    <AppText style={{color:'black', textAlign:'left', width:300}}>Shoulder</AppText>
+                    <TextInput
+                        style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
+                        onChangeText={onChangeShoulder}
+                        value={number3}
+                        placeholder=""
+                        keyboardType="numeric"
+                    />
                     <AppText style={{color:'black', textAlign:'left', width:300}}>Bust</AppText>
                     <TextInput
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeBust}
-                        value={number3}
+                        value={number4}
                         placeholder=""
                         keyboardType="numeric"
                     />
@@ -54,7 +63,7 @@ const FillInformation = ({navigation}) => {
                     <TextInput
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeWaist}
-                        value={number4}
+                        value={number5}
                         placeholder=""
                         keyboardType="numeric"
                     />
@@ -62,7 +71,7 @@ const FillInformation = ({navigation}) => {
                     <TextInput
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeHip}
-                        value={number5}
+                        value={number6}
                         placeholder=""
                         keyboardType="numeric"
                     />
@@ -90,15 +99,15 @@ const styles = StyleSheet.create({
         height: 600,
         width: 600,
         borderRadius: 300,
-        backgroundColor: "#FF9176",
-        top: -400,
+        backgroundColor: "#f2a676",
+        top: -450,
         alignItems: 'center',
         paddingTop:90,
         transform: [{scaleX: 1.4}]
       
     },
     container: {
-      backgroundColor: "#FFE6DF",
+      backgroundColor: "#FAEBDC",
       alignItems: "center",
       width: Dimensions.get('window').width,
       height: Dimensions.get('window').height
@@ -122,7 +131,7 @@ const styles = StyleSheet.create({
     },
     appButtonContainer: {
         elevation: 0,
-        backgroundColor: "#E76F51",
+        backgroundColor: "#E67738",
         borderRadius: 10,
         paddingVertical: 10,
         marginTop: 10,

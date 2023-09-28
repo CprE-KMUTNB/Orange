@@ -14,15 +14,20 @@ const AppButton = ({ onPress, title }) => (
 )
 
 const Profile = ({navigation}) => {
+  const onPressEditProfile = () => {
+    navigation.navigate('EditProfile')
+  }
+  const onPressCardInfo = () => {
+    navigation.navigate('CardInfo')
+  }
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        {/* <View style={styles.squareTop}>
-          <Text style={styles.headerText}>Profile</Text>
-        </View> */}
-        <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
+      
+        
         <View style={styles.innerCon}>
-          <AppText style={{...styles.normalText1, ...styles.innerPos}}>Personal <Text style={styles.iconPos}> <Icon name='settings' size={25}/> </Text> </AppText>
+          <AppText style={{...styles.normalText1, ...styles.innerPos}}>Personal <Text style={styles.iconPos}> <Icon name='settings' size={25} onPress={onPressEditProfile}/> </Text> </AppText>
+           
           <AppText style={styles.normalText2}>Email : </AppText>
           <AppText style={styles.normalText2}>Password : </AppText>
           <AppText style={styles.normalText2}>Weight : </AppText>
@@ -30,7 +35,10 @@ const Profile = ({navigation}) => {
           <AppText style={styles.normalText2}>Bust : </AppText>
           <AppText style={styles.normalText2}>Waist : </AppText>
           <AppText style={styles.normalText2}>Hip : </AppText>
-          <AppButton title = {'Upgrade to premium'}/>
+          <AppButton 
+          title = {'Upgrade to premium'}
+          onPress={onPressCardInfo}
+          />
         </View>
       </View>
     </SafeAreaView>
@@ -49,7 +57,7 @@ const styles = StyleSheet.create({
     elevation: 5
 },
 container: {
-  backgroundColor: "#FFE6DF",
+  backgroundColor: "#FAEBDC",
   alignItems: "center",
   width: Dimensions.get('window').width,
   height: Dimensions.get('window').height
@@ -71,7 +79,7 @@ innerCon: {
 },
 appButtonContainer: {
   elevation: 0,
-  backgroundColor: "#E76F51",
+  backgroundColor: "#E67738",
   borderRadius: 10,
   paddingVertical: 15,
   paddingHorizontal: 12,
@@ -98,7 +106,7 @@ normalText2: {
 iconPos: {
   left: 10,
   marginRight: 'auto',
-  top: -47,
+  top: -45,
   color: 'black'
 }
   

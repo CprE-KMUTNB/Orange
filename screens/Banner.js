@@ -44,13 +44,14 @@ onchange = (nativeEvent) => {
               images.map((e, index) =>
               <Image
               key={e}
-              resizeMode = 'contain'
+              resizeMode = 'center'
               style={styles.wrap}
               source = {{uri: e}}
               />
               )
             }
           </ScrollView>
+          {/* <Text style={{fontFamily: "Cuprum-VariableFont_wght", fontSize: 20, color: 'black', marginRight: 'auto', transform: 'rotateZ(-20deg)', marginLeft: 10, top:-320}}>New arrival</Text> */}
           <View style={styles.wrapDot}>
             {
               images.map((e, index) =>
@@ -90,6 +91,7 @@ const styles = StyleSheet.create({
       height: Dimensions.get('window').height * 0.45,
       backgroundColor: '#f4f4f4',
       borderRadius: 15,
+      top: 0
     },
     wrapDot: {
       position: 'absolute',

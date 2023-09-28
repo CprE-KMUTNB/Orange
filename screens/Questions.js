@@ -28,12 +28,12 @@ const Questions = () => {
           <Text style={styles.headerText}>Questions</Text>
           <AppText>and Concerns</AppText>
         </View> */}
-        <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
+        {/* <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text> */}
         <View style={styles.inputContainer}>
            <TextInput
               editable
               multiline
-              numberOfLines={2}
+              numberOfLines={5}
               onChangeText={text => onChangeText(text)}
               style={styles.input}
               placeholder='Type your questions or concerns here...'
@@ -56,7 +56,7 @@ const Questions = () => {
           >
             <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1}></TouchableOpacity>
             <View style={styles.centerStyle}>
-              <Text style={styles.modalheadtext}>Are you sure to cancel premium?</Text>
+              <Text style={styles.modalheadtext}>Thank you for your feedback</Text>
               <View>
                 <ModalButton
                   style={styles.buttonstyle}
@@ -80,10 +80,10 @@ const styles = StyleSheet.create({
     paddingTop:5,
     fontFamily: "Cuprum-VariableFont_wght",
     justifyContent: "center",
-    elevation: 5
+    elevation: 5,
   },
   container: {
-    backgroundColor: "#FFE6DF",
+    backgroundColor: "#FAEBDC",
     alignItems: "center",
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   appButtonContainer: {
     elevation: 0,
-    backgroundColor: "#E76F51",
+    backgroundColor: "#E67738",
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -132,12 +132,13 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: Dimensions.get('window').width*0.8,
-    height: Dimensions.get('window').width*0.75,
+    height: Dimensions.get('window').width*0.7,
     alignItems: 'center', 
     marginTop: 10, 
     backgroundColor: 'white',
     borderWidth: 1,
-    borderRadius: 10
+    borderRadius: 10,
+    top: 0
     // justifyContent: 'flex-start'
   },
   input: {
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     marginTop: 'auto',
     marginBottom: 'auto',
-    backgroundColor: '#FFE6DF', 
+    backgroundColor: '#FAEBDC', 
     padding: 0, 
     width: '85%',
     height: '35%',
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
   },
   modalButtonContainer: {
     elevation: 0,
-    backgroundColor: "#E76F51",
+    backgroundColor: "#E67738",
     borderRadius: 8,
     paddingVertical: 5,
     paddingHorizontal: 5,

@@ -15,11 +15,15 @@ const EditProfile = ({navigation}) => {
   const onPressNewContent = () => {
     navigation.navigate('NewContent')
   }
+  const onPressProfile = () => {
+    navigation.navigate('Profile')
+  }
     const [number1, onChangeWeight] = React.useState('');
     const [number2, onChangeHeight] = React.useState('');
-    const [number3, onChangeBust] = React.useState('');
-    const [number4, onChangeWaist] = React.useState('');
-    const [number5, onChangeHip] = React.useState('');
+    const [number3, onChangeShoulder] = React.useState('');
+    const [number4, onChangeBust] = React.useState('');
+    const [number5, onChangeWaist] = React.useState('');
+    const [number6, onChangeHip] = React.useState('');
     return (
         <View style={styles.container}>
             <View style={styles.squareTop}>
@@ -43,11 +47,19 @@ const EditProfile = ({navigation}) => {
                 placeholder=""
                 keyboardType="numeric"
             />
+            <AppText style={styles.inputTitle}>Shoulder</AppText>
+            <TextInput
+                style={styles.input}
+                onChangeText={onChangeShoulder}
+                value={number3}
+                placeholder=""
+                keyboardType="numeric"
+            />
             <AppText style={styles.inputTitle}>Bust</AppText>
             <TextInput
                 style={styles.input}
                 onChangeText={onChangeBust}
-                value={number3}
+                value={number4}
                 placeholder=""
                 keyboardType="numeric"
             />
@@ -55,7 +67,7 @@ const EditProfile = ({navigation}) => {
             <TextInput
                 style={styles.input}
                 onChangeText={onChangeWaist}
-                value={number4}
+                value={number5}
                 placeholder=""
                 keyboardType="numeric"
             />
@@ -63,12 +75,12 @@ const EditProfile = ({navigation}) => {
             <TextInput
                 style={styles.input}
                 onChangeText={onChangeHip}
-                value={number5}
+                value={number6}
                 placeholder=""
                 keyboardType="numeric"
             />
             <AppButton 
-                onPress={onPressNewContent}
+                onPress={onPressProfile}
                 title={"Submit"}/>
             </View>        
         </View>
@@ -79,14 +91,14 @@ const styles = StyleSheet.create({
     squareTop: {
         height: 90,
         width: Dimensions.get('window').width,
-        backgroundColor: "#FF9176",
+        backgroundColor: "#f2a676",
         alignItems: 'center',
         paddingTop:5,
         fontFamily: "Cuprum-VariableFont_wght",
         justifyContent: "center",
     },
     container: {
-      backgroundColor: "#FFE6DF",
+      backgroundColor: "#FAEBDC",
       alignItems: "center",
       width: Dimensions.get('window').width,
       height: Dimensions.get('window').height
@@ -111,7 +123,7 @@ const styles = StyleSheet.create({
     },
     appButtonContainer: {
         elevation: 0,
-        backgroundColor: "#E76F51",
+        backgroundColor: "#E67738",
         borderRadius: 10,
         paddingVertical: 10,
         marginTop: 10,

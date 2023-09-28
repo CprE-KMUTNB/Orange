@@ -22,6 +22,9 @@ const ModalButton = ({ onPress, title }) => (
 
 const OutfitsRec = ({navigation}) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const onPressAds = () => {
+    navigation.navigate('Ads')
+  }
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -64,7 +67,7 @@ const OutfitsRec = ({navigation}) => {
                     />
                       <ModalButton
                       title='Close'
-                      onPress= {() => setIsModalVisible(false)} />
+                      onPress= {onPressAds} />
                   </View>
               </View>
             </Modal>
@@ -88,7 +91,7 @@ const styles = StyleSheet.create({
     elevation: 5
   },
   container: {
-    backgroundColor: "#FFE6DF",
+    backgroundColor: "#FAEBDC",
     alignItems: "center",
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
@@ -104,12 +107,12 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width*0.8,
     height: Dimensions.get('window').height*0.45,
     borderRadius: 15,
-    marginTop: 30,
+    marginTop: 0,
     alignItems: 'center',
   },
   appButtonContainer: {
     elevation: 0,
-    backgroundColor: "#E76F51",
+    backgroundColor: "#E67738",
     borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 12,
@@ -149,7 +152,7 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     marginTop: 'auto',
     marginBottom: 'auto',
-    backgroundColor: '#FFE6DF', 
+    backgroundColor: '#FAEBDC', 
     padding: 0, 
     width: '85%',
     height: '75%',
@@ -157,17 +160,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // borderWidth: 1,
     // borderColor: 'black',
-    borderRadius: 5
+    borderRadius: 5,
+    elevation: 5
   },
   modalButtonContainer: {
     elevation: 0,
-    backgroundColor: "#E76F51",
+    backgroundColor: "#E67738",
     borderRadius: 8,
     paddingVertical: 5,
     paddingHorizontal: 5,
     marginTop: 30,
     width: 180,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   modalButtonText: {
     fontSize: 18,

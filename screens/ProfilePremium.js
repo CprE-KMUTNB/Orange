@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   squareTop: {
     height: 70,
     width: Dimensions.get('window').width,
-    backgroundColor: "#FF9176",
+    backgroundColor: "#f2a676",
     alignItems: 'center',
     paddingTop:5,
     fontFamily: "Cuprum-VariableFont_wght",
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     elevation: 5
 },
 container: {
-  backgroundColor: "#FFE6DF",
+  backgroundColor: "#FAEBDC",
   alignItems: "center",
   width: Dimensions.get('window').width,
   height: Dimensions.get('window').height
@@ -150,7 +150,7 @@ innerCon2: {
 },
 appButtonContainer: {
   elevation: 0,
-  backgroundColor: "#E76F51",
+  backgroundColor: "#E67738",
   borderRadius: 10,
   paddingVertical: 15,
   paddingHorizontal: 12,

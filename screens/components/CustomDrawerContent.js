@@ -1,6 +1,7 @@
 import { DrawerContentScrollView, DrawerItemList, DrawerItem } from "@react-navigation/drawer";
 import { Modal, TouchableOpacity, StyleSheet, View, Text } from 'react-native'
 import { useState } from "react";
+import IconO from 'react-native-vector-icons/Octicons';
 
 const ModalButtonY = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.modalButtonYContainer}>
@@ -50,11 +51,14 @@ function CustomDrawerContent(props) {
         </Modal>
         <DrawerItemList {...props} />
         <DrawerItem
+          icon = {() => (
+            <IconO name={"sign-out"} size={21} color={"black"} paddingLeft={-5}/>
+          )}
           label="Sign Out"
           onPress={() => {
             setIsModalVisible(true);
           }}
-          labelStyle={{fontFamily: "Cuprum-VariableFont_wght", fontSize: 18, color: 'black'}}
+          labelStyle={{fontFamily: "Cuprum-VariableFont_wght", fontSize: 19, color: 'black', left: -15}}
         />
       </DrawerContentScrollView>
     );
@@ -68,7 +72,7 @@ function CustomDrawerContent(props) {
     },
     modalButtonYContainer: {
         elevation: 0,
-        backgroundColor: "#E76F51",
+        backgroundColor: "#E67738",
         borderRadius: 8,
         paddingVertical: 5,
         paddingHorizontal: 5,
@@ -84,7 +88,7 @@ function CustomDrawerContent(props) {
       },
       modalButtonNContainer: {
         elevation: 0,
-        backgroundColor: "#E76F51",
+        backgroundColor: "#E67738",
         borderRadius: 8,
         paddingVertical: 5,
         paddingHorizontal: 5,
@@ -104,7 +108,7 @@ function CustomDrawerContent(props) {
         marginRight: 'auto',
         marginTop: 'auto',
         marginBottom: 'auto',
-        backgroundColor: '#FFE6DF', 
+        backgroundColor: '#FAEBDC', 
         padding: 0, 
         width: '85%',
         height: '35%',
@@ -112,8 +116,14 @@ function CustomDrawerContent(props) {
         justifyContent: 'center',
         // borderWidth: 1,
         // borderColor: 'black',
-        borderRadius: 10
+        borderRadius: 10,
+        elevation: 8
     },
+    modalheadtext: {
+      fontFamily: "Cuprum-VariableFont_wght",
+      fontSize: 18,
+      color: 'black',
+    }
 })
 
 export default CustomDrawerContent;

@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     height: 580,
     width: 580,
     borderRadius: 290,
-    backgroundColor: "#FFE6DF",
+    backgroundColor: "#FAEBDC",
     top:-500,
     alignItems: 'center',
     paddingTop:150
@@ -67,14 +67,14 @@ const styles = StyleSheet.create({
     height: 600,
     width: 600,
     borderRadius: 300,
-    backgroundColor: "#FFE6DF",
+    backgroundColor: "#FAEBDC",
     top: 100,
     alignItems: 'center',
     paddingTop:90
   
 },
   container: {
-    backgroundColor: "#FF9176",
+    backgroundColor: "#f2a676",
     alignItems: "center",
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   appButtonContainer: {
     elevation: 0,
-    backgroundColor: "#E76F51",
+    backgroundColor: "#E67738",
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,

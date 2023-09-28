@@ -87,21 +87,25 @@ const Login = ({navigation}) => {
   )
 }
 
+
+// #FAEBDC อ่อน
+// #f2a676 เข้ม
+// #E67738 button
+
 const styles = StyleSheet.create({
   circle: {
     height: 580,
     width: 580,
     borderRadius: 290,
-    backgroundColor: "#fdf4e2",
+    backgroundColor: "#FAEBDC",
     top:110,
     alignItems: 'center',
     paddingTop:100,
     fontFamily: "Cuprum-VariableFont_wght",
     // justifyContent: "center",
-    
   },
   container: {
-    backgroundColor: "#e9a564",
+    backgroundColor: "#f2a676",
     alignItems: "center",
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
@@ -124,7 +128,7 @@ const styles = StyleSheet.create({
   },
   appButtonContainer: {
     elevation: 0,
-    backgroundColor: "#E76F51",
+    backgroundColor: "#E67738",
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -138,7 +142,7 @@ const styles = StyleSheet.create({
   },
   appButtonContainerClear: {
     elevation: 0,
-    backgroundColor: "#FFE6DF",
+    backgroundColor: "#FAEBDC",
     borderRadius: 10,
     paddingVertical: 2,
     paddingHorizontal: 2,
@@ -155,7 +159,7 @@ const styles = StyleSheet.create({
   },
   appButtonContainerButtom: {
     elevation: 0,
-    backgroundColor: "#FF9176",
+    backgroundColor: "#f2a676",
     borderRadius: 10,
     paddingVertical: 2,
     paddingHorizontal: 2,

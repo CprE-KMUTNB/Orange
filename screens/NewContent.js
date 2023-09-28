@@ -11,41 +11,41 @@ const NewContent = () => {
   return (
     <SafeAreaView>
         <View style={styles.container}>
-            {/* <View style={styles.squareTop}>
-                <Text style={styles.headerText}>New Content</Text>
-            </View> */}
-            <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
+            {/* <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text> */}
             <ScrollView style={styles.scrollView}>
+                <View style={styles.bigConcolor}>
+                <Text style={styles.middleTextHeader}>NEW ARRIVAL</Text>
                 <View style={styles.bigConBg}>
-                    <Text style={styles.middleTextHeader}>New Updates</Text>
                         <View style={styles.bigImgContainer}>
                             {/* <Image style={styles.bigImg} source = {require('../assets/clothes/Beach-outfit-for-this-summer.jpg')} /> */}
                             <Banner/>
                         </View>
+                        </View>
                 </View>
                 <View style={styles.smallConBg}>
+                <Text style={styles.middleTextHeader2}>SHOW CASE</Text>
                     <View style={styles.smallConGroup}>
                         <View style={styles.halfConL}>
                             <View style={styles.smallImgContainer}>
                                 <Image style={styles.smallImg} source={require('../assets/clothes/Business-casual-style.jpg')} />
-                                <AppText style={styles.middleText}>Business casual style</AppText>
-                                <Image style={styles.smallImg} source={require('../assets/clothes/men-casual-style.jpg')} />
-                                <AppText style={styles.middleText}>Men casual style</AppText>
+                                <AppText style={styles.middleText}>Pastel - Work</AppText>
+                                <Image style={styles.smallImg} source={require('../assets/clothes/Date-night.jpg')} />
+                                <AppText style={styles.middleText}>Date night</AppText>
                                 <View style={styles.smallImgContainer2}>
                                     <Image style={styles.smallImg} source={require('../assets/clothes/korean-simple-outfits.jpg')} />
-                                    <AppText style={styles.middleText}>Korean simple outfits</AppText>
+                                    <AppText style={styles.middleText}>Earth tone - Work</AppText>
                                 </View>
                             </View>
                         </View>
                         <View style={styles.halfConR}>
                             <View style={styles.smallImgContainer2}>
-                                <Image style={styles.smallImg} source={require('../assets/clothes/night-out-for-men.jpg')} />
-                                <AppText style={styles.middleText}>Night out for men</AppText>
+                                <Image style={styles.smallImg} source={require('../assets/clothes/Earth-tone-theme-for-holliday.jpg')} />
+                                <AppText style={styles.middleText}>Earth tone - Holiday</AppText>
                                 <View style={styles.smallImgContainer}>
                                     <Image style={styles.smallImg} source={require('../assets/clothes/picnic-outfits.jpg')} />
-                                    <AppText style={styles.middleText}>Picnic outfits</AppText>
+                                    <AppText style={styles.middleText}>White - Holiday</AppText>
                                     <Image style={styles.smallImg} source={require('../assets/clothes/summer-outfits.jpg')} />
-                                    <AppText style={styles.middleText}>Summer outfits</AppText>
+                                    <AppText style={styles.middleText}>White - Beach</AppText>
                                 </View>
                             </View>
                                 
@@ -76,12 +76,13 @@ const styles = StyleSheet.create({
       width: Dimensions.get('window').width,
       height: Dimensions.get('window').height,
       alignItems: 'center',
+      backgroundColor: '#FAEBDC'
     },
     scrollView: {
         backgroundColor: "white",
         width: Dimensions.get('window').width,
         flex: 1,
-        top: -30
+        
     },
     halfConL:{
         // backgroundColor: 'black',
@@ -108,6 +109,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         overflow: 'hidden',
     },
+    bigConcolor:{
+        width: Dimensions.get('window').width,
+        height: 420,
+        alignItems: 'center',
+        backgroundColor: '#fdfdfd'
+    },
     bigImg: {
         width: '100%',
         height: '100%',
@@ -119,20 +126,20 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
         // paddingVertical: 0,
         marginTop: 15,
-        backgroundColor: '#white',
+        backgroundColor: '#FAEBDC',
         alignItems: 'center'
     },
     smallImgContainer: {
         alignItems: "center",
         width: Dimensions.get('window').width/2.5,
         height: 195,
-        paddingVertical: 10
+        paddingVertical: 0
     },
     smallImgContainer2: {
         alignItems: "center",
         width: Dimensions.get('window').width/2.5,
         height: 175,
-        paddingVertical: 10,
+        paddingVertical: 0,
     },
     smallImg: {
         width: '100%',
@@ -158,22 +165,34 @@ const styles = StyleSheet.create({
         color: 'black',
         paddingTop: 10,
         paddingLeft: 25,
-        paddingBottom: 5,
+        paddingBottom: 0,
         fontSize: 20,
-        fontFamily: "Cuprum-VariableFont_wght",
+        fontFamily: "Cuprum-Bold",
+    },
+    middleTextHeader2: {
+        marginRight: 'auto', 
+        color: 'black',
+        paddingTop: 10,
+        paddingLeft: 5,
+        paddingBottom: 0,
+        fontSize: 20,
+        fontFamily: "Cuprum-Bold",
     },
     bigConBg: {
         backgroundColor: '#white',
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height * 0.5,
-        alignItems: 'center'
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingBottom: 13,
+        paddingTop: 5
     },
     smallConGroup: {
         backgroundColor: 'f6f6f6',
         width: Dimensions.get('window').width*0.9,
         borderRadius: 10,
         padding: 10,
-        marginTop: 20,
+        marginTop: 0,
         height: 650
     },
     iconPos: {
