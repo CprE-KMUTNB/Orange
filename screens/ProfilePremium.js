@@ -34,6 +34,9 @@ const ProfilePremium = ({navigation}) => {
   const onPressEditProfile = () => {
     navigation.navigate('EditProfile')
   }
+  const onPressCardInfo = () => {
+    navigation.navigate('CardInfo')
+  }
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -41,25 +44,36 @@ const ProfilePremium = ({navigation}) => {
           <Text style={styles.headerText}>Profile</Text>
         </View>
         <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
-        <View style={styles.innerCon}>
+        <View style={{...styles.innerCon, paddingTop:330}}>
           <AppText style={{...styles.normalText1}}>Personal 
-            <Text style={styles.iconPos}> <Icon name='settings' size={25} onPress={onPressEditProfile}/> </Text> 
+            <Text style={styles.iconPos}> <Icon name='settings' size={22} onPress={onPressEditProfile}/> </Text> 
           </AppText>
           <AppText style={styles.normalText2}>Email : </AppText>
           <AppText style={styles.normalText2}>Password : </AppText>
           <AppText style={styles.normalText2}>Weight : </AppText>
           <AppText style={styles.normalText2}>Height : </AppText>
+          <AppText style={styles.normalText2}>Shoulder: </AppText>
           <AppText style={styles.normalText2}>Bust : </AppText>
           <AppText style={styles.normalText2}>Waist : </AppText>
           <AppText style={styles.normalText2}>Hip : </AppText>
+          <View style={{ top:-345, width:Dimensions.get('window').width*0.8}}>
+            <AppText style={styles.normalText3}>sample@email.com </AppText>
+            <AppText style={styles.normalText3}>●●●●●●●● </AppText>
+            <AppText style={styles.normalText3}>50 </AppText>
+            <AppText style={styles.normalText3}>160 </AppText>
+            <AppText style={styles.normalText3}>80 </AppText>
+            <AppText style={styles.normalText3}>33 </AppText>
+            <AppText style={styles.normalText3}>26 </AppText>
+            <AppText style={styles.normalText3}>35 </AppText>
+          </View>
           {/* <AppButton 
           title = {'Cancel Premium'}
           onPress={() => setIsModalVisible(true)}
           /> */}
           </View>
           <View style={styles.innerCon2}>
-                <AppText style={styles.normalText1}>Payment Detail 
-                <Icon name='settings' size={25} /> 
+                <AppText style={styles.normalText11}>Payment Detail  
+                <Text style={styles.iconPos2}> <Icon name='settings' size={22} onPress={onPressCardInfo}/> </Text>
                 </AppText>
                 <View style={styles.modaltextcon}>
                   <AppText style={styles.normalText2}>Payment method : *3342</AppText>
@@ -115,7 +129,7 @@ const styles = StyleSheet.create({
     paddingTop:5,
     fontFamily: "Cuprum-VariableFont_wght",
     justifyContent: "center",
-    elevation: 5
+    elevation: 8
 },
 container: {
   backgroundColor: "#FAEBDC",
@@ -132,7 +146,7 @@ headerText: {
 innerCon: {
   backgroundColor: 'white',
   width: Dimensions.get('window').width*0.8,
-  height: Dimensions.get('window').height*0.4,
+  height: Dimensions.get('window').height*0.45,
   borderRadius: 8,
   marginTop: 0,
   alignItems: 'center',
@@ -154,7 +168,7 @@ appButtonContainer: {
   borderRadius: 10,
   paddingVertical: 15,
   paddingHorizontal: 12,
-  marginTop: 40,
+  marginTop: 25,
   width: 180,
   alignItems: 'center'
 },
@@ -166,7 +180,7 @@ appButtonText: {
 },
 modalButtonYContainer: {
     elevation: 0,
-    backgroundColor: "#E76F51",
+    backgroundColor: "#E67738",
     borderRadius: 8,
     paddingVertical: 5,
     paddingHorizontal: 5,
@@ -182,7 +196,7 @@ modalButtonYContainer: {
   },
   modalButtonNContainer: {
     elevation: 0,
-    backgroundColor: "#E76F51",
+    backgroundColor: "#E67738",
     borderRadius: 8,
     paddingVertical: 5,
     paddingHorizontal: 5,
@@ -199,12 +213,25 @@ modalButtonYContainer: {
   },
   normalText1: {
     paddingLeft: 15,
-    marginRight: 'auto'
+    marginRight: 'auto',
+
+  },
+  normalText11: {
+    paddingLeft: 15,
+    marginRight: 'auto',
+    paddingRight: 15
+
   },
   normalText2: {
     paddingVertical: 8,
     paddingLeft: 30,
     marginRight: 'auto'
+  },
+  normalText3: {
+    paddingVertical: 10,
+    paddingRight: 10,
+    // marginRight: 'auto',
+    marginLeft:'auto'
   },
   iconPos: {
     left: 10,
@@ -212,12 +239,17 @@ modalButtonYContainer: {
     top: -45,
     color: 'black'
   },
+  iconPos2: {
+    left: 15,
+    top: -45,
+    color: 'black',
+  },
   centerStyle: {
       marginLeft: 'auto',
       marginRight: 'auto',
       marginTop: 'auto',
       marginBottom: 'auto',
-      backgroundColor: '#FFE6DF', 
+      backgroundColor: '#FAEBDC', 
       padding: 0, 
       width: '85%',
       height: '35%',
@@ -225,7 +257,8 @@ modalButtonYContainer: {
       justifyContent: 'center',
       // borderWidth: 1,
       // borderColor: 'black',
-      borderRadius: 10
+      borderRadius: 10,
+      elevation: 8
   },
   decoStyle: {
       width: '90%',

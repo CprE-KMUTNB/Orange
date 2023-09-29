@@ -20,21 +20,33 @@ const Profile = ({navigation}) => {
   const onPressCardInfo = () => {
     navigation.navigate('CardInfo')
   }
+  
   return (
     <SafeAreaView>
       <View style={styles.container}>
       
         
-        <View style={styles.innerCon}>
+        <View style={{...styles.innerCon, paddingTop:380}}>
           <AppText style={{...styles.normalText1, ...styles.innerPos}}>Personal <Text style={styles.iconPos}> <Icon name='settings' size={25} onPress={onPressEditProfile}/> </Text> </AppText>
            
           <AppText style={styles.normalText2}>Email : </AppText>
           <AppText style={styles.normalText2}>Password : </AppText>
           <AppText style={styles.normalText2}>Weight : </AppText>
           <AppText style={styles.normalText2}>Height : </AppText>
+          <AppText style={styles.normalText2}>Shoulder: </AppText>
           <AppText style={styles.normalText2}>Bust : </AppText>
           <AppText style={styles.normalText2}>Waist : </AppText>
           <AppText style={styles.normalText2}>Hip : </AppText>
+          <View style={{ top:-345, width:Dimensions.get('window').width*0.8}}>
+            <AppText style={styles.normalText3}>sample@email.com </AppText>
+            <AppText style={styles.normalText3}>●●●●●●●● </AppText>
+            <AppText style={styles.normalText3}>50 </AppText>
+            <AppText style={styles.normalText3}>160 </AppText>
+            <AppText style={styles.normalText3}>80 </AppText>
+            <AppText style={styles.normalText3}>33 </AppText>
+            <AppText style={styles.normalText3}>26 </AppText>
+            <AppText style={styles.normalText3}>35 </AppText>
+          </View>
           <AppButton 
           title = {'Upgrade to premium'}
           onPress={onPressCardInfo}
@@ -81,11 +93,13 @@ appButtonContainer: {
   elevation: 0,
   backgroundColor: "#E67738",
   borderRadius: 10,
-  paddingVertical: 15,
+  paddingVertical: 10,
   paddingHorizontal: 12,
   marginTop: 10,
   width: 240,
-  alignItems: 'center'
+  height: 50,
+  alignItems: 'center',
+  top: -300
 },
 appButtonText: {
   fontSize: 22,
@@ -102,6 +116,12 @@ normalText2: {
   paddingVertical: 10,
   paddingLeft: 30,
   marginRight: 'auto'
+},
+normalText3: {
+  paddingVertical: 10,
+  paddingRight: 10,
+  // marginRight: 'auto',
+  marginLeft:'auto'
 },
 iconPos: {
   left: 10,

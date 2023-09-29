@@ -16,9 +16,9 @@ const CardInfo = ({navigation}) => {
     const [number2, onChangeDate] = React.useState('');
     const [number3, onChangeCVV] = React.useState('');
     const [text, onChangeText] = React.useState('');
-    const onPressProfile = () => {
-        navigation.navigate('Profile')
-      }
+    const onPressProfilePremium = () => {
+      navigation.navigate('ProfilePremium')
+    }
   return (
     <View style={styles.container}>
         <View style={styles.squareTop}>
@@ -37,17 +37,19 @@ const CardInfo = ({navigation}) => {
         <TextInput
             style={styles.input}
             onChangeText={onChangeDate}
-            value={number1}
+            value={number2}
             placeholder="MM/YY"
             keyboardType="numeric"
+            maxLength={4}
         />
         <AppText>CVV</AppText>
         <TextInput
             style={styles.input}
             onChangeText={onChangeCVV}
-            value={number1}
+            value={number3}
             placeholder="CVV"
             keyboardType="numeric"
+            maxLength={3}
         />
         <AppText>Card holder</AppText>
         <TextInput
@@ -57,7 +59,7 @@ const CardInfo = ({navigation}) => {
             placeholder='Mirinda Bigon'
         />
         <AppButton
-           onPress={onPressProfile}
+           onPress={onPressProfilePremium}
            title={"Submit"}/>
         </View>
       </View>
