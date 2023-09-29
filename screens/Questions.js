@@ -33,7 +33,7 @@ const Questions = () => {
            <TextInput
               editable
               multiline
-              numberOfLines={5}
+              numberOfLines={2}
               onChangeText={text => onChangeText(text)}
               style={styles.input}
               placeholder='Type your questions or concerns here...'
