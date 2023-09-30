@@ -395,7 +395,7 @@ app.get("/new_content", async (req, res) => {
     try {
         connection.query(
             //ดึงข้อมูลของ content มา
-            "SELECT * FROM content ORDER by CONTENT_ID DESC LIMIT 20",
+            "SELECT * FROM content ORDER by CONTENT_ID DESC LIMIT 30",
             [id],
             (err, results, fields) => {
                 if (err) {
@@ -695,11 +695,54 @@ app.patch("/cancel_premium", async (req, res) => {
 
 //----------------------------Outfit Recommendation--------------------------------------//
 
-// if ( place == "Work") {}
-// else if ( place == "Date night") {}
-// else if ( place == "Holiday Vacation") {}
-// else if ( place == "Beach") {}
-// else if ( place == "Picnic") {}
+//for showing place selection
+app.get("/place", async (req, res) => {
+    try {
+        connection.query(
+            "SELECT CHOICE FROM place",
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find any place selection"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//for showing theme selection
+app.get("/theme", async (req, res) => {
+    try {
+        connection.query(
+            "SELECT CHOICE FROM theme",
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find any theme selection"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //----------------------------See recommendation--------------------------------------//
 
 //for Outfit Recommendation
@@ -878,9 +921,255 @@ app.post("/update_theme", async (req, res) => {
 
 })
 
+//ลบ place
+app.delete("/delete_place", async (req, res) => {
+    const place = req.body.place;
+    try {
+        connection.query(
+            "DELETE FROM place WHERE CHOICE = ?", //ดึงข้อมูล
+            [place],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.affectedRow === 0) {
+                    return res.status(404).json({ message: "No such choice"})
+                }
+                res.status(200).json({ message: "place selection deleted successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+//ลบ theme
+app.delete("/delete_theme", async (req, res) => {
+    const theme = req.body.theme;
+    try {
+        connection.query(
+            "DELETE FROM theme WHERE CHOICE = ?", //ดึงข้อมูล
+            [theme],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.affectedRow === 0) {
+                    return res.status(404).json({ message: "No such choice"})
+                }
+                res.status(200).json({ message: "theme selection deleted successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
 //----------------------------update fashion--------------------------------------//
 
+//ลบ fashion
+app.delete("/delete_fashion", async (req, res) => {
+    const id = req.body.id;
+    try {
+        connection.query(
+            "DELETE FROM fashion WHERE FASHION_ID = ?", //ดึงข้อมูล
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.affectedRow === 0) {
+                    return res.status(404).json({ message: "No fashion with that id"})
+                }
+                res.status(200).json({ message: "fashion deleted successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
 
+})
+
+//----------------------------update new contents--------------------------------------//
+
+//for admin to update place selection
+app.post("/update_content", async (req, res) => {
+    const {title,pic,body} = req.body
+    try {
+        connection.query(
+            "INSERT INTO content(`TITLE`, `PIC`, `BODY`) VALUES (?,?,?)", //ดึงข้อมูล
+            [title,pic,body],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).json({message : "insert content successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+//----------------------------manage contents--------------------------------------//
+
+//edit content
+app.patch("/edit_content", async (req, res) => {
+    const {pic, title, id} = req.body
+    try {
+        connection.query(
+            "UPDATE content SET PIC = ?, TITLE = ? WHERE CONTENT_ID = ?",
+            [pic, title, id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).json({message : "update content successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+//ลบ content
+app.delete("/delete_content", async (req, res) => {
+    const id = req.body.id;
+    try {
+        connection.query(
+            "DELETE FROM content WHERE CONTENT_ID = ?", //ดึงข้อมูล
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.affectedRow === 0) {
+                    return res.status(404).json({ message: "No content with that id"})
+                }
+                res.status(200).json({ message: "content deleted successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+//----------------------------question and concern for admin--------------------------------------//
+
+//for showing unanswer question and concern to admin
+app.get("/unanswer_concern", async (req, res) => {
+    try {
+        connection.query(
+            "SELECT TEXT FROM concern WHERE ANSWER IS NULL",
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find any unanswer question and concern"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//for admin to question and concern
+app.patch("/ans_concern", async (req, res) => {
+    const {id,text} = req.body
+
+    try {
+        //เก็บข้อความตอบกลับไว้ในฐานข้อมูล
+        connection.query(
+            "INSERT INTO concern(`ANSWER`) VALUES (?)",
+            [text],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                //ส่งข้อความตอบกลับไปที่อีเมลของผู้ใช้
+                connection.query(
+                    "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
+                    [id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+
+                        const text_sending = {
+                            from: 's6501012610033@email.kmutnb.ac.th',
+                            to: results[0].ACCOUNT_EMAIL,
+                            subject: 'Thank you for your feedback to Orange',
+                            text: text
+                        };
+
+                        transporter.sendMail(text_sending, (err, info) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                            return res.status(200).json({status:"success", message : "User's question and concern answered successfully!"})
+                        });
+                    }
+                )
+            }
+        )
+        
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//for showing answered question and concern to admin
+app.get("/answered_concern", async (req, res) => {
+    try {
+        connection.query(
+            "SELECT TEXT , ANSWER FROM concern WHERE ANSWER IS NOT NULL ORDER BY CONCERN_ID ASC",
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find any answered question and concern"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 

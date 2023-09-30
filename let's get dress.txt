@@ -71,12 +71,13 @@ Payment Detail
 -เปลี่ยน NEXT_BILL_DATE?
 /-ส่งเมลบอก
 
-Outfit Recommendation
+/Outfit Recommendation
+/-แสดง choice
+
+See recommendation
 /-คำนวนจากสัดส่วน
 /-คำนวนจาก theme place
 เหลือข้อมูล
-
-/See recommendation
 
 /Ask Question and concern
 /-เก็บข้อมูลเมล?
@@ -89,12 +90,21 @@ Outfit Recommendation
 ---------admin------------
 
 /update selection
+/-delete
 
 update fashion
+/-delete
 
 update new contents
 
-manage contents
+manage
+-update
+/-delete
+
+/question and concern for admin
+/-ตอบกลับ
+/-แสดงข้อความที่ยังไม่ตอบ
+/-แสดงข้อความที่ตอบไปแล้ว
 
 ---------------------------------
 account เก็บข้อมูลผู้ใช้งาน
