@@ -98,29 +98,36 @@ app.get("/sign_up", async (req, res) => {
 
 //for fill your information
 app.post("/fill_information", async (req, res) => {
-    const {weight, height, bust, waist, hip, email, password} = req.body
+    const {weight, height, shoulder, bust, waist, hip, email, password} = req.body
+
+    var figure ='none'
+    if (shoulder-hip > 3) { figure = 'inverted_tri'}
+    else if (shoulder-hip < -3) { figure = 'pear'}
+    else if (hip-waist < 0) { figure = 'apple'}
+    else if (bust-waist > 18 || hip-waist > 23) { figure = 'hourglass'}
+    else if (shoulder-hip < 3 && shoulder-hip > -3) { figure = 'rectangle'}
 
     try {
-        //ใส่ข้อมูลครบทุกอันมั้ย
-        if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0) {
+        // //ใส่ข้อมูลครบทุกอันมั้ย
+        // if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0) {
             //ต้องกรอกแค่ตัวเลขเท่านั้น
-            if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
-                connection.query(
-                    //เพิ่มข้อมูลลง db
-                    "INSERT INTO account(`ACCOUNT_EMAIL`, `ACCOUNT_PASSWORD`, `WEIGHT`, `HEIGHT`, `BUST`, `WAIST`, `HIP`) VALUES (?,?,?,?,?,?,?)", //insert ข้อมูล
-                    [email, password, weight, height, bust, waist, hip],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log("Error while updating an information of the database", err);
-                            return res.status(400).json({status:"fail", message: "Error while updating an information of the database"});
-                        }
-                    }
-                )
+            // if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
+        connection.query(
+            //เพิ่มข้อมูลลง db
+            "INSERT INTO account(`ACCOUNT_EMAIL`, `ACCOUNT_PASSWORD`, `WEIGHT`, `HEIGHT`, `SHOULDER`, `BUST`, `WAIST`, `HIP`, `FIGURE`) VALUES (?,?,?,?,?,?,?,?,?)", //insert ข้อมูล
+            [email, password, weight, height, shoulder, bust, waist, hip, figure],
+            (err, results, fields) => {
+                if (err) {
+                    console.log("Error while updating an information of the database", err);
+                    return res.status(400).json({status:"fail", message: "Error while updating an information of the database"});
+                }
                 return res.status(200).json({status:"success", message: "Your information successfully updated"})
             }
-            return res.status(400).json({status:"fail", message: "ํTheese information should only be numbers"})
-        }
-        res.status(400).json({status:"fail", message: "You need to fill all informations"})
+        )
+        //     }
+        //     return res.status(400).json({status:"fail", message: "ํTheese information should only be numbers"})
+        // }
+        // return res.status(400).json({status:"fail", message: "You need to fill all informations"})
     }
     catch(err) {
         console.log(err);
@@ -155,12 +162,12 @@ app.get("/login", async (req, res) => {
                 }
 
                 //ส่ง OTP ไปที่ email
-                fetch('http://192.168.1.49:3360/send_login_OTP/' + new URLSearchParams(email), {
+                fetch('http://192.168.1.48:3360/send_login_OTP/' + new URLSearchParams(email), {
                     method: 'GET', 
                 })
                 .then(res => res.json())
                 .then(outcome => {
-                    res.status(200).json({status:"sucess", message: "can go to Verify Email", token: outcome.token});
+                    res.status(200).json({status:"sucess", message: "can go to Verify Email", results: results, token: outcome.token});
                 })
             })
     }
@@ -189,7 +196,7 @@ app.get("/forgot_password", async (req, res) => {
                 }
 
                 //ส่ง OTP ไปที่ email
-                fetch('http://192.168.1.49:3360/send_password_OTP/' + new URLSearchParams(email), {
+                fetch('http://192.168.1.48:3360/send_password_OTP/' + new URLSearchParams(email), {
                     method: 'GET', 
                 })
                 .then(res => res.json())
@@ -324,6 +331,62 @@ app.get("/send_password_OTP/:email", async (req, res) => {
     }
 })
 
+//----------------------------See New Content--------------------------------------//
+
+//for new content with model
+app.get("/new_fashion", async (req, res) => {
+    const id = req.body.id
+    try {
+        connection.query(
+            //ดึงข้อมูลของ content มา
+            "SELECT * FROM content ORDER by CONTENT_ID DESC LIMIT 20",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log("Error while connecting to the database", err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "No content available"});
+                }
+                res.status(200).json({status:"success", message: results});
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//for new content only clothes
+app.get("/new_clothes", async (req, res) => {
+    const id = req.body.id
+    try {
+        connection.query(
+            //ดึงข้อมูลของ content มา
+            "SELECT * FROM clothes ORDER by CLOTHES_ID DESC LIMIT 8",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log("Error while connecting to the database", err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "No content available"});
+                }
+                res.status(200).json({status:"success", message: results});
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 //----------------------------See profile--------------------------------------//
 
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
@@ -341,7 +404,7 @@ app.get("/profile", async (req, res) => {
                 }
                 if (results.length === 0)
                 {
-                    return res.status(400).json({status:"fail", message: "Error, Can't find this email in the database"});
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
                 }
                 res.status(200).json({status:"success", message: results});
             }
@@ -434,7 +497,14 @@ app.post("/upgrade_premium", async (req, res) => {
 
 //for edit profile รวมทั้ง premium และปกติ email = เดิม newemail = email ใหม่
 app.patch("/edit_profile", async (req, res) => {
-    const {weight, height, bust, waist, hip, newemail, password, id} = req.body
+    const {weight, height,shoulder, bust, waist, hip, newemail, password, id} = req.body
+
+    var figure ='none'
+    if (shoulder-hip > 3) { figure = 'inverted_tri'}
+    else if (shoulder-hip < -3) { figure = 'pear'}
+    else if (hip-waist < 0) { figure = 'apple'}
+    else if (bust-waist > 18 || hip-waist > 23) { figure = 'hourglass'}
+    else if (shoulder-hip < 3 && shoulder-hip > -3) { figure = 'rectangle'}
 
     try {
         //ส่งข้อมูลมาครบถ้วนมั้ย
@@ -442,8 +512,8 @@ app.patch("/edit_profile", async (req, res) => {
             //ต้องกรอกแค่ตัวเลขเท่านั้น
             if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
                 connection.query(
-                    "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, BUST = ?, WAIST = ?, HIP = ? WHERE ACCOUNT_ID = ?",
-                    [newemail, password, weight, height, bust, waist, hip, id],
+                    "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, SHOULDER = ?, BUST = ?, WAIST = ?, HIP = ?, FIGURE = ? WHERE ACCOUNT_ID = ?",
+                    [newemail, password, weight, height, shoulder, bust, waist, hip, figure, id],
                     (err, results, fields) => {
                         if (err) {
                             console.log(err);
@@ -506,7 +576,7 @@ app.get("/payment_history", async (req, res) => {
                 }
                 if (results.length === 0)
                 {
-                    return res.status(400).json({status:"fail", message: "Error, Can't find this email in the database"});
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
                 }
                 return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
             }
@@ -593,6 +663,93 @@ app.patch("/cancel_premium", async (req, res) => {
         return res.status(500).send();
     }
 })
+
+//----------------------------Outfit Recommendation--------------------------------------//
+
+// if ( place == "Work") {}
+// else if ( place == "Date night") {}
+// else if ( place == "Holiday Vacation") {}
+// else if ( place == "Beach") {}
+// else if ( place == "Picnic") {}
+//----------------------------See recommendation--------------------------------------//
+
+//for Outfit Recommendation
+app.get("/recommend", async (req, res) => {
+    var {id, theme, place} = req.body
+
+    if (theme == 'DARK') {
+        theme = "DARK' OR COLOR = 'BLACK"
+    }
+
+    if (theme == 'PASTEL') {
+        theme = "PASTEL' OR COLOR = 'WHITE"
+    }
+
+    try {
+        connection.query(
+            "SELECT * FROM account WHERE ACCOUNT_ID = ?",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error while searching for this id"});
+                }
+
+                var figure = results[0].FIGURE
+                connection.query(
+                    "SELECT * FROM clothes WHERE " + figure + " = 1 AND (TYPE = 'TOP' OR TYPE = 'ONE') AND (TAG = '" + place + "') AND (COLOR = '" + theme + "')",
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                        if (results.length === 0)
+                        {
+                            return res.status(400).json({status:"fail", message: "Error, Can't find any clothes for this figure"});
+                        }
+                        var pick = Math.floor(Math.random() * results.length)
+                        const pair = results[pick].PAIR.split(",")
+                        if (results[pick].TYPE == 'TOP'){
+                            var i = 0
+                            var found = 0
+                            while (found == 0 && i < pair.length) {
+                                connection.query(
+                                    "SELECT * FROM clothes WHERE " + figure + " = 1 AND TYPE = 'BOTTOM' AND (TAG = '" + place + "') AND (COLOR = '" + theme + "') AND CLOTHES_ID = ?",
+                                    [pair[i]],
+                                    (err, outcome, fields) => {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(400).send();
+                                        }
+                                        if (outcome.length != 0 ) {
+                                            found = 1
+                                            var pick_bottom = Math.floor(Math.random() * outcome.length)
+                                            return res.status(200).json({status:"success", message: "Select outfit successfully!", results: results[pick], results2: outcome[pick_bottom]});
+                                        }
+                                    }
+                                )
+                                i = i+1
+                            }
+                        }
+                        else {
+                            return res.status(200).json({status:"success", message: "Select outfit successfully!", results: results[pick]});
+                        }
+                    }
+                )
+            }
+        )
+        
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 
 //----------------------------Ask Question and concern--------------------------------------//
 
