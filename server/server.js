@@ -331,15 +331,15 @@ app.get("/send_password_OTP/:email", async (req, res) => {
     }
 })
 
-//----------------------------See New Content--------------------------------------//
+//----------------------------See New Fashion--------------------------------------//
 
-//for new content with model
+//for new fashion with model
 app.get("/new_fashion", async (req, res) => {
     const id = req.body.id
     try {
         connection.query(
             //ดึงข้อมูลของ content มา
-            "SELECT * FROM content ORDER by CONTENT_ID DESC LIMIT 20",
+            "SELECT * FROM fashion ORDER by FASHION_ID DESC LIMIT 20",
             [id],
             (err, results, fields) => {
                 if (err) {
@@ -360,13 +360,42 @@ app.get("/new_fashion", async (req, res) => {
     }
 })
 
-//for new content only clothes
+//for new clothes
 app.get("/new_clothes", async (req, res) => {
     const id = req.body.id
     try {
         connection.query(
             //ดึงข้อมูลของ content มา
             "SELECT * FROM clothes ORDER by CLOTHES_ID DESC LIMIT 8",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log("Error while connecting to the database", err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "No content available"});
+                }
+                res.status(200).json({status:"success", message: results});
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//----------------------------See New Content--------------------------------------//
+
+//for new content
+app.get("/new_content", async (req, res) => {
+    const id = req.body.id
+    try {
+        connection.query(
+            //ดึงข้อมูลของ content มา
+            "SELECT * FROM content ORDER by CONTENT_ID DESC LIMIT 20",
             [id],
             (err, results, fields) => {
                 if (err) {
@@ -802,6 +831,56 @@ app.post("/concern", async (req, res) => {
         return res.status(500).send();
     }
 })
+
+//----------------------------update selection--------------------------------------//
+
+//for admin to update place selection
+app.post("/update_place", async (req, res) => {
+    const place = req.body.place
+    try {
+        connection.query(
+            "INSERT INTO place(`CHOICE`) VALUES (?)", //ดึงข้อมูล
+            [place],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).json({message : "insert place successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+//for admin to update theme selection
+app.post("/update_theme", async (req, res) => {
+    const theme = req.body.theme
+    try {
+        connection.query(
+            "INSERT INTO theme(`CHOICE`) VALUES (?)", //ดึงข้อมูล
+            [theme],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).json({message : "insert theme successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+//----------------------------update fashion--------------------------------------//
+
+
 
 //----------------------------ข้างล่างไม่ใช้มั้ง--------------------------------------//
 

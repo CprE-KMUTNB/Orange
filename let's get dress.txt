@@ -36,8 +36,11 @@ API
 
 /Menu bar
 
-/See New Content
+/See New fashion
 /-แสดง New content Limit 20
+
+/See New Content
+/-แสดง New content Limit 30
 
 /See profile
 /-IS_PREMIUM = 0
@@ -85,7 +88,7 @@ Outfit Recommendation
 
 ---------admin------------
 
-update selection
+/update selection
 
 update fashion
 
