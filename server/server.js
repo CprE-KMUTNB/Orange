@@ -971,7 +971,85 @@ app.delete("/delete_theme", async (req, res) => {
 
 })
 
+//----------------------------update clothes--------------------------------------//
+
+//update clothes
+app.post("/update_clothes", async (req, res) => {
+    const {pic, place, theme, type, pair, inverted_tri, apple, pear, hourglass, rectangle} = req.body;
+    try {
+        connection.query(
+            "INSERT INTO clothes(`PIC`, `TAG`, `COLOR`, `TYPE`, `PAIR`, `INVERTED_TRI`, `APPLE`, `PEAR`, `HOURGLASS`, `RECTANGLE`) VALUES (?,?,?,?,?,?,?,?,?,?)", //ดึงข้อมูล
+            [pic, place, theme, type, pair, inverted_tri, apple, pear, hourglass, rectangle],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.affectedRow === 0) {
+                    return res.status(404).json({ message: "Error, while inserting fashion to database"})
+                }
+                res.status(200).json({ message: "fashion updated successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+//ลบ clothes
+app.delete("/delete_clothes", async (req, res) => {
+    const id = req.body.id;
+    try {
+        connection.query(
+            "DELETE FROM clothes WHERE CLOTHES_ID = ?", //ดึงข้อมูล
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.affectedRow === 0) {
+                    return res.status(404).json({ message: "No clothes with that id"})
+                }
+                res.status(200).json({ message: "clothes deleted successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
+
+
 //----------------------------update fashion--------------------------------------//
+
+//update fashion
+app.post("/update_fashion", async (req, res) => {
+    const {pic, title} = req.body;
+    try {
+        connection.query(
+            "INSERT INTO fashion(`pic`, `title`) VALUES (?,?)", //ดึงข้อมูล
+            [pic, title],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.affectedRow === 0) {
+                    return res.status(404).json({ message: "Error, while inserting fashion to database"})
+                }
+                res.status(200).json({ message: "fashion updated successfully!"})
+            })
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+
+})
 
 //ลบ fashion
 app.delete("/delete_fashion", async (req, res) => {

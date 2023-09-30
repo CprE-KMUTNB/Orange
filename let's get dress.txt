@@ -92,13 +92,16 @@ See recommendation
 /update selection
 /-delete
 
-update fashion
+/update clothes
 /-delete
 
-update new contents
+/update fashion
+/-delete
 
-manage
--update
+/update new contents
+
+/manage
+/-update
 /-delete
 
 /question and concern for admin
