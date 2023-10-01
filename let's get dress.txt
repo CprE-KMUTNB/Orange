@@ -12,6 +12,7 @@ API
 /Fill Information
 /-ใส่ตัวเลขทั้งหมดมั้ย                         : ํTheese information should only be numbers
 /-ใส่ข้อมูลครบทุกอันมั้ย                        : You need to fill all informations
+/-คำนวนสัดส่วน
 
 /Login
 /-มี account อยู่รึเปล่า					: No account with this email
@@ -30,13 +31,16 @@ API
 
 /Verify reset password code
 /-Resend OTP
-/-check OTP                              : Verification failed
+/-check OTP                              : Verification failed เช้คที่เดียวกับ verify email
 /-Count down 10 mins
 
 /Menu bar
 
-See New Content
--แสดง New content Limit 20
+/See New fashion
+/-แสดง New content Limit 20
+
+/See New Content
+/-แสดง New content Limit 30
 
 /See profile
 /-IS_PREMIUM = 0
@@ -51,6 +55,7 @@ See New Content
 
 /Edit profile
 /-update ข้อมูล
+/-คำนวนสัดส่วน
 
 /See profile premium
 /-IS_PREMIUM = 1
@@ -66,11 +71,13 @@ Payment Detail
 -เปลี่ยน NEXT_BILL_DATE?
 /-ส่งเมลบอก
 
-Outfit Recommendation
--คำนวนจากสัดส่วน
--คำนวนจาก theme place
+/Outfit Recommendation
+/-แสดง choice
 
 See recommendation
+/-คำนวนจากสัดส่วน
+/-คำนวนจาก theme place
+เหลือข้อมูล
 
 /Ask Question and concern
 /-เก็บข้อมูลเมล?
@@ -79,6 +86,28 @@ See recommendation
 /Finish Question and concern
 
 /Sign out
+
+---------admin------------
+
+/update selection
+/-delete
+
+/update clothes
+/-delete
+
+/update fashion
+/-delete
+
+/update new contents
+
+/manage
+/-update
+/-delete
+
+/question and concern for admin
+/-ตอบกลับ
+/-แสดงข้อความที่ยังไม่ตอบ
+/-แสดงข้อความที่ตอบไปแล้ว
 
 ---------------------------------
 account เก็บข้อมูลผู้ใช้งาน
@@ -111,8 +140,8 @@ history
 content
 -id
 -pic
--theme
--place
+-theme: white black dark vivid earth tone pastel
+-place: work date night holiday vacation beach picnic
 -title?
 
 ส่งเมล
