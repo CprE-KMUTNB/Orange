@@ -29,7 +29,7 @@ const App = () => {
       <StackNavigator/>
     </NavigationContainer>
     // <View>
-    //   <ProfilePremium/>
+    //   <NewContent/>
     // </View>
   )
 }

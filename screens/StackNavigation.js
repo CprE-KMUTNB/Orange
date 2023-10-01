@@ -23,6 +23,8 @@ import IconFA from 'react-native-vector-icons/FontAwesome'
 import EditProfile from './EditProfile';
 import Ads from './Ads';
 import CardInfo from './CardInfo';
+import NewFashion from './NewFashion';
+
 
 // const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -94,13 +96,24 @@ const StackNavigator = () => {
         component={EditProfile}
         options={nonDrawerOptions}
       />
+        <Drawer.Screen
+          name="New Content"
+          component={NewContent}
+          options={{
+            ...drawerOptions,
+            drawerIcon: () => (
+              <IconA name="staro" size={22} color="black" style={{left:-8}}/>
+            ),
+            headerTitleStyle:{fontSize: 30, fontFamily: "Cuprum-Bold"}
+          }}
+        />
       <Drawer.Screen
-        name="New Content"
-        component={NewContent}
+        name="New Fashion"
+        component={NewFashion}
         options={{
           ...drawerOptions,
           drawerIcon: () => (
-            <IconA name="staro" size={22} color="black" style={{left:-8}}/>
+            <IconM name="hanger" size={22} color="black" style={{left:-8}}/>
           ),
           headerTitleStyle:{fontSize: 30, fontFamily: "Cuprum-Bold"}
         }}
@@ -146,7 +159,7 @@ const StackNavigator = () => {
           ),
           headerTitleStyle:{fontSize: 30, fontFamily: "Cuprum-Bold"},
           drawerItemStyle:{
-          marginTop: 510,
+          marginTop: 470,
           borderTopColor: 'black',
           borderWidth: 1,
           borderRightColor: 'white',
