@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
+import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import axios from 'axios'
 
@@ -8,38 +8,46 @@ const AppButton = ({ onPress, title }) => (
   </TouchableOpacity>
 )
 const AppButtonClear = ({ onPress, title }) => (
-    <TouchableOpacity onPress={onPress} style={styles.appButtonContainerClear}>
-      <Text style={styles.appButtonTextClear}>{title}</Text>
-    </TouchableOpacity>
+  <TouchableOpacity onPress={onPress} style={styles.appButtonContainerClear}>
+    <Text style={styles.appButtonTextClear}>{title}</Text>
+  </TouchableOpacity>
 )
 const AppButtonButtom = ({ onPress, title }) => (
-    <TouchableOpacity onPress={onPress} style={styles.appButtonContainerButtom}>
-      <Text style={styles.appButtonTextButtom}>{title}</Text>
-    </TouchableOpacity>
+  <TouchableOpacity onPress={onPress} style={styles.appButtonContainerButtom}>
+    <Text style={styles.appButtonTextButtom}>{title}</Text>
+  </TouchableOpacity>
 )
 
 const AppText = (props) => (
-  <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18}}>{props.children}</Text>
+  <Text {...props} style={{ fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18 }}>{props.children}</Text>
 )
 
-const Login = ({navigation}) => {
+const Login = ({ navigation }) => {
   const onPressSignup = () => {
     navigation.navigate('Sign_up')
-    // const url = "http://172.20.10.8:3360/test";
-    // console.log("Sending request to", url);
-    // axios.get(url)
-    //   .then(({data}) => console.log(data))
-    //   .catch(async error => {
-    //     console.error("AXIOS ERROR:");
-    //     console.error(await error);
-    //   });
   }
   const onPressResetPassword = () => {
     navigation.navigate('ResetPassword')
   }
   const onPressVerifyEmail = () => {
-    navigation.navigate('VerifyEmail')
+    const url = "http://10.90.4.163:3360/login";
+    console.log("Sending request to", url);
+    axios.post(url, {
+      email: text,
+      password: password
+    })
+      .then(({ data }) => {
+        console.log(data)
+        if (data[0].status == 'success') {
+          navigation.navigate('VerifyEmail')
+        }
+      })
+      .catch(async error => {
+        console.error("AXIOS ERROR:");
+        console.error(await error);
+      });
   };
+
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
   const [confirm_password, onChangeConfirmPassword] = React.useState('');
@@ -47,42 +55,42 @@ const Login = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-        <View style={{...styles.circle}}>
-            <Text style={{color:'black', fontSize:80, flex: 0, fontFamily: "Cuprum-Bold"}}>Login</Text>
-                <View style={styles.logoContainer}>
-                <Image style={{width:30, height:30, top:-100, left:43}} source = {require('../assets/leave-removebg-preview2.png')} />
-                </View>
-            <AppText style={{color:'black', width:300, top:-40}}>Email</AppText>
-            <SafeAreaView>
-                <TextInput
-                style={{...styles.input, height: 40, width: 300, backgroundColor:'white', top:-40, fontFamily: "Cuprum-VariableFont_wght"}}
-                value={text}
-                onChangeText={onChangeText}
-                placeholder='sample@email.com'
-            />
-            </SafeAreaView>
-            <AppText style={{color:'black', textAlign:'left', width:300, top:-40}}>Password</AppText>
-            <SafeAreaView>
-                <TextInput
-                style={{...styles.input, height: 40, width: 300,  backgroundColor:'white', top:-40, fontFamily: "Cuprum-VariableFont_wght"}}
-                value={password}
-                onChangeText={onChangePassword}
-                placeholder='example'
-                secureTextEntry={true}
-            />
-            </SafeAreaView>
-            <AppButtonClear 
-             onPress={onPressResetPassword}
-             title={"Forgot Password"}/>
-            <AppButton 
-              title={"   Login   "}
-              onPress={onPressVerifyEmail}
-            />
+      <View style={{ ...styles.circle }}>
+        <Text style={{ color: 'black', fontSize: 80, flex: 0, fontFamily: "Cuprum-Bold" }}>Login</Text>
+        <View style={styles.logoContainer}>
+          <Image style={{ width: 30, height: 30, top: -100, left: 43 }} source={require('../assets/leave-removebg-preview2.png')} />
         </View>
-        <AppText style={{color:'black', alignSelf:'center',width: 300, height:20, top:210 , left:37}}>Don't have an account?</AppText>
-          <AppButtonButtom
-           onPress={onPressSignup}
-           title={"Sign up"}/>
+        <AppText style={{ color: 'black', width: 300, top: -40 }}>Email</AppText>
+        <SafeAreaView>
+          <TextInput
+            style={{ ...styles.input, height: 40, width: 300, backgroundColor: 'white', top: -40, fontFamily: "Cuprum-VariableFont_wght" }}
+            value={text}
+            onChangeText={onChangeText}
+            placeholder='sample@email.com'
+          />
+        </SafeAreaView>
+        <AppText style={{ color: 'black', textAlign: 'left', width: 300, top: -40 }}>Password</AppText>
+        <SafeAreaView>
+          <TextInput
+            style={{ ...styles.input, height: 40, width: 300, backgroundColor: 'white', top: -40, fontFamily: "Cuprum-VariableFont_wght" }}
+            value={password}
+            onChangeText={onChangePassword}
+            placeholder='example'
+            secureTextEntry={true}
+          />
+        </SafeAreaView>
+        <AppButtonClear
+          onPress={onPressResetPassword}
+          title={"Forgot Password"} />
+        <AppButton
+          title={"   Login   "}
+          onPress={onPressVerifyEmail}
+        />
+      </View>
+      <AppText style={{ color: 'black', alignSelf: 'center', width: 300, height: 20, top: 210, left: 37 }}>Don't have an account?</AppText>
+      <AppButtonButtom
+        onPress={onPressSignup}
+        title={"Sign up"} />
     </View>
   )
 }
@@ -98,9 +106,9 @@ const styles = StyleSheet.create({
     width: 580,
     borderRadius: 290,
     backgroundColor: "#FAEBDC",
-    top:110,
+    top: 110,
     alignItems: 'center',
-    paddingTop:100,
+    paddingTop: 100,
     fontFamily: "Cuprum-VariableFont_wght",
     // justifyContent: "center",
   },
@@ -122,7 +130,7 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     marginVertical: 8,
-    color:"black",
+    color: "black",
     fontFamily: "Cuprum-Bold",
     fontSize: 18,
   },

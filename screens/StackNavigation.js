@@ -121,7 +121,7 @@ const StackNavigator = () => {
       <Drawer.Screen
         name="ProfilePremium"
         component={ProfilePremium}
-        options={nonDrawerOptions}
+        options={{...nonDrawerOptions, headerShown: true}}
       />
       <Drawer.Screen
         name="Ads"

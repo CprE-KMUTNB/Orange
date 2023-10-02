@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
 import React from 'react'
+import axios from 'axios'
 
 const AppText = (props) => (
   <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -26,7 +27,23 @@ const Sign_up = ({navigation}) => {
     navigation.navigate('Login')
   }
   const onPressFillInformation = () => {
-    navigation.navigate('FillInformation')
+    const url = "http://10.90.4.163:3360/sign_up";
+    console.log("Sending request to", url);
+    axios.post(url, {
+      email: text,
+      password: password,
+      confirm: confirm_password
+    })
+    .then(({data}) => { 
+      console.log(data)
+      if(data.status == 'success') {
+        navigation.navigate('FillInformation')
+      }
+    })
+    .catch(async error => {
+      console.error("AXIOS ERROR:");
+      console.error(await error);
+    });
   }
   const onPressNewContent = () => {
     navigation.navigate('NewContent')

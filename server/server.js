@@ -63,7 +63,7 @@ app.get("/test", (req, res) => {
 //----------------------------Sign up--------------------------------------//
 
 //for sign up
-app.get("/sign_up", async (req, res) => {
+app.post("/sign_up", async (req, res) => {
     const {password, confirm} = req.body;
     const email = req.body.email
 
@@ -138,7 +138,7 @@ app.post("/fill_information", async (req, res) => {
 //----------------------------Login--------------------------------------//
 
 //for login
-app.get("/login", async (req, res) => {
+app.post("/login", async (req, res) => {
     const email = req.body.email
     const password = req.body.password;
     try {
@@ -178,7 +178,7 @@ app.get("/login", async (req, res) => {
 })
 
 // ปุ่ม forgot password
-app.get("/forgot_password", async (req, res) => {
+app.post("/forgot_password", async (req, res) => {
     const email = req.body.email;
 
     try {
@@ -215,7 +215,7 @@ app.get("/forgot_password", async (req, res) => {
 //----------------------------Verify Email--------------------------------------//
 
 //send otp / for resend otp
-app.get("/send_login_OTP/:email", async (req, res) => {
+app.post("/send_login_OTP/:email", async (req, res) => {
     const email = req.params.email.slice(0,-1)
     try {
         const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
@@ -244,7 +244,7 @@ app.get("/send_login_OTP/:email", async (req, res) => {
 })
 
 //to check OTP
-app.get("/verify_OTP", async (req, res) => {
+app.post("/verify_OTP", async (req, res) => {
     const {token, user_OTP} = req.body
     try { 
         const payloadBase64 = token.split('.')[1];
@@ -303,7 +303,7 @@ app.post("/reset_password", async (req, res) => {
 //----------------------------Verify reset password code--------------------------------------//
 
 //send otp / for resend otp
-app.get("/send_password_OTP/:email", async (req, res) => {
+app.post("/send_password_OTP/:email", async (req, res) => {
     const email = req.params.email.slice(0,-1)
     try {
         const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
@@ -334,7 +334,7 @@ app.get("/send_password_OTP/:email", async (req, res) => {
 //----------------------------See New Fashion--------------------------------------//
 
 //for new fashion with model
-app.get("/new_fashion", async (req, res) => {
+app.post("/new_fashion", async (req, res) => {
     const id = req.body.id
     try {
         connection.query(
@@ -361,7 +361,7 @@ app.get("/new_fashion", async (req, res) => {
 })
 
 //for new clothes
-app.get("/new_clothes", async (req, res) => {
+app.post("/new_clothes", async (req, res) => {
     const id = req.body.id
     try {
         connection.query(

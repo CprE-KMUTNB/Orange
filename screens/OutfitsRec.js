@@ -23,6 +23,7 @@ const ModalButton = ({ onPress, title }) => (
 const OutfitsRec = ({navigation}) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const onPressAds = () => {
+    setIsModalVisible(false)
     navigation.navigate('Ads')
   }
   return (

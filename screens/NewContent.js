@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
+import axios from 'axios'
 
 
 const NewContent = () => {
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     // marginLeft: 'auto',
     // marginRight: 10,
-    backgroundColor: 'black'
+    backgroundColor: '#fafafa'
   },
   mainImgConL: {
     width: Dimensions.get('window').width,
@@ -57,7 +58,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     // marginRight: 'auto',
     // marginLeft: 10,
-    backgroundColor: 'black'
+    backgroundColor: '#fafafa'
+  },
+  ImgCon: {
+
   }
 
 }
