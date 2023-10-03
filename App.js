@@ -1,12 +1,12 @@
-import React from 'react'
-import { View, Text } from 'react-native'
+import React from 'react';
+import { View, Text } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import Login from './screens/Login'
-import Sign_up from './screens/Sign_up'
+import Login from './screens/Login';
+import Sign_up from './screens/Sign_up';
 import ResetPassword from './screens/ResetPassword';
-import VerifyEmail from './screens/VerifyEmail'
+import VerifyEmail from './screens/VerifyEmail';
 import FillInformation from './screens/FillInformation';
 import NewContent from './screens/NewContent';
 import Profile from './screens/Profile';
@@ -19,18 +19,18 @@ import StackNavigator from './screens/StackNavigation';
 import Splash from './screens/Splash';
 import Ads from './screens/Ads';
 import CardInfo from './screens/CardInfo';
-
+import AdminOutfitsRec from './screens/AdminOutfitsRec';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <StackNavigator/>
-    </NavigationContainer>
-    // <View>
-    //   <NewContent/>
-    // </View>
+    // <NavigationContainer>
+    //   <StackNavigator/>
+    // </NavigationContainer>
+    <View>
+      <NewContent/>
+    </View>
   )
 }
 

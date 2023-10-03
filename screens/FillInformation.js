@@ -14,7 +14,27 @@ const AppText = (props) => (
 
 const FillInformation = ({navigation}) => {
   const onPressNewContent = () => {
-    navigation.navigate('New Content')
+    // navigation.navigate('New Content')
+    const url = "http://10.90.4.163:3360/fill_information";
+    console.log("Sending request to", url);
+    axios.post(url, {
+      weight: number1, 
+      height: number2, 
+      shoulder: number3, 
+      bust: number4, 
+      waist: number5, 
+      hip: number6
+    })
+    .then(({data}) => { 
+      console.log(data)
+      if(data.status == 'success') {
+        navigation.navigate('New Content')
+      }
+    })
+    .catch(async error => {
+      console.error("AXIOS ERROR:");
+      console.error(await error);
+    });
   }
     const [number1, onChangeWeight] = React.useState('');
     const [number2, onChangeHeight] = React.useState('');

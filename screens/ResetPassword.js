@@ -16,9 +16,25 @@ const ResetPassword = ({navigation}) => {
   const [password, onChangePassword] = React.useState('');
   const [number, onChangeNumber] = React.useState('');
   const onPressLogin2 = () => {
-    navigation.navigate('Login')
+    // navigation.navigate('Login')
+    const url = "http://10.90.4.163:3360/forgot_password";
+    console.log("Sending request to", url);
+    axios.post(url, {
+      password: text, 
+      confirm: password
+    })
+    .then(({data}) => { 
+      console.log(data)
+      if(data.status == 'success') {
+        navigation.navigate('Login')
+      }
+    })
+    .catch(async error => {
+      console.error("AXIOS ERROR:");
+      console.error(await error);
+    });
   }
-  // console.log(Dimensions.get('window').width, Dimensions.get('window').height)
+
   return (
     <View style={styles.container}>
       <View style={{...styles.ellipse, transform: [{scaleX: 1.4}],}}/>

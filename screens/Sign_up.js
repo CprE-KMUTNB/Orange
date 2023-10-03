@@ -45,9 +45,7 @@ const Sign_up = ({navigation}) => {
       console.error(await error);
     });
   }
-  const onPressNewContent = () => {
-    navigation.navigate('NewContent')
-  }
+  
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
   const [confirm_password, onChangeConfirmPassword] = React.useState('');
