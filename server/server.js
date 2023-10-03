@@ -36,6 +36,11 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+let omise = require('omise')({
+    'publicKey': "pkey_test_5xajwwwfl64vrcwm193",
+    'secretKey': "skey_test_5xajwwx22sigzaygll3",
+});
+
 const { error } = require('console');
 
 //MySQL connection
@@ -447,9 +452,23 @@ app.get("/profile", async (req, res) => {
 
 //upgrade to premium
 app.post("/upgrade_premium", async (req, res) => {
-    const {id,method} = req.body
+    const {card_num,expire_date,cvv,holder,id} = req.body
+
+    var expiration = expire_date.split("/")
+
+    let cardDetails = {
+        card: {
+        'name':             holder,
+        // 'city':             'Bangkok',
+        // 'postal_code':      10320,
+        'number':           card_num,
+        'expiration_month': expiration[0],
+        'expiration_year':  expiration[1],
+        },
+    };
 
     try {
+        // หาอีเมล
         connection.query(
             "SELECT * FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
             [id],
@@ -458,12 +477,34 @@ app.post("/upgrade_premium", async (req, res) => {
                     console.log(err);
                     return res.status(400).send();
                 }
+                
+                //Omise: Auto capture a charge
+                omise.tokens.create(cardDetails).then(function(token) {
+                    console.log(token);
+                    return omise.customers.create({
+                        'email':       results[0].ACCOUNT_EMAIL,
+                        'description': 'account id: ' + results[0].ACCOUNT_ID,
+                        'card':        token.id,
+                });
+                }).then(function(customer) {
+                console.log(customer);
+                return omise.charges.create({
+                    'amount':   10000,
+                    'currency': 'thb',
+                    'customer': customer.id,
+                });
+                }).then(function(charge) {
+                console.log(charge);
+                }).catch(function(err) {
+                console.log(err);
+                }).finally();
+
                 if (results.length === 0)
                 {
                     //ยังไม่เคยสมัคร premium มาก่อน
                     connection.query(
-                        "INSERT INTO premium(ACCOUNT_ID, PAYMENT_METHOD, NEXT_BILL_DATE) VALUES(?, ?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
-                        [id,method],
+                        "INSERT INTO premium(ACCOUNT_ID, CARD_NUM, EXPIRE_DATE, CVV, CARD_HOLDER, NEXT_BILL_DATE) VALUES(?,?,?,?,?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
+                        [id,card_num,expire_date,cvv,holder],
                         (err, results, fields) => {
                             if (err) {
                                 console.log(err);
@@ -475,8 +516,8 @@ app.post("/upgrade_premium", async (req, res) => {
                 else {
                     //เคยสมัคร premium แล้ว
                     connection.query(
-                        "UPDATE premium JOIN account SET STATUS = 1, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
-                        [id],
+                        "UPDATE premium JOIN account SET STATUS = 1, premium.CARD_NUM = ?, premium.EXPIRE_DATE = ?, premium.CVV = ?, premium.CARD_HOLDER = ?, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+                        [card_num,expire_date,cvv,holder,id],
                         (err, results, fields) => {
                             if (err) {
                                 console.log(err);
@@ -485,6 +526,7 @@ app.post("/upgrade_premium", async (req, res) => {
                         }
                     )
                 }
+
                 //update history
                 connection.query(
                     "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
@@ -619,12 +661,12 @@ app.get("/payment_history", async (req, res) => {
 
 //เปลี่ยนเลขบัตร
 app.patch("/change_method", async (req, res) => {
-    const {method,id} = req.body
+    const {card_num,expire_date,cvv,holder,id} = req.body
 
     try {
         connection.query(
-            "UPDATE account JOIN premium SET premium.PAYMENT_METHOD = ? WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
-            [method,id],
+            "UPDATE account JOIN premium SET premium.CARD_NUM = ?, premium.EXPIRE_DATE = ?, premium.CVV = ?, premium.CARD_HOLDER = ? WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+            [card_num,expire_date,cvv,holder,id],
             (err, results, fields) => {
                 if (err) {
                     console.log(err);

@@ -65,6 +65,7 @@ Payment Detail
 /-แสดงข้อมูลการจ่ายเงิน (วิธีการชำระเงิน วันตัดรอบบิล ประวัติ(ย้อนหลัง20ครั้ง))
 /-เปลี่ยนเลขบัตร
 -ส่งเมลบอกตอนตัดบัตร/เปลี่ยน NEXT_BILL_DATE
+/omise
 
 /Cancel Premium
 /-ถ้า yes status=0                    : Doesn't cancel premium yet
