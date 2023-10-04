@@ -36,10 +36,10 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-let omise = require('omise')({
-    'publicKey': "pkey_test_5xajwwwfl64vrcwm193",
-    'secretKey': "skey_test_5xajwwx22sigzaygll3",
-});
+// let omise = require('omise')({
+//     'publicKey': "pkey_test_5xajwwwfl64vrcwm193",
+//     'secretKey': "skey_test_5xajwwx22sigzaygll3",
+// });
 
 const { error } = require('console');
 
@@ -69,30 +69,30 @@ app.get("/test", (req, res) => {
 
 //for sign up
 app.post("/sign_up", async (req, res) => {
-    const {password, confirm} = req.body;
-    const email = req.body.email
-
+    const {email,password, confirm} = req.body;
     try {
         // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
-        if (password != confirm) {
+        if (password !== confirm) {
             return res.status(400).json({status:"fail", message: "Password must be the same"});
         }
 
         connection.query(
             "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
             [email], //แทน ?
+            
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
-                    return res.status(400).send();
+                    return res.status(400).send("A");
                 }
-                if (results.map(item => item.ACCOUNT_EMAIL).toString() == email) {
+                if (results.map(item => item.ACCOUNT_EMAIL).toString() === email) {
                     return res.status(400).json({status:"fail" , message: "This email already has an account"});
                 }
                 res.status(200).json({status:"success" , message: "You can create new account with this email"});
             }
         )
     }
+    
     catch(err) {
         console.log(err);
         return res.status(500).send();
@@ -129,8 +129,8 @@ app.post("/fill_information", async (req, res) => {
                 return res.status(200).json({status:"success", message: "Your information successfully updated"})
             }
         )
-        //     }
-        //     return res.status(400).json({status:"fail", message: "ํTheese information should only be numbers"})
+            // }
+            // return res.status(400).json({status:"fail", message: "ํTheese information should only be numbers"})
         // }
         // return res.status(400).json({status:"fail", message: "You need to fill all informations"})
     }
@@ -153,11 +153,11 @@ app.post("/login", async (req, res) => {
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
-                    return res.status(400).send();
+                    return res.status(400).send("A");
                 }
 
                 //เช้คว่ามีอีเมลนี้ใน db มั้ย
-                if (results.length == 0) {
+                if (results.length === 0) {
                     return res.status(400).json({status:"fail", message: "No account with this email"});
                 }
 
@@ -196,7 +196,7 @@ app.post("/forgot_password", async (req, res) => {
                     return res.status(400).send();
                 }
                 //เช้คว่ามีอีเมลนี้ใน db มั้ย
-                if (results.length == 0) {
+                if (results.length === 0) {
                     return res.status(400).json({status:"fail", message: "No account with this email"});
                 }
 
@@ -258,9 +258,9 @@ app.post("/verify_OTP", async (req, res) => {
         const isTokenExpired = (Date.now() >= decoded.exp * 1000)
 
         //ยังไม่หมดอายุ
-        if (isTokenExpired == false) {
+        if (isTokenExpired === false) {
             const decode = jwt.verify(token, token_obj);
-            if (decode.OTP == user_OTP) {
+            if (decode.OTP === user_OTP) {
                 return res.status(200).json({status:"success", message: "OTP is correct"});
             }
             return res.status(400).json({status:"fail", message: "OTP is incorrect"});
@@ -282,7 +282,7 @@ app.post("/reset_password", async (req, res) => {
 
     try {
         //เช้คว่า password ตรงกันมั้ย
-        if (confirm != password) {
+        if (confirm !== password) {
             return res.status(400).json({status:"fail", message: "Password must be the same"});
         }
 
@@ -478,26 +478,26 @@ app.post("/upgrade_premium", async (req, res) => {
                     return res.status(400).send();
                 }
                 
-                //Omise: Auto capture a charge
-                omise.tokens.create(cardDetails).then(function(token) {
-                    console.log(token);
-                    return omise.customers.create({
-                        'email':       results[0].ACCOUNT_EMAIL,
-                        'description': 'account id: ' + results[0].ACCOUNT_ID,
-                        'card':        token.id,
-                });
-                }).then(function(customer) {
-                console.log(customer);
-                return omise.charges.create({
-                    'amount':   10000,
-                    'currency': 'thb',
-                    'customer': customer.id,
-                });
-                }).then(function(charge) {
-                console.log(charge);
-                }).catch(function(err) {
-                console.log(err);
-                }).finally();
+                // //Omise: Auto capture a charge
+                // omise.tokens.create(cardDetails).then(function(token) {
+                //     console.log(token);
+                //     return omise.customers.create({
+                //         'email':       results[0].ACCOUNT_EMAIL,
+                //         'description': 'account id: ' + results[0].ACCOUNT_ID,
+                //         'card':        token.id,
+                // });
+                // }).then(function(customer) {
+                // console.log(customer);
+                // return omise.charges.create({
+                //     'amount':   10000,
+                //     'currency': 'thb',
+                //     'customer': customer.id,
+                // });
+                // }).then(function(charge) {
+                // console.log(charge);
+                // }).catch(function(err) {
+                // console.log(err);
+                // }).finally();
 
                 if (results.length === 0)
                 {
@@ -579,7 +579,7 @@ app.patch("/edit_profile", async (req, res) => {
 
     try {
         //ส่งข้อมูลมาครบถ้วนมั้ย
-        if (weight.toString().length != 0 && height.toString().length != 0 && bust.toString().length != 0 && waist.toString().length != 0 && hip.toString().length != 0 && newemail.length != 0 && password.length != 0) {
+        if (weight.toString().length !== 0 && height.toString().length !== 0 && bust.toString().length !== 0 && waist.toString().length !== 0 && hip.toString().length !== 0 && newemail.length !== 0 && password.length !== 0) {
             //ต้องกรอกแค่ตัวเลขเท่านั้น
             if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
                 connection.query(
@@ -830,7 +830,7 @@ app.get("/recommend", async (req, res) => {
                         if (results[pick].TYPE == 'TOP'){
                             var i = 0
                             var found = 0
-                            while (found == 0 && i < pair.length) {
+                            while (found === 0 && i < pair.length) {
                                 connection.query(
                                     "SELECT * FROM clothes WHERE " + figure + " = 1 AND TYPE = 'BOTTOM' AND (TAG = '" + place + "') AND (COLOR = '" + theme + "') AND CLOTHES_ID = ?",
                                     [pair[i]],
@@ -1429,7 +1429,7 @@ app.get("/is_have_account/:email", async (req, res) =>{
                     console.log(err);
                     return res.status(400).send();
                 }
-                if (results == '') {
+                if (results === '') {
                         return res.status(404).json({message: "No account with this email"})
                     }
                 res.status(200).json(results)
@@ -1467,7 +1467,7 @@ app.patch("/update_account/:email", async (req, res) => {
 //เพิ่ม account ใหม่
 app.post("/create_account", async (req, res) => {
     const {email, password} = req.body
-
+    
     try {
         connection.query(
             "INSERT INTO account(ACCOUNT_EMAIL, ACCOUNT_PASSWORD) VALUES(?, ?)", //insert ข้อมูล

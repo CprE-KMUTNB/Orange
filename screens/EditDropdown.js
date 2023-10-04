@@ -59,6 +59,7 @@ const dataPlace = [
             setValue(item.value);
             setIsFocus(false);
           }}
+          // <IconI></IconI>
 
         //   renderLeftIcon={() => (
         //     <IconI

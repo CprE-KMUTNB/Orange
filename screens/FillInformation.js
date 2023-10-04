@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity,} from 'react-native'
 import React from 'react'
 import axios from 'axios'
+import Sign_up from './Sign_up'
 
 const AppButton = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -15,7 +16,7 @@ const AppText = (props) => (
 const FillInformation = ({navigation}) => {
   const onPressNewContent = () => {
     // navigation.navigate('New Content')
-    const url = "http://10.90.4.163:3360/fill_information";
+    const url = "http://10.11.1.122:3360/fill_information";
     console.log("Sending request to", url);
     axios.post(url, {
       weight: number1, 
@@ -23,11 +24,13 @@ const FillInformation = ({navigation}) => {
       shoulder: number3, 
       bust: number4, 
       waist: number5, 
-      hip: number6
+      hip: number6,
+      email: "A@email.com",
+      password: "1234"
     })
     .then(({data}) => { 
       console.log(data)
-      if(data.status == 'success') {
+      if(data.status === 'success') {
         navigation.navigate('New Content')
       }
     })

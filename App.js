@@ -25,12 +25,12 @@ const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    // <NavigationContainer>
-    //   <StackNavigator/>
-    // </NavigationContainer>
-    <View>
-      <NewContent/>
-    </View>
+    <NavigationContainer>
+      <StackNavigator/>
+    </NavigationContainer>
+    // <View>
+    //   <NewContent/>
+    // </View>
   )
 }
 

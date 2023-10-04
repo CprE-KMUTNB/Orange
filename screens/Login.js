@@ -30,7 +30,7 @@ const Login = ({ navigation }) => {
     navigation.navigate('ResetPassword')
   }
   const onPressVerifyEmail = () => {
-    const url = "http://10.90.4.163:3360/login";
+    const url = "http://10.11.1.122:3360/login";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,
