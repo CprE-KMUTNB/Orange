@@ -996,94 +996,133 @@ app.post("/update_theme", async (req, res) => {
 
 })
 
-//ลบ place
-app.delete("/delete_place", async (req, res) => {
-    const place = req.body.place;
-    try {
-        connection.query(
-            "DELETE FROM place WHERE CHOICE = ?", //ดึงข้อมูล
-            [place],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                if (results.affectedRow === 0) {
-                    return res.status(404).json({ message: "No such choice"})
-                }
-                res.status(200).json({ message: "place selection deleted successfully!"})
-            })
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-
-})
-
-// //confirm delete
-// app.delete("/confirm_delete", async (req, res) => {
-//     const {confirm,choice} = req.body
-
+// //ลบ place
+// app.delete("/delete_place", async (req, res) => {
+//     const place = req.body.place;
 //     try {
 //         connection.query(
-//             "SELECT * FROM place WHERE CHOICE = ?",
-//             [choice],
+//             "DELETE FROM place WHERE CHOICE = ?", //ดึงข้อมูล
+//             [place],
 //             (err, results, fields) => {
 //                 if (err) {
 //                     console.log(err);
 //                     return res.status(400).send();
 //                 }
-
-//                 if (results.length == 0) {
-//                     return res.status(400).json({status:"fail", message : "Can't find this choice id in the database"})
+//                 if (results.affectedRow === 0) {
+//                     return res.status(404).json({ message: "No such choice"})
 //                 }
-//                 else {
-//                     if (confirm == "yes") {
-//                         connection.query(
-//                             "DELETE FROM place WHERE CHOICE = ?",
-//                             [choice],
-//                             (err, results, fields) => {
-//                                 if (err) {
-//                                     console.log(err);
-//                                     return res.status(400).send();
-//                                 }
-//                             }
-//                         )
-//                         return res.status(200).json({status:"success", message : "Delete choice successfully!"})
-//                     }
-//                     res.status(400).json({status:"fail", message : "Doesn't delete choice yet"})
-//                 }})}
+//                 res.status(200).json({ message: "place selection deleted successfully!"})
+//             })
+//     }
 //     catch(err) {
 //         console.log(err);
 //         return res.status(500).send();
 //     }
+
 // })
 
-//ลบ theme
-app.delete("/delete_theme", async (req, res) => {
-    const theme = req.body.theme;
+//delete ตัวเลือกในหัวข้อ place
+app.delete("/delete_place", async (req, res) => {
+    const {confirm,choice} = req.body
+
     try {
         connection.query(
-            "DELETE FROM theme WHERE CHOICE = ?", //ดึงข้อมูล
-            [theme],
+            "SELECT * FROM place WHERE CHOICE = ?",
+            [choice],
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).send();
                 }
-                if (results.affectedRow === 0) {
-                    return res.status(404).json({ message: "No such choice"})
+
+                if (results.length == 0) {
+                    return res.status(400).json({status:"fail", message : "Can't find this choice id in the database"})
                 }
-                res.status(200).json({ message: "theme selection deleted successfully!"})
-            })
-    }
+                else {
+                    if (confirm == "yes") {
+                        connection.query(
+                            "DELETE FROM place WHERE CHOICE = ?",
+                            [choice],
+                            (err, results, fields) => {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(400).send();
+                                }
+                            }
+                        )
+                        return res.status(200).json({status:"success", message : "Delete choice successfully!"})
+                    }
+                    res.status(400).json({status:"fail", message : "Doesn't delete choice yet"})
+                }})}
     catch(err) {
         console.log(err);
         return res.status(500).send();
     }
-
 })
+
+//delete ตัวเลือกในหัวข้อ theme
+app.delete("/delete_theme", async (req, res) => {
+    const {confirm,choice} = req.body
+
+    try {
+        connection.query(
+            "SELECT * FROM place WHERE CHOICE = ?",
+            [choice],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+
+                if (results.length == 0) {
+                    return res.status(400).json({status:"fail", message : "Can't find this choice id in the database"})
+                }
+                else {
+                    if (confirm == "yes") {
+                        connection.query(
+                            "DELETE FROM place WHERE CHOICE = ?",
+                            [choice],
+                            (err, results, fields) => {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(400).send();
+                                }
+                            }
+                        )
+                        return res.status(200).json({status:"success", message : "Delete choice successfully!"})
+                    }
+                    res.status(400).json({status:"fail", message : "Doesn't delete choice yet"})
+                }})}
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+// //ลบ theme
+// app.delete("/delete_theme", async (req, res) => {
+//     const theme = req.body.theme;
+//     try {
+//         connection.query(
+//             "DELETE FROM theme WHERE CHOICE = ?", //ดึงข้อมูล
+//             [theme],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (results.affectedRow === 0) {
+//                     return res.status(404).json({ message: "No such choice"})
+//                 }
+//                 res.status(200).json({ message: "theme selection deleted successfully!"})
+//             })
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+
+// })
 
 //----------------------------update clothes--------------------------------------//
 
@@ -1112,48 +1151,48 @@ app.post("/update_clothes", async (req, res) => {
 
 })
 
-//ลบ clothes
-app.delete("/delete_clothes", async (req, res) => {
-    const {id, confirm} = req.body;
-    try {
-        connection.query(
-            "SELECT * FROM clothes WHERE CLOTHES_ID = ?", //ดึงข้อมูล
-            [id],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                if (results.length === 0) {
-                    return res.status(404).json({ message: "No clothes with that id"})
-                }
+// //ลบ clothes
+// app.delete("/delete_clothes", async (req, res) => {
+//     const {id, confirm} = req.body;
+//     try {
+//         connection.query(
+//             "SELECT * FROM clothes WHERE CLOTHES_ID = ?", //ดึงข้อมูล
+//             [id],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (results.length === 0) {
+//                     return res.status(404).json({ message: "No clothes with that id"})
+//                 }
 
-                if (confirm === 'yes') {
-                    connection.query(
-                        "DELETE FROM clothes WHERE CLOTHES_ID = ?", //ดึงข้อมูล
-                        [id],
-                        (err, results, fields) => {
-                            if (err) {
-                                console.log(err);
-                                return res.status(400).send();
-                            }
-                            if (results.affectedRow === 0) {
-                                return res.status(404).json({ message: "Error, while deleting"})
-                            }
-                            res.status(200).json({ message: "clothes delete successfully!"})
-                        })
-                }
-                else {
-                    return res.status(404).json({ message: "Doesn't delete clothes yet"})
-                }
-            })
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
+//                 if (confirm === 'yes') {
+//                     connection.query(
+//                         "DELETE FROM clothes WHERE CLOTHES_ID = ?", //ดึงข้อมูล
+//                         [id],
+//                         (err, results, fields) => {
+//                             if (err) {
+//                                 console.log(err);
+//                                 return res.status(400).send();
+//                             }
+//                             if (results.affectedRow === 0) {
+//                                 return res.status(404).json({ message: "Error, while deleting"})
+//                             }
+//                             res.status(200).json({ message: "clothes delete successfully!"})
+//                         })
+//                 }
+//                 else {
+//                     return res.status(404).json({ message: "Doesn't delete clothes yet"})
+//                 }
+//             })
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
 
-})
+// })
 
 //----------------------------update fashion--------------------------------------//
 
