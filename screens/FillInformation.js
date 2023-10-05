@@ -16,7 +16,7 @@ const AppText = (props) => (
 const FillInformation = ({navigation}) => {
   const onPressNewContent = () => {
     // navigation.navigate('New Content')
-    const url = "http://10.11.1.122:3360/fill_information";
+    const url = "http://" + process.env.REACT_NATIVE_APP_MYIP + "/fill_information";
     console.log("Sending request to", url);
     axios.post(url, {
       weight: number1, 
@@ -25,8 +25,6 @@ const FillInformation = ({navigation}) => {
       bust: number4, 
       waist: number5, 
       hip: number6,
-      email: "A@email.com",
-      password: "1234"
     })
     .then(({data}) => { 
       console.log(data)

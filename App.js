@@ -23,18 +23,21 @@ import AdminOutfitsRec from './screens/AdminOutfitsRec';
 import AdminNewFashion from './screens/AdminNewFashion';
 import EditNewFashion from './screens/EditNewFashion';
 import StackNavigator2 from './screens/StackNavigate2';
+import Helppage from './screens/HelpPage';
+import TicketForm from './screens/TicketForm';
+import AdminTicketForm from './screens/AdminTicketForm';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      {/* <StackNavigator/> */}
-      <StackNavigator2/>
-    </NavigationContainer>
-    // <View>
-    //   <EditProfile/>
-    // </View>
+    // <NavigationContainer>
+    //   <StackNavigator/>
+    //   {/* <StackNavigator2/> */}
+    // </NavigationContainer>
+    <View>
+      <TicketForm/>
+    </View>
   )
 }
 

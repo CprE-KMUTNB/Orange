@@ -30,15 +30,15 @@ const Login = ({ navigation }) => {
     navigation.navigate('ResetPassword')
   }
   const onPressVerifyEmail = () => {
-    const url = "http://10.11.1.122:3360/login";
+    const url = "http://10.90.4.93:3360/login";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,
       password: password
     })
       .then(({ data }) => {
-        console.log(data)
-        if (data[0].status == 'success') {
+        console.log(data.status)
+        if (data.status === 'success') {
           navigation.navigate('VerifyEmail')
         }
       })
@@ -46,6 +46,7 @@ const Login = ({ navigation }) => {
         console.error("AXIOS ERROR:");
         console.error(await error);
       });
+  
   };
 
   const [text, onChangeText] = React.useState('');

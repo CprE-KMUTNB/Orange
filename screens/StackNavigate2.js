@@ -53,7 +53,7 @@ const StackNavigator2 = () => {
         options = {nonDrawerOptions}
       />
         <Drawer.Screen
-          name="Admin New Content"
+          name="New Content"
           component={AdminNewContent}
           options={{
             ...drawerOptions,
@@ -64,7 +64,7 @@ const StackNavigator2 = () => {
           }}
         />
       <Drawer.Screen
-        name="Admin New Fashion"
+        name="New Fashion"
         component={AdminNewFashion}
         options={{
           ...drawerOptions,
@@ -75,7 +75,7 @@ const StackNavigator2 = () => {
         }}
       />
       <Drawer.Screen
-        name="Admin Outfit recommendation"
+        name="Outfit recommendation"
         component={AdminOutfitsRec}
         options={{
           ...drawerOptions,

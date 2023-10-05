@@ -27,7 +27,7 @@ const Sign_up = ({navigation}) => {
     navigation.navigate('Login')
   }
   const onPressFillInformation = () => {
-    const url = "http://10.11.1.122:3360/sign_up";
+    const url = "http://172.20.10.8/sign_up";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,

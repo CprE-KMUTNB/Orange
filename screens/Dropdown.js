@@ -78,7 +78,7 @@ const dataPlace = [
       borderWidth: 0.5,
       borderRadius: 8,
       paddingHorizontal: 8,
-      width: '100',
+      width: '100%',
       borderWidth: 0.8,
     },
     icon: {

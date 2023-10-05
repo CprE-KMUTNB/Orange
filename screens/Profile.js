@@ -2,6 +2,7 @@ import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions
 import React from 'react'
 import Icon from 'react-native-vector-icons/Feather'
 import EditProfile from './EditProfile'
+import axios from 'axios'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -18,7 +19,19 @@ const Profile = ({navigation}) => {
     navigation.navigate('EditProfile')
   }
   const onPressCardInfo = () => {
-    navigation.navigate('CardInfo')
+    const url = "http://10.90.4.93:3360/profile";
+    console.log("Sending request to", url);
+    axios.post(url)
+    .then(({data}) => { 
+      console.log(data)
+      if(data.status === 'success') {
+        navigation.navigate('CardInfo')
+      }
+    })
+    .catch(async error => {
+      console.error("AXIOS ERROR:");
+      console.error(await error);
+    });
   }
   
   return (

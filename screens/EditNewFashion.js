@@ -14,7 +14,7 @@ const AppButton = ({ onPress, title }) => (
 
 const EditNewFashion = ({navigation}) => {
     const onPressAdminNewFashion = () => {
-        navigation.navigate('Admin New Fashion')
+        navigation.navigate('New Fashion')
       }
     const [link1, onChangelink1] = React.useState(''); //input edit new arrival
     const [link2, onChangelink2] = React.useState('');

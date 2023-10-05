@@ -5,6 +5,7 @@ const mysql = require('mysql');
 const cors = require("cors");
 const { networkInterfaces } = require('os');
 const sessionstorage = require('sessionstorage');
+const localStorage = require('local-storage');
 
 const nets = networkInterfaces();
 const results = Object.create(null); // Or just '{}', an empty object
@@ -34,8 +35,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 's6501012610033@email.kmutnb.ac.th',
-        pass: process.env.MYMAIL
+        user: process.env.MYMAIL,
+        pass: process.env.MYPASS
     }
 });
 
@@ -180,13 +181,13 @@ app.post("/login", async (req, res) => {
                     return res.status(400).json({status:"fail", message: "Email or Password is incorrect"}); 
                 }
                 //ส่ง OTP ไปที่ email
-                fetch('http://' + process.env.MYIP + '/send_login_OTP/' + new URLSearchParams(email), {
+                fetch('http://' + process.env.REACT_NATIVE_APP_MYIP + '/send_login_OTP/' + new URLSearchParams(email), {
                     method: 'GET', 
                 })
                 .then(res => res.json())
                 .then(outcome => {
                     sessionstorage.setItem('email', email);
-                    res.status(200).json({status:"sucess", message: "can go to Verify Email", results: results, token: outcome.token});
+                    return res.status(200).json({status:"success", message: "can go to Verify Email", results: results, token: outcome.token});
                 })
         })
     }
@@ -215,7 +216,7 @@ app.post("/forgot_password", async (req, res) => {
                 }
 
                 //ส่ง OTP ไปที่ email
-                fetch('http://' + process.env.MYIP + '/send_password_OTP/' + new URLSearchParams(email), {
+                fetch('http://' + process.env.REACT_NATIVE_APP_MYIP + '/send_password_OTP/' + new URLSearchParams(email), {
                     method: 'GET', 
                 })
                 .then(res => res.json())
@@ -243,7 +244,7 @@ app.get("/send_login_OTP/:email", async (req, res) => {
         sessionstorage.setItem('token', token);
 
         const text_sending = {
-            from: 's6501012610033@email.kmutnb.ac.th',
+            from: process.env.MYMAIL,
             to: email,
             subject: 'OTP verification on Orange',
             text:"Dear User :\n\nThank you for coming back to our app. Please use this OTP to complete your Login procedures on Orange. Do not share this OTP to anyone.\n\n" + OTP + "\n\nRegards,\nOrange Team"
@@ -343,7 +344,7 @@ app.get("/send_password_OTP/:email", async (req, res) => {
         const token = jwt.sign({OTP : OTP}, token_obj, {expiresIn: '10m'});
 
         const text_sending = {
-            from: 's6501012610033@email.kmutnb.ac.th',
+            from: process.env.MYMAIL,
             to: email,
             subject: 'OTP verification to reset password on Orange',
             text:"Dear User :\n\nA request has been received to change the password for your Orange account. Please use this OTP to reset your password. Do not share this OTP to anyone.\n\n" + OTP + "\n\nIf you did not initiate this request, please contact us immediately at our Question and concern.\n\nRegards,\nOrange Team"
@@ -453,7 +454,7 @@ app.get("/new_content", async (req, res) => {
 
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
 app.get("/profile", async (req, res) => {
-    const id = req.body.id
+    const id = sessionstorage.getItem('id');
     try {
         connection.query(
             //ดึงข้อมูลของแอคเค้ามา
@@ -573,7 +574,7 @@ app.post("/upgrade_premium", async (req, res) => {
 
                 //ส่งเมลยืนยันการสมัคร premium
                 const text_sending = {
-                    from: 's6501012610033@email.kmutnb.ac.th',
+                    from: process.env.MYMAIL,
                     to: results[0].ACCOUNT_EMAIL,
                     subject: 'Thank you for your subscription to Orange premium',
                     text:"Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 199.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\nOrange Team"
@@ -743,7 +744,7 @@ app.patch("/cancel_premium", async (req, res) => {
                             }
 
                         const text_sending = {
-                            from: 's6501012610033@email.kmutnb.ac.th',
+                            from: process.env.MYMAIL,
                             to: results[0].ACCOUNT_EMAIL,
                             subject: 'Cancelation of Orange premium',
                             text:"Dear User :\n\nSorry to see you've cancelled your Orange premium.\n\nIf you're having second thoughts, we'll welcome you back any time.\n\nRegards,\nOrange Team"
@@ -925,7 +926,7 @@ app.post("/concern", async (req, res) => {
                         }
 
                         const text_sending = {
-                            from: 's6501012610033@email.kmutnb.ac.th',
+                            from: process.env.MYMAIL,
                             to: results[0].ACCOUNT_EMAIL,
                             subject: 'Thank you for your feedback to Orange',
                             text:"Dear User :\n\nThank you for taking time to contact Orange to explain the issues you have encountered recently. We regret any inconvenience you have experienced, and we assure you that we are anxious to retain you as a satisfied customer.\n\nOur Customer Satisfaction Team is reviewing the information you sent us and conducting a full investigation in order to resolve this matter fairly.\n\nSincerely,\nOrange Team"
@@ -1370,7 +1371,7 @@ app.patch("/ans_concern", async (req, res) => {
                         }
 
                         const text_sending = {
-                            from: 's6501012610033@email.kmutnb.ac.th',
+                            from: process.env.MYMAIL,
                             to: results[0].ACCOUNT_EMAIL,
                             subject: 'Thank you for your feedback to Orange',
                             text: text
