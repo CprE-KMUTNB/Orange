@@ -1,7 +1,10 @@
-const express = require('express')
+require('dotenv').config();
+
+const express = require('express');
 const mysql = require('mysql');
-const cors = require("cors")
+const cors = require("cors");
 const { networkInterfaces } = require('os');
+const sessionstorage = require('sessionstorage');
 
 const nets = networkInterfaces();
 const results = Object.create(null); // Or just '{}', an empty object
@@ -32,14 +35,14 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 's6501012610033@email.kmutnb.ac.th',
-        pass: ''
+        pass: process.env.MYMAIL
     }
 });
 
-// let omise = require('omise')({
-//     'publicKey': "pkey_test_5xajwwwfl64vrcwm193",
-//     'secretKey': "skey_test_5xajwwx22sigzaygll3",
-// });
+let omise = require('omise')({
+    'publicKey': process.env.publicKey,
+    'secretKey': process.env.secretKey,
+});
 
 const { error } = require('console');
 
@@ -71,11 +74,6 @@ app.get("/test", (req, res) => {
 app.post("/sign_up", async (req, res) => {
     const {email,password, confirm} = req.body;
     try {
-        // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
-        if (password !== confirm) {
-            return res.status(400).json({status:"fail", message: "Password must be the same"});
-        }
-
         connection.query(
             "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
             [email], //แทน ?
@@ -83,11 +81,17 @@ app.post("/sign_up", async (req, res) => {
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
-                    return res.status(400).send("A");
+                    return res.status(400).send();
                 }
                 if (results.map(item => item.ACCOUNT_EMAIL).toString() === email) {
                     return res.status(400).json({status:"fail" , message: "This email already has an account"});
                 }
+                // ตรวจสอบรหัสที่สร้างว่าเหมือนกันมั้ย
+                if (password !== confirm) {
+                    return res.status(400).json({status:"fail", message: "Password must be the same"});
+                }
+                sessionstorage.setItem('email', email);
+                sessionstorage.setItem('password', password);
                 res.status(200).json({status:"success" , message: "You can create new account with this email"});
             }
         )
@@ -103,7 +107,10 @@ app.post("/sign_up", async (req, res) => {
 
 //for fill your information
 app.post("/fill_information", async (req, res) => {
-    const {weight, height, shoulder, bust, waist, hip, email, password} = req.body
+    const {weight, height, shoulder, bust, waist, hip} = req.body
+
+    const email = sessionstorage.getItem('email');
+    const password = sessionstorage.getItem('password');
 
     var figure ='none'
     if (shoulder-hip > 3) { figure = 'inverted_tri'}
@@ -126,7 +133,17 @@ app.post("/fill_information", async (req, res) => {
                     console.log("Error while updating an information of the database", err);
                     return res.status(400).json({status:"fail", message: "Error while updating an information of the database"});
                 }
-                return res.status(200).json({status:"success", message: "Your information successfully updated"})
+                connection.query(
+                    "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
+                    [email], //แทน ?
+                    (err, outcome, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                        sessionstorage.setItem('id', outcome[0].ACCOUNT_ID);
+                })
+                return res.status(200).json({status:"success", message: "Sign up successfully!"})
             }
         )
             // }
@@ -144,8 +161,7 @@ app.post("/fill_information", async (req, res) => {
 
 //for login
 app.post("/login", async (req, res) => {
-    const email = req.body.email
-    const password = req.body.password;
+    const {email,password} = req.body
     try {
         connection.query(
             "SELECT * FROM account WHERE ACCOUNT_EMAIL = ? ", //ดึงข้อมูล
@@ -153,28 +169,26 @@ app.post("/login", async (req, res) => {
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
-                    return res.status(400).send("A");
+                    return res.status(400).send();
                 }
-
                 //เช้คว่ามีอีเมลนี้ใน db มั้ย
                 if (results.length === 0) {
                     return res.status(400).json({status:"fail", message: "No account with this email"});
                 }
-
                 //เช้คว่า email&password ถูกมั้ย
                 if (results[0].ACCOUNT_PASSWORD != password) {
-                    return res.status(404).send({status:"fail", message: "Email or Password is incorrect"}); 
+                    return res.status(400).json({status:"fail", message: "Email or Password is incorrect"}); 
                 }
-
                 //ส่ง OTP ไปที่ email
-                fetch('http://192.168.1.48:3360/send_login_OTP/' + new URLSearchParams(email), {
+                fetch('http://' + process.env.MYIP + '/send_login_OTP/' + new URLSearchParams(email), {
                     method: 'GET', 
                 })
                 .then(res => res.json())
                 .then(outcome => {
+                    sessionstorage.setItem('email', email);
                     res.status(200).json({status:"sucess", message: "can go to Verify Email", results: results, token: outcome.token});
                 })
-            })
+        })
     }
     catch(err) {
         console.log(err);
@@ -201,7 +215,7 @@ app.post("/forgot_password", async (req, res) => {
                 }
 
                 //ส่ง OTP ไปที่ email
-                fetch('http://192.168.1.48:3360/send_password_OTP/' + new URLSearchParams(email), {
+                fetch('http://' + process.env.MYIP + '/send_password_OTP/' + new URLSearchParams(email), {
                     method: 'GET', 
                 })
                 .then(res => res.json())
@@ -220,11 +234,13 @@ app.post("/forgot_password", async (req, res) => {
 //----------------------------Verify Email--------------------------------------//
 
 //send otp / for resend otp
-app.post("/send_login_OTP/:email", async (req, res) => {
+app.get("/send_login_OTP/:email", async (req, res) => {
     const email = req.params.email.slice(0,-1)
     try {
         const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
         const token = jwt.sign({OTP : OTP}, token_obj, {expiresIn: '10m'});
+
+        sessionstorage.setItem('token', token);
 
         const text_sending = {
             from: 's6501012610033@email.kmutnb.ac.th',
@@ -250,7 +266,9 @@ app.post("/send_login_OTP/:email", async (req, res) => {
 
 //to check OTP
 app.post("/verify_OTP", async (req, res) => {
-    const {token, user_OTP} = req.body
+    const user_OTP = req.body.user_OTP
+    const token = sessionstorage.getItem('token');
+
     try { 
         const payloadBase64 = token.split('.')[1];
         const decodedJson = Buffer.from(payloadBase64, 'base64').toString();
@@ -261,6 +279,16 @@ app.post("/verify_OTP", async (req, res) => {
         if (isTokenExpired === false) {
             const decode = jwt.verify(token, token_obj);
             if (decode.OTP === user_OTP) {
+                connection.query(
+                    "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
+                    [sessionstorage.getItem('email')], //แทน ?
+                    (err, outcome, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                        sessionstorage.setItem('id', outcome[0].ACCOUNT_ID);
+                })
                 return res.status(200).json({status:"success", message: "OTP is correct"});
             }
             return res.status(400).json({status:"fail", message: "OTP is incorrect"});
@@ -308,7 +336,7 @@ app.post("/reset_password", async (req, res) => {
 //----------------------------Verify reset password code--------------------------------------//
 
 //send otp / for resend otp
-app.post("/send_password_OTP/:email", async (req, res) => {
+app.get("/send_password_OTP/:email", async (req, res) => {
     const email = req.params.email.slice(0,-1)
     try {
         const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
@@ -470,34 +498,38 @@ app.post("/upgrade_premium", async (req, res) => {
     try {
         // หาอีเมล
         connection.query(
-            "SELECT * FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
+            "SELECT * FROM account WHERE account.ACCOUNT_ID = ?",
             [id],
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).send();
                 }
+
+                if (results.length == 0) {
+                    return res.status(400).json({status:"fail", message : "There is no account wiht this id"})
+                }
                 
-                // //Omise: Auto capture a charge
-                // omise.tokens.create(cardDetails).then(function(token) {
-                //     console.log(token);
-                //     return omise.customers.create({
-                //         'email':       results[0].ACCOUNT_EMAIL,
-                //         'description': 'account id: ' + results[0].ACCOUNT_ID,
-                //         'card':        token.id,
-                // });
-                // }).then(function(customer) {
-                // console.log(customer);
-                // return omise.charges.create({
-                //     'amount':   10000,
-                //     'currency': 'thb',
-                //     'customer': customer.id,
-                // });
-                // }).then(function(charge) {
-                // console.log(charge);
-                // }).catch(function(err) {
-                // console.log(err);
-                // }).finally();
+                //Omise: Auto capture a charge
+                omise.tokens.create(cardDetails).then(function(token) {
+                    console.log(token);
+                    return omise.customers.create({
+                        'email':       results[0].ACCOUNT_EMAIL,
+                        'description': 'account id: ' + results[0].ACCOUNT_ID,
+                        'card':        token.id,
+                });
+                }).then(function(customer) {
+                console.log(customer);
+                return omise.charges.create({
+                    'amount':   10000,
+                    'currency': 'thb',
+                    'customer': customer.id,
+                });
+                }).then(function(charge) {
+                console.log(charge);
+                }).catch(function(err) {
+                console.log(err);
+                }).finally();
 
                 if (results.length === 0)
                 {
@@ -639,6 +671,7 @@ app.get("/payment_history", async (req, res) => {
     try {
         connection.query(
             "SELECT DATE_FORMAT(history.bill_date, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID AND account.ACCOUNT_ID = ? ORDER BY HISTORY_ID DESC LIMIT 5",
+            // SELECT premium.CARD_NUM, premium.EXPIRE_DATE, premium.CVV, premium.CARD_HOLDER, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, history.bill_date FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = 1 ORDER BY history.HISTORY_ID DESC LIMIT 20
             [id],
             (err, results, fields) => {
                 if (err) {
@@ -963,55 +996,133 @@ app.post("/update_theme", async (req, res) => {
 
 })
 
-//ลบ place
+// //ลบ place
+// app.delete("/delete_place", async (req, res) => {
+//     const place = req.body.place;
+//     try {
+//         connection.query(
+//             "DELETE FROM place WHERE CHOICE = ?", //ดึงข้อมูล
+//             [place],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (results.affectedRow === 0) {
+//                     return res.status(404).json({ message: "No such choice"})
+//                 }
+//                 res.status(200).json({ message: "place selection deleted successfully!"})
+//             })
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+
+// })
+
+//delete ตัวเลือกในหัวข้อ place
 app.delete("/delete_place", async (req, res) => {
-    const place = req.body.place;
+    const {confirm,choice} = req.body
+
     try {
         connection.query(
-            "DELETE FROM place WHERE CHOICE = ?", //ดึงข้อมูล
-            [place],
+            "SELECT * FROM place WHERE CHOICE = ?",
+            [choice],
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).send();
                 }
-                if (results.affectedRow === 0) {
-                    return res.status(404).json({ message: "No such choice"})
+
+                if (results.length == 0) {
+                    return res.status(400).json({status:"fail", message : "Can't find this choice id in the database"})
                 }
-                res.status(200).json({ message: "place selection deleted successfully!"})
-            })
-    }
+                else {
+                    if (confirm == "yes") {
+                        connection.query(
+                            "DELETE FROM place WHERE CHOICE = ?",
+                            [choice],
+                            (err, results, fields) => {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(400).send();
+                                }
+                            }
+                        )
+                        return res.status(200).json({status:"success", message : "Delete choice successfully!"})
+                    }
+                    res.status(400).json({status:"fail", message : "Doesn't delete choice yet"})
+                }})}
     catch(err) {
         console.log(err);
         return res.status(500).send();
     }
-
 })
 
-//ลบ theme
+//delete ตัวเลือกในหัวข้อ theme
 app.delete("/delete_theme", async (req, res) => {
-    const theme = req.body.theme;
+    const {confirm,choice} = req.body
+
     try {
         connection.query(
-            "DELETE FROM theme WHERE CHOICE = ?", //ดึงข้อมูล
-            [theme],
+            "SELECT * FROM place WHERE CHOICE = ?",
+            [choice],
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).send();
                 }
-                if (results.affectedRow === 0) {
-                    return res.status(404).json({ message: "No such choice"})
+
+                if (results.length == 0) {
+                    return res.status(400).json({status:"fail", message : "Can't find this choice id in the database"})
                 }
-                res.status(200).json({ message: "theme selection deleted successfully!"})
-            })
-    }
+                else {
+                    if (confirm == "yes") {
+                        connection.query(
+                            "DELETE FROM place WHERE CHOICE = ?",
+                            [choice],
+                            (err, results, fields) => {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(400).send();
+                                }
+                            }
+                        )
+                        return res.status(200).json({status:"success", message : "Delete choice successfully!"})
+                    }
+                    res.status(400).json({status:"fail", message : "Doesn't delete choice yet"})
+                }})}
     catch(err) {
         console.log(err);
         return res.status(500).send();
     }
-
 })
+
+// //ลบ theme
+// app.delete("/delete_theme", async (req, res) => {
+//     const theme = req.body.theme;
+//     try {
+//         connection.query(
+//             "DELETE FROM theme WHERE CHOICE = ?", //ดึงข้อมูล
+//             [theme],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (results.affectedRow === 0) {
+//                     return res.status(404).json({ message: "No such choice"})
+//                 }
+//                 res.status(200).json({ message: "theme selection deleted successfully!"})
+//             })
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+
+// })
 
 //----------------------------update clothes--------------------------------------//
 
@@ -1040,31 +1151,48 @@ app.post("/update_clothes", async (req, res) => {
 
 })
 
-//ลบ clothes
-app.delete("/delete_clothes", async (req, res) => {
-    const id = req.body.id;
-    try {
-        connection.query(
-            "DELETE FROM clothes WHERE CLOTHES_ID = ?", //ดึงข้อมูล
-            [id],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                if (results.affectedRow === 0) {
-                    return res.status(404).json({ message: "No clothes with that id"})
-                }
-                res.status(200).json({ message: "clothes deleted successfully!"})
-            })
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
+// //ลบ clothes
+// app.delete("/delete_clothes", async (req, res) => {
+//     const {id, confirm} = req.body;
+//     try {
+//         connection.query(
+//             "SELECT * FROM clothes WHERE CLOTHES_ID = ?", //ดึงข้อมูล
+//             [id],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (results.length === 0) {
+//                     return res.status(404).json({ message: "No clothes with that id"})
+//                 }
 
-})
+//                 if (confirm === 'yes') {
+//                     connection.query(
+//                         "DELETE FROM clothes WHERE CLOTHES_ID = ?", //ดึงข้อมูล
+//                         [id],
+//                         (err, results, fields) => {
+//                             if (err) {
+//                                 console.log(err);
+//                                 return res.status(400).send();
+//                             }
+//                             if (results.affectedRow === 0) {
+//                                 return res.status(404).json({ message: "Error, while deleting"})
+//                             }
+//                             res.status(200).json({ message: "clothes delete successfully!"})
+//                         })
+//                 }
+//                 else {
+//                     return res.status(404).json({ message: "Doesn't delete clothes yet"})
+//                 }
+//             })
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
 
+// })
 
 //----------------------------update fashion--------------------------------------//
 
