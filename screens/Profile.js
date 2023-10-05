@@ -42,7 +42,7 @@ const Profile = ({navigation}) => {
             <AppText style={styles.normalText3}>●●●●●●●● </AppText>
             <AppText style={styles.normalText3}>50 </AppText>
             <AppText style={styles.normalText3}>160 </AppText>
-            <AppText style={styles.normalText3}>80 </AppText>
+            <AppText style={styles.normalText3}>35 </AppText>
             <AppText style={styles.normalText3}>33 </AppText>
             <AppText style={styles.normalText3}>26 </AppText>
             <AppText style={styles.normalText3}>35 </AppText>

@@ -36,7 +36,7 @@ const EditProfile = ({navigation}) => {
                 style={styles.input}
                 onChangeText={onChangeWeight}
                 value={number1}
-                placeholder=""
+                placeholder="50"
                 keyboardType="numeric"
             />
             <AppText style={styles.inputTitle}>Height</AppText>
@@ -44,7 +44,7 @@ const EditProfile = ({navigation}) => {
                 style={styles.input}
                 onChangeText={onChangeHeight}
                 value={number2}
-                placeholder=""
+                placeholder="160"
                 keyboardType="numeric"
             />
             <AppText style={styles.inputTitle}>Shoulder</AppText>
@@ -52,7 +52,7 @@ const EditProfile = ({navigation}) => {
                 style={styles.input}
                 onChangeText={onChangeShoulder}
                 value={number3}
-                placeholder=""
+                placeholder="35"
                 keyboardType="numeric"
             />
             <AppText style={styles.inputTitle}>Bust</AppText>
@@ -60,7 +60,7 @@ const EditProfile = ({navigation}) => {
                 style={styles.input}
                 onChangeText={onChangeBust}
                 value={number4}
-                placeholder=""
+                placeholder="33"
                 keyboardType="numeric"
             />
             <AppText style={styles.inputTitle}>Waist</AppText>
@@ -68,7 +68,7 @@ const EditProfile = ({navigation}) => {
                 style={styles.input}
                 onChangeText={onChangeWaist}
                 value={number5}
-                placeholder=""
+                placeholder="26"
                 keyboardType="numeric"
             />
             <AppText style={styles.inputTitle}>Hip</AppText>
@@ -76,7 +76,7 @@ const EditProfile = ({navigation}) => {
                 style={styles.input}
                 onChangeText={onChangeHip}
                 value={number6}
-                placeholder=""
+                placeholder="35"
                 keyboardType="numeric"
             />
             <AppButton 

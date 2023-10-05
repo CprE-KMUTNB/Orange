@@ -20,20 +20,23 @@ import Splash from './screens/Splash';
 import Ads from './screens/Ads';
 import CardInfo from './screens/CardInfo';
 import AdminOutfitsRec from './screens/AdminOutfitsRec';
+import AdminNewFashion from './screens/AdminNewFashion';
+import EditNewFashion from './screens/EditNewFashion';
+import StackNavigator2 from './screens/StackNavigate2';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
     <NavigationContainer>
-      <StackNavigator/>
+      {/* <StackNavigator/> */}
+      <StackNavigator2/>
     </NavigationContainer>
     // <View>
-    //   <NewContent/>
+    //   <EditProfile/>
     // </View>
   )
 }
-
 
 
 

@@ -55,7 +55,7 @@ const FillInformation = ({navigation}) => {
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeWeight}
                         value={number1}
-                        placeholder=""
+                        placeholder="in kilograms"
                         keyboardType="numeric"
                     />
                     <AppText style={{color:'black', textAlign:'left', width:300}}>Height</AppText>
@@ -63,7 +63,7 @@ const FillInformation = ({navigation}) => {
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeHeight}
                         value={number2}
-                        placeholder=""
+                        placeholder="in centimeters"
                         keyboardType="numeric"
                     />
                     <AppText style={{color:'black', textAlign:'left', width:300}}>Shoulder</AppText>
@@ -71,7 +71,7 @@ const FillInformation = ({navigation}) => {
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeShoulder}
                         value={number3}
-                        placeholder=""
+                        placeholder="in inches"
                         keyboardType="numeric"
                     />
                     <AppText style={{color:'black', textAlign:'left', width:300}}>Bust</AppText>
@@ -79,7 +79,7 @@ const FillInformation = ({navigation}) => {
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeBust}
                         value={number4}
-                        placeholder=""
+                        placeholder="in inches"
                         keyboardType="numeric"
                     />
                     <AppText style={{color:'black', textAlign:'left', width:300}}>Waist</AppText>
@@ -87,7 +87,7 @@ const FillInformation = ({navigation}) => {
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeWaist}
                         value={number5}
-                        placeholder=""
+                        placeholder="in inches"
                         keyboardType="numeric"
                     />
                     <AppText style={{color:'black', textAlign:'left', width:300}}>Hip</AppText>
@@ -95,7 +95,7 @@ const FillInformation = ({navigation}) => {
                         style={{...styles.input, fontFamily: "Cuprum-VariableFont_wght"}}
                         onChangeText={onChangeHip}
                         value={number6}
-                        placeholder=""
+                        placeholder="in inches"
                         keyboardType="numeric"
                     />
                     <AppButton 
