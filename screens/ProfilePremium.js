@@ -40,10 +40,10 @@ const ProfilePremium = ({navigation}) => {
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <View style={styles.squareTop}>
+        {/* <View style={styles.squareTop}>
           <Text style={styles.headerText}>Profile</Text>
         </View>
-        <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
+        <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text> */}
         <View style={{...styles.innerCon, paddingTop:330}}>
           <AppText style={{...styles.normalText1}}>Personal 
             <Text style={styles.iconPos}> <Icon name='settings' size={22} onPress={onPressEditProfile}/> </Text> 
@@ -148,7 +148,7 @@ innerCon: {
   width: Dimensions.get('window').width*0.8,
   height: Dimensions.get('window').height*0.45,
   borderRadius: 8,
-  marginTop: 0,
+  marginTop: 10,
   alignItems: 'center',
   justifyContent: 'center'
 },

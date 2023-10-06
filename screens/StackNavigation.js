@@ -13,7 +13,6 @@ import Questions from './Questions';
 import OutfitsRec from './OutfitsRec';
 import Splash from './Splash';
 import CustomDrawerContent from './components/CustomDrawerContent';
-// import { Feather, Ionicons, MaterialCommunityIcons, Octicons, FontAwesome } from 'react-native-vector-icons';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather'
 import IconI from 'react-native-vector-icons/Ionicons'
@@ -24,6 +23,9 @@ import EditProfile from './EditProfile';
 import Ads from './Ads';
 import CardInfo from './CardInfo';
 import NewFashion from './NewFashion';
+import QHistory from './QHistory';
+import UserChatScreen from './UserChatScreen';
+import AdminChatScreen from './AdminChatScreen';
 
 
 // const Stack = createNativeStackNavigator();
@@ -96,6 +98,11 @@ const StackNavigator = () => {
         component={EditProfile}
         options={nonDrawerOptions}
       />
+      <Drawer.Screen
+        name = "QHistory"
+        component = {QHistory}
+        options = {nonDrawerOptions}
+      />
         <Drawer.Screen
           name="New Content"
           component={NewContent}
@@ -121,7 +128,12 @@ const StackNavigator = () => {
       <Drawer.Screen
         name="ProfilePremium"
         component={ProfilePremium}
-        options={{...nonDrawerOptions, headerShown: true}}
+        options={{...nonDrawerOptions, headerShown: true, headerStyle: {
+          backgroundColor: '#f2a676',
+          height: 70
+        }, headerTitleStyle:{fontSize: 30, fontFamily: "Cuprum-Bold"},
+        headerTitleAlign: 'center',
+        headerTintColor: 'black',}}
       />
       <Drawer.Screen
         name="Ads"
@@ -172,6 +184,16 @@ const StackNavigator = () => {
       <Drawer.Screen
         name="CardInfo"
         component={CardInfo}
+        options={nonDrawerOptions}
+      />
+       <Drawer.Screen
+        name="UserChatScreen"
+        component={UserChatScreen}
+        options={nonDrawerOptions}
+      />
+      <Drawer.Screen
+        name="AdminChatScreen"
+        component={AdminChatScreen}
         options={nonDrawerOptions}
       />
       

@@ -19,19 +19,20 @@ const Profile = ({navigation}) => {
     navigation.navigate('EditProfile')
   }
   const onPressCardInfo = () => {
-    const url = "http://10.90.4.93:3360/profile";
-    console.log("Sending request to", url);
-    axios.post(url)
-    .then(({data}) => { 
-      console.log(data)
-      if(data.status === 'success') {
-        navigation.navigate('CardInfo')
-      }
-    })
-    .catch(async error => {
-      console.error("AXIOS ERROR:");
-      console.error(await error);
-    });
+    // const url = "http://192.168.3.9:3360/profile";
+    // console.log("Sending request to", url);
+    // axios.post(url)
+    // .then(({data}) => { 
+    //   console.log(data)
+    //   if(data.status === 'success') {
+    //     navigation.navigate('CardInfo')
+    //   }
+    // })
+    // .catch(async error => {
+    //   console.error("AXIOS ERROR:");
+    //   console.error(await error);
+    // });
+    navigation.navigate('CardInfo')
   }
   
   return (
@@ -39,7 +40,7 @@ const Profile = ({navigation}) => {
       <View style={styles.container}>
       
         
-        <View style={{...styles.innerCon, paddingTop:380}}>
+        <View style={{...styles.innerCon, paddingTop:360}}>
           <AppText style={{...styles.normalText1, ...styles.innerPos}}>Personal <Text style={styles.iconPos}> <Icon name='settings' size={25} onPress={onPressEditProfile}/> </Text> </AppText>
            
           <AppText style={styles.normalText2}>Email : </AppText>
@@ -60,10 +61,13 @@ const Profile = ({navigation}) => {
             <AppText style={styles.normalText3}>26 </AppText>
             <AppText style={styles.normalText3}>35 </AppText>
           </View>
+          <View>
           <AppButton 
           title = {'Upgrade to premium'}
           onPress={onPressCardInfo}
           />
+          <AppText style={{top:-345, left: 60}}>35Baht per month</AppText>
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -96,9 +100,9 @@ headerText: {
 innerCon: {
   backgroundColor: 'white',
   width: Dimensions.get('window').width*0.8,
-  height: Dimensions.get('window').height*0.52,
+  height: Dimensions.get('window').height*0.6,
   borderRadius: 15,
-  marginTop: 10,
+  marginTop: 20,
   alignItems: 'center',
   justifyContent: 'center'
 },
@@ -108,11 +112,11 @@ appButtonContainer: {
   borderRadius: 10,
   paddingVertical: 10,
   paddingHorizontal: 12,
-  marginTop: 10,
+  marginTop: 20,
   width: 240,
   height: 50,
   alignItems: 'center',
-  top: -300
+  top: -350
 },
 appButtonText: {
   fontSize: 22,

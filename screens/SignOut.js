@@ -107,6 +107,13 @@ const styles = StyleSheet.create({
         // borderColor: 'black',
         borderRadius: 10
     },
+    modalheadtext: {
+      fontSize: 20,
+      color: "black",
+      alignSelf: "center",
+      fontFamily: "Cuprum-Bold",
+      marginBottom: 20
+    }
 })
 
 export default SignOut

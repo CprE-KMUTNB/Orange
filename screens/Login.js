@@ -30,23 +30,23 @@ const Login = ({ navigation }) => {
     navigation.navigate('ResetPassword')
   }
   const onPressVerifyEmail = () => {
-    const url = "http://10.90.4.93:3360/login";
-    console.log("Sending request to", url);
-    axios.post(url, {
-      email: text,
-      password: password
-    })
-      .then(({ data }) => {
-        console.log(data.status)
-        if (data.status === 'success') {
-          navigation.navigate('VerifyEmail')
-        }
-      })
-      .catch(async error => {
-        console.error("AXIOS ERROR:");
-        console.error(await error);
-      });
-  
+    // const url = "http://192.168.3.9:3360/login";
+    // console.log("Sending request to", url);
+    // axios.post(url, {
+    //   email: text,
+    //   password: password
+    // })
+    //   .then(({ data }) => {
+    //     console.log(data.status)
+    //     if (data.status === 'success') {
+    //       navigation.navigate('VerifyEmail')
+    //     }
+    //   })
+    //   .catch(async error => {
+    //     console.error("AXIOS ERROR:");
+    //     console.error(await error);
+    //   });
+    navigation.navigate('VerifyEmail')
   };
 
   const [text, onChangeText] = React.useState('');

@@ -39,6 +39,11 @@ const AdminOutfitsRec = () => {
   const [v3, onChangev3] = React.useState('');
   const [v4, onChangev4] = React.useState('');
   const [v5, onChangev5] = React.useState('');
+  const [v01, onChangev01] = React.useState('');
+  const [v02, onChangev02] = React.useState('');
+  const [v03, onChangev03] = React.useState('');
+  const [v04, onChangev04] = React.useState('');
+  const [v05, onChangev05] = React.useState('');
 
   return (
     // <ScrollView>
@@ -118,6 +123,74 @@ const AdminOutfitsRec = () => {
           {/* </View> */}
           <AppText style={styles.normalText}>Theme <Icon style={styles.iconPos} name='settings' size={25} onPress={() => setIsModalVisible2(true)} /></AppText>
           <DropdownComponent2 />
+          <Modal
+            visible={isModalVisible2}
+            backdropColor='white'
+            backdropOpacity={50}
+            onRequestClose={() => setIsModalVisible2(false)}
+            animationType='slide'
+            presentationStyle='overFullScreen'
+            transparent={true}
+            style={{ margin: 0 }}
+          >
+            <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1}></TouchableOpacity>
+            <View style={styles.centerStyle}>
+              <Text style={styles.modalheadtext}>Edit Theme</Text>
+              <Text style={styles.modalsmalltext}>value 1: </Text>
+              <TextInput
+                style={styles.input}
+                value={v01}
+                onChangeText={onChangev01}
+                placeholder='White'
+              />
+              <Text style={styles.modalsmalltext}>value 2: </Text>
+              <TextInput
+                style={styles.input}
+                value={v02}
+                onChangeText={onChangev02}
+                placeholder='Black'
+              />
+              <Text style={styles.modalsmalltext}>value 3: </Text>
+              <TextInput
+                style={styles.input}
+                value={v03}
+                onChangeText={onChangev03}
+                placeholder='Dark'
+              />
+              <Text style={styles.modalsmalltext}>value 4: </Text>
+              <TextInput
+                style={styles.input}
+                value={v04}
+                onChangeText={onChangev04}
+                placeholder='Vivid'
+              />
+              <Text style={styles.modalsmalltext}>value 5: </Text>
+              <TextInput
+                style={styles.input}
+                value={v05}
+                onChangeText={onChangev05}
+                placeholder='Earth tone'
+              />
+              
+              <View>
+                <AppButtonCancel
+                  title='Cancel'
+                  onPress={() => setIsModalVisible2(false)}
+                />
+                <AppButtonConfirm
+                  title='Confirm'
+                  onPress={() => setIsModalVisible2(false)}
+                />
+              </View>
+              <View>
+                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
+                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
+                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
+                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
+                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
+              </View>
+            </View>
+          </Modal>
           {/* {placeLoop} connect backend */}
         </View>
       </View>

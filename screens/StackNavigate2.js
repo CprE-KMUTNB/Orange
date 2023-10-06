@@ -6,6 +6,10 @@ import AdminNewContent from './AdminNewContent';
 import AdminNewFashion from './AdminNewFashion';
 import AdminOutfitsRec from './AdminOutfitsRec';
 import EditNewFashion from './EditNewFashion';
+import AdminQuestion from './AdminQuestion';
+import AdminChatScreen from './AdminChatScreen';
+import UserChatScreen from './UserChatScreen';
+import Login from './Login';
 import IconM from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconF from 'react-native-vector-icons/Feather'
 import IconI from 'react-native-vector-icons/Ionicons'
@@ -52,6 +56,21 @@ const StackNavigator2 = () => {
         component = {EditNewFashion}
         options = {nonDrawerOptions}
       />
+      <Drawer.Screen
+        name = "AdminChatScreen"
+        component = {AdminChatScreen}
+        options = {nonDrawerOptions}
+      />
+      <Drawer.Screen
+        name = "UserChatScreen"
+        component = {UserChatScreen}
+        options = {nonDrawerOptions}
+      />
+      <Drawer.Screen
+        name = "Login"
+        component = {Login}
+        options = {nonDrawerOptions}
+      />
         <Drawer.Screen
           name="New Content"
           component={AdminNewContent}
@@ -85,9 +104,9 @@ const StackNavigator2 = () => {
           headerTitleStyle:{fontSize: 26.8, fontFamily: "Cuprum-Bold"}
         }}
       />
-      {/* <Drawer.Screen
+      <Drawer.Screen
         name="Questions and Concerns"
-        component={Questions}
+        component={AdminQuestion}
         options={{
           ...drawerOptions,
           drawerIcon: () => (
@@ -95,7 +114,7 @@ const StackNavigator2 = () => {
           ),
           headerTitleStyle:{fontSize: 26.2, fontFamily: "Cuprum-Bold"}
         }}
-      /> */}
+      />
       
     </Drawer.Navigator>
 );

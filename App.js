@@ -26,18 +26,28 @@ import StackNavigator2 from './screens/StackNavigate2';
 import Helppage from './screens/HelpPage';
 import TicketForm from './screens/TicketForm';
 import AdminTicketForm from './screens/AdminTicketForm';
+import AdminChatScreen from './screens/AdminChatScreen';
+import UserChatScreen from './screens/UserChatScreen';
+import AdminNewContent from './screens/AdminNewContent';
+import QHistory from './screens/QHistory';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    // <NavigationContainer>
-    //   <StackNavigator/>
-    //   {/* <StackNavigator2/> */}
-    // </NavigationContainer>
-    <View>
-      <TicketForm/>
-    </View>
+    <NavigationContainer>
+      <StackNavigator/>
+      {/* <StackNavigator2/> */}
+    </NavigationContainer>
+    // <View>
+    //   <AdminTicketForm/>
+    // </View>
+  //   <NavigationContainer>
+  //   <Stack.Navigator initialRouteName="UserChat">
+  //     <Stack.Screen name="UserChat" component={UserChatScreen} />
+  //     <Stack.Screen name="AdminChat" component={AdminChatScreen} />
+  //   </Stack.Navigator>
+  // </NavigationContainer>
   )
 }
 

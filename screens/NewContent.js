@@ -8,7 +8,7 @@ const NewContent = () => {
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.insideCon}>
-          <View style={styles.ImgCon}>
+          <View style={styles.ImgCon1}>
             <Image style={styles.ImgCon} source={{ uri: 'https://i.pinimg.com/736x/5c/33/c1/5c33c10bf16cbb56aeef599352830f01.jpg' }} />
           </View>
           <Text style={styles.eventName}>Black Pink</Text>
@@ -40,14 +40,22 @@ const NewContent = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: '#f2a676'
+    backgroundColor: '#FAEBDC'
   },
   scrollView: {
     backgroundColor: "black",
     width: Dimensions.get('window').width,
     flex: 1,
+    elevation: 10
   },
   ImgCon: {
+    width: 300,
+    height: 410,
+    backgroundColor: 'lightblue',
+    alignItems: 'center',
+    // elevation: 10
+  },
+  ImgCon1: {
     width: 300,
     height: 410,
     backgroundColor: 'lightblue',

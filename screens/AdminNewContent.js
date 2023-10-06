@@ -119,7 +119,7 @@ const EventCard = (props) => {
   const { link, eventName, detailName, date } = props;
   return (
     <View>
-      <View style={styles.ImgCon}>
+      <View style={styles.ImgCon1}>
         <Image style={styles.ImgCon} source={{ uri: link }} />
       </View>
       <Text style={styles.eventName}>{eventName}<Icon style={styles.iconPos} name='settings' size={35}  onPress={() => props.setIsModalVisible(true)} /> </Text>
@@ -135,26 +135,26 @@ const AdminNewContent = ({ navigation }) => {
   const data = [
     {
       link: 'https://i.pinimg.com/736x/5c/33/c1/5c33c10bf16cbb56aeef599352830f01.jpg',
-      eventName: 'Black Pink',
+      eventName: 'Black Pink ',
       detailName: "World tour Born Pink",
       date: '14.11.23'
     },
     {
       link: 'https://cdn.kpopconcerts.com/wp-content/uploads/2022/08/04114609/2022-TOUR-SEVENTEEN-BE-THE-SUN-NORTH-AMERICA-tour-poster-1350x1909.jpg',
-      eventName: 'Seventeen',
+      eventName: 'Seventeen ',
       detailName: "World tour Be the Sun",
       date: '09.12.23'
     },
     {
       link: 'http://cdn.designbump.com/wp-content/uploads/2015/12/colorful-christmas-trees-inspiration-5.jpg',
-      eventName: 'Christmas',
-      detailName: "",
+      eventName: 'Christmas ',
+      detailName: "Cristmas Party Night",
       date: '25.12.23'
     },
     {
       link: 'https://image.freepik.com/free-vector/minimal-valentine-heart-background_76243-44.jpg',
-      eventName: 'Valentine',
-      detailName: "World tour Be the Sun",
+      eventName: 'Valentine ',
+      detailName: "Special at Central",
       date: '14.02.24'
     },
   ]
@@ -185,8 +185,8 @@ const AdminNewContent = ({ navigation }) => {
           </View>
           <Text style={styles.eventName}>Valentine <Icon style={styles.iconPos} name='settings' size={35} onPress={() => setIsModalVisible(true)} /> </Text>
           <Text style={styles.dateName}>14.02.23</Text> */}
-          {data.map((event) => {
-            return <EventCard link={event.link} eventName={event.eventName} detailName={event.detailName} date={event.date} />
+          {data.map((event, index) => {
+            return <EventCard key={index} link={event.link} eventName={event.eventName} detailName={event.detailName} date={event.date} setIsModalVisible={setIsModalVisible} />
           })}
         </View>
         <MyModal  isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible}  />
@@ -198,7 +198,7 @@ const AdminNewContent = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: '#F4B187'
+    backgroundColor: '#FAEBDC'
   },
   scrollView: {
     backgroundColor: "black",
@@ -212,6 +212,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // elevation: 10
   },
+  ImgCon1: {
+    width: 300,
+    height: 410,
+    backgroundColor: 'lightblue',
+    alignItems: 'center',
+    elevation: 10
+  },
   insideCon: {
     width: '90%',
     backgroundColor: '#FAEBDC',
@@ -223,17 +230,23 @@ const styles = StyleSheet.create({
     fontSize: 50,
     color: 'black',
     paddingTop: 10,
+    marginRight: 'auto',
+    marginLeft: 'auto',
   },
   dateName: {
     fontFamily: "Cuprum-VariableFont_wght",
     fontSize: 25,
     color: 'black',
-    paddingBottom: 30
+    paddingBottom: 30,
+    marginRight: 'auto',
+    marginLeft: 'auto',
   },
   detailName: {
     fontFamily: "Cuprum-Bold",
     fontSize: 30,
     color: 'black',
+    marginRight: 'auto',
+    marginLeft: 'auto',
   },
   modalheadCon: {
     backgroundColor: "#FF9176",

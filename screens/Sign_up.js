@@ -27,23 +27,24 @@ const Sign_up = ({navigation}) => {
     navigation.navigate('Login')
   }
   const onPressFillInformation = () => {
-    const url = "http://172.20.10.8/sign_up";
-    console.log("Sending request to", url);
-    axios.post(url, {
-      email: text,
-      password: password,
-      confirm: confirm_password
-    })
-    .then(({data}) => { 
-      console.log(data)
-      if(data.status === 'success') {
-        navigation.navigate('FillInformation')
-      }
-    })
-    .catch(async error => {
-      console.error("AXIOS ERROR:");
-      console.error(await error);
-    });
+    // const url = "http://192.168.3.9:3360/sign_up";
+    // console.log("Sending request to", url);
+    // axios.post(url, {
+    //   email: text,
+    //   password: password,
+    //   confirm: confirm_password
+    // })
+    // .then(({data}) => { 
+    //   console.log(data)
+    //   if(data.status === 'success') {
+    //     navigation.navigate('FillInformation')
+    //   }
+    // })
+    // .catch(async error => {
+    //   console.error("AXIOS ERROR:");
+    //   console.error(await error);
+    // });
+    navigation.navigate('FillInformation')
   }
   
   const [text, onChangeText] = React.useState('');
