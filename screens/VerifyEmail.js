@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView, Button, TouchableOpacity,  KeyboardAvoidingView, Dimensions} from 'react-native'
 import React , { useState, useRef } from 'react'
 import OTPTextView from 'react-native-otp-textinput'
+import axios from 'axios'
+const sessionstorage = require('sessionstorage');
 
 const AppButton = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -32,7 +34,7 @@ const VerifyEmail = ( {navigation}) => {
   const showTextAlert = () => otpInput && Alert.alert(otpInput);
   const handleCellTextChange = async (text, i) => {
     if (i === 0) {
-      const clippedText = await Clipboard.getString();
+      const clippedText = await REACT_NATIVE_APP_MYIP.getString();
       if (clippedText.slice(0, 1) === text) {
         input.current?.setValue(clippedText, true);
       }
@@ -42,7 +44,38 @@ const VerifyEmail = ( {navigation}) => {
     navigation.navigate('Login')
   };
   const onPressNewContent = () => {
-    navigation.navigate('New Content')
+    console.log(otpInput);
+    // navigation.navigate('New Content')
+    const url = "http://10.90.4.93:3360/verify_OTP";
+    console.log("Sending request to", url);
+    axios.post(url, {
+      user_OTP: otpInput
+    })
+    .then(({data}) => { 
+      console.log(data)
+      if(data.status === 'success') {
+        navigation.navigate('New Content')
+      }
+    })
+    .catch(async error => {
+      console.error("AXIOS ERROR:");
+      console.error(await error);
+    });
+  }
+  const onPressResend = () => {
+    const url = "http://10.90.4.93:3360/send_login_OTP";
+    console.log("Sending request to", url);
+    axios.post(url)
+    .then(({data}) => { 
+      console.log(data)
+      // if(data.status === 'success') {
+  
+      // }
+    })
+    .catch(async error => {
+      console.error("AXIOS ERROR:");
+      console.error(await error);
+    });
   }
 
     return (
@@ -73,7 +106,9 @@ const VerifyEmail = ( {navigation}) => {
                 onPress={onPressNewContent}
               />
             <AppText style={{color:'black', marginTop: 5, top:210, left: -30}}>Didn't recieve the code?</AppText>
-            <AppButtonButtom title={'Resend'} />
+            <AppButtonButtom 
+              title={'Resend'} 
+              onPress={onPressResend}/>
             </View> 
         </View>
     )

@@ -1,8 +1,9 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal } from 'react-native'
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import Icon from 'react-native-vector-icons/Feather'
 import Profile from './Profile'
 import EditProfile from './EditProfile'
+import axios from 'axios'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -14,11 +15,33 @@ const AppButton = ({ onPress, title }) => (
   </TouchableOpacity>
 )
 
-const ModalButtonY = ({ onPress, title }) => (
+const ModalButtonY = ({ onPress, title }) => {
+  // useEffect(() => {
+  //   const url = "http://10.90.4.93:3360/cancel_premium";
+  //   console.log("Sending request to", url);
+  //   const onPressProfile = () => {
+  //     setIsModalVisible(false)
+  //     navigation.navigate('Profile')
+  //   }
+  //   axios.post(url, {
+  //     confirm: "yes"
+  //   })
+  //   .then(({ data }) => {
+  //     console.log(data);
+  //   })
+  //   .catch(error => {
+  //     console.error("AXIOS ERROR:");
+  //     console.error(error);
+  //   });
+  // }, []); // The empty dependency array ensures this effect runs only once when the component mounts.
+
+  return (
     <TouchableOpacity onPress={onPress} style={styles.modalButtonYContainer}>
       <Text style={styles.modalButtonYText}>{title}</Text>
     </TouchableOpacity>
-)
+  );
+}
+
 
 const ModalButtonN = ({ onPress, title }) => (
   <TouchableOpacity onPress={onPress} style={styles.modalButtonNContainer}>
@@ -30,6 +53,7 @@ const ProfilePremium = ({navigation}) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const onPressProfile = () => {
     navigation.navigate('Profile')
+    setIsModalVisible(false)
   }
   const onPressEditProfile = () => {
     navigation.navigate('EditProfile')
@@ -37,6 +61,22 @@ const ProfilePremium = ({navigation}) => {
   const onPressCardInfo = () => {
     navigation.navigate('CardInfo')
   }
+  const showPaymentDetail = () => {
+    const url = "http://10.90.4.93:3360/payment_detail";
+    console.log("Sending request to", url);
+    axios.post(url)
+    .then(({data}) => { 
+      console.log(data)
+      if(data.status === 'success') {
+        navigation.navigate('New Content')
+      }
+    })
+    .catch(async error => {
+      console.error("AXIOS ERROR:");
+      console.error(await error);
+    });
+  }
+
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -105,6 +145,7 @@ const ProfilePremium = ({navigation}) => {
                     style={styles.buttonstyle}
                     title='Yes'
                     onPress={onPressProfile}
+
                     />
                     <ModalButtonN 
                     style={styles.buttonstyle}

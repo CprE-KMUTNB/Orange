@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity,} from 'react-native'
 import React from 'react'
+import axios from 'axios'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black', marginRight: 'auto', paddingLeft: 15}}>{props.children}</Text>
@@ -17,7 +18,25 @@ const CardInfo = ({navigation}) => {
     const [number3, onChangeCVV] = React.useState('');
     const [text, onChangeText] = React.useState('');
     const onPressProfilePremium = () => {
-      navigation.navigate('ProfilePremium')
+      const url = "http://10.90.4.93:3360/upgrade_premium";
+      console.log("Sending request to", url);
+      axios.post(url, {
+        card_num: number1,
+        expire_date: number2,
+        cvv: number3,
+        holder: text
+      })
+      .then(({data}) => { 
+        console.log(data)
+        if(data.status === 'success') {
+          navigation.navigate('ProfilePremium')
+        }
+      })
+      .catch(async error => {
+        console.error("AXIOS ERROR:");
+        console.error(await error);
+      });
+      // navigation.navigate('ProfilePremium')
     }
   return (
     <View style={styles.container}>

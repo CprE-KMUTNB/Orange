@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
 import React from 'react'
+import axios from 'axios'
 
 const AppButton = ({ onPress, title }) => (
   <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -17,7 +18,7 @@ const ResetPassword = ({navigation}) => {
   const [number, onChangeNumber] = React.useState('');
   const onPressLogin2 = () => {
     // navigation.navigate('Login')
-    const url = "http://10.90.4.163:3360/forgot_password";
+    const url = "http://172.20.10.8:3360/reset_password";
     console.log("Sending request to", url);
     axios.post(url, {
       password: text, 

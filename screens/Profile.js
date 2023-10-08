@@ -19,27 +19,13 @@ const Profile = ({navigation}) => {
     navigation.navigate('EditProfile')
   }
   const onPressCardInfo = () => {
-    // const url = "http://192.168.3.9:3360/profile";
-    // console.log("Sending request to", url);
-    // axios.post(url)
-    // .then(({data}) => { 
-    //   console.log(data)
-    //   if(data.status === 'success') {
-    //     navigation.navigate('CardInfo')
-    //   }
-    // })
-    // .catch(async error => {
-    //   console.error("AXIOS ERROR:");
-    //   console.error(await error);
-    // });
     navigation.navigate('CardInfo')
   }
+  
   
   return (
     <SafeAreaView>
       <View style={styles.container}>
-      
-        
         <View style={{...styles.innerCon, paddingTop:360}}>
           <AppText style={{...styles.normalText1, ...styles.innerPos}}>Personal <Text style={styles.iconPos}> <Icon name='settings' size={25} onPress={onPressEditProfile}/> </Text> </AppText>
            

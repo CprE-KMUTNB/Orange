@@ -4,12 +4,12 @@ current_timestamp เวลาปัจจุบัน
 results[0].ACCOUNT_EMAIL
 ---------------------------------
 API
-/Sign up
+$/Sign up
 /-มี account อยู่รึเปล่า -> ถ้าไม่มี เพิ่ม account		: This email already has an account						
 /-confirm password = password มั้ย			    : Password must be the same
 /-เพิ่ม account
 
-/Fill Information
+$/Fill Information
 /-ใส่ตัวเลขทั้งหมดมั้ย                         : ํTheese information should only be numbers
 /-ใส่ข้อมูลครบทุกอันมั้ย                        : You need to fill all informations
 /-คำนวนสัดส่วน

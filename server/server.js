@@ -45,7 +45,7 @@ let omise = require('omise')({
     'secretKey': process.env.secretKey,
 });
 
-const { error } = require('console');
+const { error, log } = require('console');
 
 //MySQL connection
 const connection = mysql.createConnection({
@@ -172,6 +172,7 @@ app.post("/login", async (req, res) => {
                     console.log(err);
                     return res.status(400).send();
                 }
+                console.log(results[0])
                 //เช้คว่ามีอีเมลนี้ใน db มั้ย
                 if (results.length === 0) {
                     return res.status(400).json({status:"fail", message: "No account with this email"});
@@ -180,13 +181,14 @@ app.post("/login", async (req, res) => {
                 if (results[0].ACCOUNT_PASSWORD != password) {
                     return res.status(400).json({status:"fail", message: "Email or Password is incorrect"}); 
                 }
+                sessionstorage.setItem('email', email);
+                sessionstorage.setItem('id', results[0].ACCOUNT_ID);
                 //ส่ง OTP ไปที่ email
-                fetch('http://' + process.env.REACT_NATIVE_APP_MYIP + '/send_login_OTP/' + new URLSearchParams(email), {
-                    method: 'GET', 
+                fetch('http://' + process.env.REACT_NATIVE_APP_MYIP + '/send_login_OTP', {
+                    method: 'POST', 
                 })
                 .then(res => res.json())
                 .then(outcome => {
-                    sessionstorage.setItem('email', email);
                     return res.status(200).json({status:"success", message: "can go to Verify Email", results: results, token: outcome.token});
                 })
         })
@@ -214,7 +216,7 @@ app.post("/forgot_password", async (req, res) => {
                 if (results.length === 0) {
                     return res.status(400).json({status:"fail", message: "No account with this email"});
                 }
-
+                sessionstorage.setItem('id', results[0].ACCOUNT_ID);
                 //ส่ง OTP ไปที่ email
                 fetch('http://' + process.env.REACT_NATIVE_APP_MYIP + '/send_password_OTP/' + new URLSearchParams(email), {
                     method: 'GET', 
@@ -235,12 +237,13 @@ app.post("/forgot_password", async (req, res) => {
 //----------------------------Verify Email--------------------------------------//
 
 //send otp / for resend otp
-app.get("/send_login_OTP/:email", async (req, res) => {
-    const email = req.params.email.slice(0,-1)
+app.post("/send_login_OTP", async (req, res) => {
+    const email = sessionstorage.getItem('email');
     try {
         const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
         const token = jwt.sign({OTP : OTP}, token_obj, {expiresIn: '10m'});
-
+        
+        console.log(OTP)
         sessionstorage.setItem('token', token);
 
         const text_sending = {
@@ -267,7 +270,7 @@ app.get("/send_login_OTP/:email", async (req, res) => {
 
 //to check OTP
 app.post("/verify_OTP", async (req, res) => {
-    const user_OTP = req.body.user_OTP
+    const user_OTP = parseInt(req.body.user_OTP)
     const token = sessionstorage.getItem('token');
 
     try { 
@@ -292,9 +295,11 @@ app.post("/verify_OTP", async (req, res) => {
                 })
                 return res.status(200).json({status:"success", message: "OTP is correct"});
             }
+            console.log('ok')
             return res.status(400).json({status:"fail", message: "OTP is incorrect"});
         }
         //หมดอายุแล้ว
+        console.log('no ok')
         res.status(400).json({status:"fail", message: "OTP is expired"});
     }
     catch(err) {
@@ -307,7 +312,8 @@ app.post("/verify_OTP", async (req, res) => {
 
 //for reset password
 app.post("/reset_password", async (req, res) => {
-    const {id, password, confirm} = req.body
+    const {password, confirm} = req.body
+    const id = sessionstorage.getItem('id');
 
     try {
         //เช้คว่า password ตรงกันมั้ย
@@ -455,6 +461,7 @@ app.get("/new_content", async (req, res) => {
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
 app.get("/profile", async (req, res) => {
     const id = sessionstorage.getItem('id');
+    console.log(id)
     try {
         connection.query(
             //ดึงข้อมูลของแอคเค้ามา
@@ -481,10 +488,10 @@ app.get("/profile", async (req, res) => {
 
 //upgrade to premium
 app.post("/upgrade_premium", async (req, res) => {
-    const {card_num,expire_date,cvv,holder,id} = req.body
+    const {card_num,expire_date,cvv,holder} = req.body
+    const id = sessionstorage.getItem('id')
 
     var expiration = expire_date.split("/")
-
     let cardDetails = {
         card: {
         'name':             holder,
@@ -499,7 +506,7 @@ app.post("/upgrade_premium", async (req, res) => {
     try {
         // หาอีเมล
         connection.query(
-            "SELECT * FROM account WHERE account.ACCOUNT_ID = ?",
+            "SELECT * FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
             [id],
             (err, results, fields) => {
                 if (err) {
@@ -507,10 +514,6 @@ app.post("/upgrade_premium", async (req, res) => {
                     return res.status(400).send();
                 }
 
-                if (results.length == 0) {
-                    return res.status(400).json({status:"fail", message : "There is no account wiht this id"})
-                }
-                
                 //Omise: Auto capture a charge
                 omise.tokens.create(cardDetails).then(function(token) {
                     console.log(token);
@@ -532,6 +535,7 @@ app.post("/upgrade_premium", async (req, res) => {
                 console.log(err);
                 }).finally();
 
+                //ตาราง premium
                 if (results.length === 0)
                 {
                     //ยังไม่เคยสมัคร premium มาก่อน
@@ -572,12 +576,24 @@ app.post("/upgrade_premium", async (req, res) => {
                     }
                 )
 
+                //อัพเดต IS_PREMIUM
+                connection.query(
+                    "UPDATE account SET IS_PREMIUM = 1 WHERE ACCOUNT_ID = ?",
+                    [id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    }
+                )
+
                 //ส่งเมลยืนยันการสมัคร premium
                 const text_sending = {
                     from: process.env.MYMAIL,
                     to: results[0].ACCOUNT_EMAIL,
                     subject: 'Thank you for your subscription to Orange premium',
-                    text:"Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 199.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\nOrange Team"
+                    text:"Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 35.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\nOrange Team"
                 };
 
                 transporter.sendMail(text_sending, (err, info) => {
@@ -600,8 +616,9 @@ app.post("/upgrade_premium", async (req, res) => {
 //----------------------------Edit profile--------------------------------------//
 
 //for edit profile รวมทั้ง premium และปกติ email = เดิม newemail = email ใหม่
-app.patch("/edit_profile", async (req, res) => {
-    const {weight, height,shoulder, bust, waist, hip, newemail, password, id} = req.body
+app.post("/edit_profile", async (req, res) => {
+    const {weight, height,shoulder, bust, waist, hip} = req.body
+    const id = sessionstorage.getItem("id")
 
     var figure ='none'
     if (shoulder-hip > 3) { figure = 'inverted_tri'}
@@ -611,24 +628,16 @@ app.patch("/edit_profile", async (req, res) => {
     else if (shoulder-hip < 3 && shoulder-hip > -3) { figure = 'rectangle'}
 
     try {
-        //ส่งข้อมูลมาครบถ้วนมั้ย
-        if (weight.toString().length !== 0 && height.toString().length !== 0 && bust.toString().length !== 0 && waist.toString().length !== 0 && hip.toString().length !== 0 && newemail.length !== 0 && password.length !== 0) {
-            //ต้องกรอกแค่ตัวเลขเท่านั้น
-            if (Number.isFinite(Number(weight)) && Number.isFinite(Number(height)) && Number.isFinite(Number(bust)) && Number.isFinite(Number(waist)) && Number.isFinite(Number(hip))) {
-                connection.query(
-                    "UPDATE account SET ACCOUNT_EMAIL = ?, ACCOUNT_PASSWORD = ?, WEIGHT = ?, HEIGHT = ?, SHOULDER = ?, BUST = ?, WAIST = ?, HIP = ?, FIGURE = ? WHERE ACCOUNT_ID = ?",
-                    [newemail, password, weight, height, shoulder, bust, waist, hip, figure, id],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-                    })
-                    return res.status(200).json({status:"success", message : "Profile updated successfully!"})
+        connection.query(
+        "UPDATE account SET WEIGHT = ?, HEIGHT = ?, SHOULDER = ?, BUST = ?, WAIST = ?, HIP = ?, FIGURE = ? WHERE ACCOUNT_ID = ?",
+        [weight, height, shoulder, bust, waist, hip, figure, id],
+        (err, results, fields) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).send();
             }
-            return res.status(400).json({status:"fail", message : "ํTheese information should only be numbers"})
-        }
-        res.status(400).json({status:"fail", message : "You need to fill all informations"})
+        })
+        return res.status(200).json({status:"success", message : "Profile updated successfully!"})
     }
     catch(err) {
         console.log(err);
@@ -640,11 +649,11 @@ app.patch("/edit_profile", async (req, res) => {
 
 //for payment detail payment method, next bill date
 app.get("/payment_detail", async (req, res) => {
-    const id = req.body.id
+    const id = sessionstorage.getItem('id')
 
     try {
         connection.query(
-            "SELECT premium.PAYMENT_METHOD, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE FROM account JOIN premium WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+            "SELECT premium.CARD_NUM, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE FROM account JOIN premium WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
             [id],
             (err, results, fields) => {
                 if (err) {
@@ -719,8 +728,9 @@ app.patch("/change_method", async (req, res) => {
 //----------------------------Cancel Premium--------------------------------------//
 
 //for cancel premium overlay confirm = คำตอบของ Are you sure to cancel Premium? yes/no
-app.patch("/cancel_premium", async (req, res) => {
-    const {confirm,id} = req.body
+app.post("/cancel_premium", async (req, res) => {
+    const confirm = req.body.confirm
+    const id = sessionstorage.getItem("id")
 
     try {
         if (confirm == "yes") {
@@ -742,20 +752,20 @@ app.patch("/cancel_premium", async (req, res) => {
                                 console.log(err);
                                 return res.status(400).send();
                             }
+                            console.log(results)
+                            const text_sending = {
+                                from: process.env.MYMAIL,
+                                to: results[0].ACCOUNT_EMAIL,
+                                subject: 'Cancelation of Orange premium',
+                                text:"Dear User :\n\nSorry to see you've cancelled your Orange premium.\n\nIf you're having second thoughts, we'll welcome you back any time.\n\nRegards,\nOrange Team"
+                            };
 
-                        const text_sending = {
-                            from: process.env.MYMAIL,
-                            to: results[0].ACCOUNT_EMAIL,
-                            subject: 'Cancelation of Orange premium',
-                            text:"Dear User :\n\nSorry to see you've cancelled your Orange premium.\n\nIf you're having second thoughts, we'll welcome you back any time.\n\nRegards,\nOrange Team"
-                        };
-
-                        transporter.sendMail(text_sending, (err, info) => {
-                            if (err) {
-                                console.log(err);
-                                return res.status(400).send();
-                            }
-                        });
+                            transporter.sendMail(text_sending, (err, info) => {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(400).send();
+                                }
+                            });
                     })
                 }
             )

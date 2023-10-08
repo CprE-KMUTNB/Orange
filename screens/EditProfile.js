@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
 import React from 'react'
+import axios from 'axios'
 
 const AppButton = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -16,7 +17,27 @@ const EditProfile = ({navigation}) => {
     navigation.navigate('NewContent')
   }
   const onPressProfile = () => {
-    navigation.navigate('Profile')
+    // navigation.navigate('Profile')
+    const url = "http://10.90.4.93:3360/edit_profile";
+      console.log("Sending request to", url);
+      axios.post(url, {
+        weight: number1, 
+        height: number2,
+        shoulder: number3, 
+        bust: number4, 
+        waist: number5, 
+        hip: number6
+      })
+      .then(({data}) => { 
+        console.log(data)
+        if(data.status === 'success') {
+          navigation.navigate('ProfilePremium')
+        }
+      })
+      .catch(async error => {
+        console.error("AXIOS ERROR:");
+        console.error(await error);
+      });
   }
     const [number1, onChangeWeight] = React.useState('');
     const [number2, onChangeHeight] = React.useState('');

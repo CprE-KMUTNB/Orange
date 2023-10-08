@@ -27,26 +27,41 @@ const Login = ({ navigation }) => {
     navigation.navigate('Sign_up')
   }
   const onPressResetPassword = () => {
-    navigation.navigate('ResetPassword')
+    // navigation.navigate('ResetPassword')
+    const url = "http://10.90.4.93:3360/forgot_password";
+    console.log("Sending request to", url);
+    axios.post(url, {
+      email: text,
+    })
+      .then(({ data }) => {
+        console.log(data.status)
+        if (data.status === 'success') {
+          navigation.navigate('ResetPassword')
+        }
+      })
+      .catch(async error => {
+        console.error("AXIOS ERROR:");
+        console.error(await error);
+      });
   }
   const onPressVerifyEmail = () => {
-    // const url = "http://192.168.3.9:3360/login";
-    // console.log("Sending request to", url);
-    // axios.post(url, {
-    //   email: text,
-    //   password: password
-    // })
-    //   .then(({ data }) => {
-    //     console.log(data.status)
-    //     if (data.status === 'success') {
-    //       navigation.navigate('VerifyEmail')
-    //     }
-    //   })
-    //   .catch(async error => {
-    //     console.error("AXIOS ERROR:");
-    //     console.error(await error);
-    //   });
-    navigation.navigate('VerifyEmail')
+    const url = "http://10.90.4.93:3360/login";
+    console.log("Sending request to", url);
+    axios.post(url, {
+      email: text,
+      password: password
+    })
+      .then(({ data }) => {
+        console.log(data.status)
+        if (data.status === 'success') {
+          navigation.navigate('VerifyEmail')
+        }
+      })
+      .catch(async error => {
+        console.error("AXIOS ERROR:");
+        console.error(await error);
+      });
+    // navigation.navigate('VerifyEmail')
   };
 
   const [text, onChangeText] = React.useState('');
