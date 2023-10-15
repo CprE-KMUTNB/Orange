@@ -18,7 +18,7 @@ const EditProfile = ({navigation}) => {
   }
   const onPressProfile = () => {
     // navigation.navigate('Profile')
-    const url = "http://10.90.4.93:3360/edit_profile";
+    const url = "http://10.90.4.206:3360/edit_profile";
       console.log("Sending request to", url);
       axios.post(url, {
         weight: number1, 

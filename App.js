@@ -30,6 +30,7 @@ import AdminChatScreen from './screens/AdminChatScreen';
 import UserChatScreen from './screens/UserChatScreen';
 import AdminNewContent from './screens/AdminNewContent';
 import QHistory from './screens/QHistory';
+import NewFashion from './screens/NewFashion';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,7 +41,7 @@ const App = () => {
       {/* <StackNavigator2/> */}
     </NavigationContainer>
     // <View>
-    //   <AdminTicketForm/>
+    //   <Questions/>
     // </View>
   //   <NavigationContainer>
   //   <Stack.Navigator initialRouteName="UserChat">

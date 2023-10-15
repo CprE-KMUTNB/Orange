@@ -5,7 +5,7 @@ const mysql = require('mysql');
 const cors = require("cors");
 const { networkInterfaces } = require('os');
 const sessionstorage = require('sessionstorage');
-const localStorage = require('local-storage');
+// const localStorage = require('local-storage');
 
 const nets = networkInterfaces();
 const results = Object.create(null); // Or just '{}', an empty object
@@ -165,32 +165,54 @@ app.post("/login", async (req, res) => {
     const {email,password} = req.body
     try {
         connection.query(
-            "SELECT * FROM account WHERE ACCOUNT_EMAIL = ? ", //ดึงข้อมูล
+            "SELECT * FROM admin WHERE USERNAME = ? ", //ดึงข้อมูล
             [email],
-            (err, results, fields) => {
+            (err, admin, fields) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).send();
                 }
-                console.log(results[0])
-                //เช้คว่ามีอีเมลนี้ใน db มั้ย
-                if (results.length === 0) {
-                    return res.status(400).json({status:"fail", message: "No account with this email"});
+                // ไม่ใช่แอดมิน
+                if (admin.length === 0) {
+                    connection.query(
+                        "SELECT * FROM account WHERE ACCOUNT_EMAIL = ? ", //ดึงข้อมูล
+                        [email],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                            //เช้คว่ามีอีเมลนี้ใน db มั้ย
+                            if (results.length === 0) {
+                                return res.status(400).json({status:"fail", message: "No account with this email"});
+                            }
+                            //เช้คว่า email&password ถูกมั้ย
+                            if (results[0].ACCOUNT_PASSWORD != password) {
+                                return res.status(400).json({status:"fail", message: "Email or Password is incorrect"}); 
+                            }
+                            sessionstorage.setItem('email', email);
+                            sessionstorage.setItem('id', results[0].ACCOUNT_ID);
+                            // sessionstorage.setItem('is_premium', results[0].IS_PREMIUM);
+                            // sessionstorage.setItem('weight', results[0].WEIGHT);
+                            // sessionstorage.setItem('height', results[0].HEIGHT);
+                            // sessionstorage.setItem('shoulder', results[0].SHOULDER);
+                            // sessionstorage.setItem('bust', results[0].BUST);
+                            // sessionstorage.setItem('waist', results[0].WAIST);
+                            // sessionstorage.setItem('hip', results[0].HIP);
+                            //ส่ง OTP ไปที่ email
+                            fetch('http://' + process.env.REACT_NATIVE_APP_MYIP + '/send_login_OTP', {
+                                method: 'POST', 
+                            })
+                            .then(res => res.json())
+                            .then(outcome => {
+                                return res.status(200).json({status:"success", message: "can go to Verify Email", results: results[0], token: outcome.token});
+                            })
+                    })
                 }
-                //เช้คว่า email&password ถูกมั้ย
-                if (results[0].ACCOUNT_PASSWORD != password) {
-                    return res.status(400).json({status:"fail", message: "Email or Password is incorrect"}); 
+                //เช้คว่า password ถูกมั้ย
+                else if (admin[0].PASSWORD != password) {
+                    return res.status(400).json({status:"fail", message: "username or Password is incorrect"}); 
                 }
-                sessionstorage.setItem('email', email);
-                sessionstorage.setItem('id', results[0].ACCOUNT_ID);
-                //ส่ง OTP ไปที่ email
-                fetch('http://' + process.env.REACT_NATIVE_APP_MYIP + '/send_login_OTP', {
-                    method: 'POST', 
-                })
-                .then(res => res.json())
-                .then(outcome => {
-                    return res.status(200).json({status:"success", message: "can go to Verify Email", results: results, token: outcome.token});
-                })
         })
     }
     catch(err) {
@@ -344,10 +366,13 @@ app.post("/reset_password", async (req, res) => {
 
 //send otp / for resend otp
 app.get("/send_password_OTP/:email", async (req, res) => {
-    const email = req.params.email.slice(0,-1)
+    const email = sessionstorage.getItem('email');
     try {
         const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
         const token = jwt.sign({OTP : OTP}, token_obj, {expiresIn: '10m'});
+
+        console.log(OTP)
+        sessionstorage.setItem('token', token);
 
         const text_sending = {
             from: process.env.MYMAIL,
@@ -375,12 +400,10 @@ app.get("/send_password_OTP/:email", async (req, res) => {
 
 //for new fashion with model
 app.post("/new_fashion", async (req, res) => {
-    const id = req.body.id
     try {
         connection.query(
             //ดึงข้อมูลของ content มา
             "SELECT * FROM fashion ORDER by FASHION_ID DESC LIMIT 20",
-            [id],
             (err, results, fields) => {
                 if (err) {
                     console.log("Error while connecting to the database", err);
@@ -402,12 +425,10 @@ app.post("/new_fashion", async (req, res) => {
 
 //for new clothes
 app.post("/new_clothes", async (req, res) => {
-    const id = req.body.id
     try {
         connection.query(
             //ดึงข้อมูลของ content มา
             "SELECT * FROM clothes ORDER by CLOTHES_ID DESC LIMIT 8",
-            [id],
             (err, results, fields) => {
                 if (err) {
                     console.log("Error while connecting to the database", err);
@@ -431,12 +452,10 @@ app.post("/new_clothes", async (req, res) => {
 
 //for new content
 app.get("/new_content", async (req, res) => {
-    const id = req.body.id
     try {
         connection.query(
             //ดึงข้อมูลของ content มา
             "SELECT * FROM content ORDER by CONTENT_ID DESC LIMIT 30",
-            [id],
             (err, results, fields) => {
                 if (err) {
                     console.log("Error while connecting to the database", err);
@@ -459,9 +478,8 @@ app.get("/new_content", async (req, res) => {
 //----------------------------See profile--------------------------------------//
 
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
-app.get("/profile", async (req, res) => {
+app.post("/profile", async (req, res) => {
     const id = sessionstorage.getItem('id');
-    console.log(id)
     try {
         connection.query(
             //ดึงข้อมูลของแอคเค้ามา
@@ -476,7 +494,7 @@ app.get("/profile", async (req, res) => {
                 {
                     return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
                 }
-                res.status(200).json({status:"success", message: results});
+                res.status(200).json({status:"success", results: results});
             }
         )
     }
@@ -490,6 +508,7 @@ app.get("/profile", async (req, res) => {
 app.post("/upgrade_premium", async (req, res) => {
     const {card_num,expire_date,cvv,holder} = req.body
     const id = sessionstorage.getItem('id')
+    // const id = req.body.id
 
     var expiration = expire_date.split("/")
     let cardDetails = {
@@ -501,8 +520,8 @@ app.post("/upgrade_premium", async (req, res) => {
         'expiration_month': expiration[0],
         'expiration_year':  expiration[1],
         },
+        
     };
-
     try {
         // หาอีเมล
         connection.query(
@@ -514,26 +533,26 @@ app.post("/upgrade_premium", async (req, res) => {
                     return res.status(400).send();
                 }
 
-                //Omise: Auto capture a charge
-                omise.tokens.create(cardDetails).then(function(token) {
-                    console.log(token);
-                    return omise.customers.create({
-                        'email':       results[0].ACCOUNT_EMAIL,
-                        'description': 'account id: ' + results[0].ACCOUNT_ID,
-                        'card':        token.id,
-                });
-                }).then(function(customer) {
-                console.log(customer);
-                return omise.charges.create({
-                    'amount':   10000,
-                    'currency': 'thb',
-                    'customer': customer.id,
-                });
-                }).then(function(charge) {
-                console.log(charge);
-                }).catch(function(err) {
-                console.log(err);
-                }).finally();
+                // //Omise: Auto capture a charge
+                // omise.tokens.create(cardDetails).then(function(token) {
+                //     console.log(token);
+                //     return omise.customers.create({
+                //         'email':       results[0].ACCOUNT_EMAIL,
+                //         'description': 'account id: ' + results[0].ACCOUNT_ID,
+                //         'card':        token.id,
+                // });
+                // }).then(function(customer) {
+                // console.log(customer);
+                // return omise.charges.create({
+                //     'amount':   10000,
+                //     'currency': 'thb',
+                //     'customer': customer.id,
+                // });
+                // }).then(function(charge) {
+                // console.log(charge);
+                // }).catch(function(err) {
+                // console.log(err);
+                // }).finally();
 
                 //ตาราง premium
                 if (results.length === 0)
@@ -648,12 +667,13 @@ app.post("/edit_profile", async (req, res) => {
 //----------------------------Payment Detail--------------------------------------//
 
 //for payment detail payment method, next bill date
-app.get("/payment_detail", async (req, res) => {
+app.post("/payment_detail",  async(req, res) => {
     const id = sessionstorage.getItem('id')
-
+    // const id = req.body.id
+    console.log('oo3')
     try {
         connection.query(
-            "SELECT premium.CARD_NUM, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE FROM account JOIN premium WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+            "SELECT premium.CARD_NUM, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, history.BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
             [id],
             (err, results, fields) => {
                 if (err) {
@@ -664,7 +684,8 @@ app.get("/payment_detail", async (req, res) => {
                 {
                     return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
                 }
-                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+                
+                return res.status(200).json({ message : "Get information successfully!", results: results[0], status:"success"});
             }
         )
     }
@@ -674,37 +695,38 @@ app.get("/payment_detail", async (req, res) => {
     }
 })
 
-//for payment detail history
-app.get("/payment_history", async (req, res) => {
-    const id = req.body.id
+// //for payment detail history
+// app.get("/payment_history", async (req, res) => {
+//     const id = sessionstorage.getItem('id');
 
-    try {
-        connection.query(
-            "SELECT DATE_FORMAT(history.bill_date, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID AND account.ACCOUNT_ID = ? ORDER BY HISTORY_ID DESC LIMIT 5",
-            // SELECT premium.CARD_NUM, premium.EXPIRE_DATE, premium.CVV, premium.CARD_HOLDER, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, history.bill_date FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = 1 ORDER BY history.HISTORY_ID DESC LIMIT 20
-            [id],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                if (results.length === 0)
-                {
-                    return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
-                }
-                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
-            }
-        )
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
+//     try {
+//         connection.query(
+//             "SELECT DATE_FORMAT(history.bill_date, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID AND account.ACCOUNT_ID = ? ORDER BY HISTORY_ID DESC LIMIT 5",
+//             // SELECT premium.CARD_NUM, premium.EXPIRE_DATE, premium.CVV, premium.CARD_HOLDER, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, history.bill_date FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = 1 ORDER BY history.HISTORY_ID DESC LIMIT 20
+//             [id],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (results.length === 0)
+//                 {
+//                     return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
+//                 }
+//                 return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+//             }
+//         )
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })
 
 //เปลี่ยนเลขบัตร
 app.patch("/change_method", async (req, res) => {
-    const {card_num,expire_date,cvv,holder,id} = req.body
+    const {card_num,expire_date,cvv,holder} = req.body
+    const id = sessionstorage.getItem('id');
 
     try {
         connection.query(
@@ -911,46 +933,24 @@ app.get("/recommend", async (req, res) => {
 
 //----------------------------Ask Question and concern--------------------------------------//
 
-//for question and concern
-app.post("/concern", async (req, res) => {
-    const {text, id} = req.body
+// show question and concern's channel
+app.post("/show_channel", async (req, res) => {
+    const id = sessionstorage.getItem('id')
+    // const id = req.body.id
 
     try {
-        //เก็บข้อความไว้ในฐานข้อมูล
         connection.query(
-            "INSERT INTO concern(`ACCOUNT_ID`, `TEXT`) VALUES (?,?)",
-            [id,text],
+            "SELECT * FROM `concern` WHERE ACCOUNT_ID = ?",
+            [id],
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).send();
                 }
-                //ส่งอีเมลตอบกลับว่าได้รับข้อความแล้ว
-                connection.query(
-                    "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
-                    [id],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-
-                        const text_sending = {
-                            from: process.env.MYMAIL,
-                            to: results[0].ACCOUNT_EMAIL,
-                            subject: 'Thank you for your feedback to Orange',
-                            text:"Dear User :\n\nThank you for taking time to contact Orange to explain the issues you have encountered recently. We regret any inconvenience you have experienced, and we assure you that we are anxious to retain you as a satisfied customer.\n\nOur Customer Satisfaction Team is reviewing the information you sent us and conducting a full investigation in order to resolve this matter fairly.\n\nSincerely,\nOrange Team"
-                        };
-
-                        transporter.sendMail(text_sending, (err, info) => {
-                            if (err) {
-                                console.log(err);
-                                return res.status(400).send();
-                            }
-                            return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
-                        });
-                    }
-                )
+                if (results.length === 0) {
+                    return res.status(400).json({status:"fail", message: "There are no channels yet"});
+                }
+                return res.status(200).json({status:"success", message: "Show channels successfully!", results: results});
             }
         )
         
@@ -960,6 +960,166 @@ app.post("/concern", async (req, res) => {
         return res.status(500).send();
     }
 })
+
+// create new question and concern's channel
+app.post("/new_channel", async (req, res) => {
+    const text = req.body.text
+    // const id = req.body.id
+    const id = sessionstorage.getItem('id')
+
+    try {
+        connection.query(
+            "SELECT MAX(CHANNEL_ID) AS MAX_CHANNEL_ID FROM `concern` WHERE ACCOUNT_ID = ?",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                var channel = results[0].MAX_CHANNEL_ID+1
+                if (channel === null) {
+                    channel = 0
+                }
+                //เพิ่มข้อความใหม่ลงฐานข้อมูล
+                connection.query(
+                    "INSERT INTO `concern`(`ACCOUNT_ID`, `CHANNEL_ID`, `TITLE`) VALUES (?,?,?)",
+                    [id, channel, text],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    return res.status(200).json({status:"success", message: "Creating new channel successfully!"})
+                })
+            }
+        )
+        
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+// show question and concern for each channel
+app.post("/show_concern", async (req, res) => {
+    const channel = req.body.channel
+    const id = sessionstorage.getItem('id')
+    // const id = req.body.id
+
+    try {
+        connection.query(
+            "SELECT * FROM `channel` WHERE CHANNEL_ID = ? AND ACCOUNT_ID = ?",
+            [channel,id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0) {
+                    return res.status(400).json({status:"fail", message: "There are no messages yet"});
+                }
+                return res.status(200).json({status:"success", message: "Show each channel successfully!", results: results});
+            }
+        )
+        
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+//for saving question and concern chat
+app.post("/save_concern", async (req, res) => {
+    const {text, channel, sender} = req.body
+    const id = sessionstorage.getItem('id')
+    // const id = req.body.id
+
+    try {
+        //ดึงข้อมูลล่าสุด
+        connection.query(
+            "SELECT MAX(CHAT_ID) AS MAX_CHAT_ID FROM `channel` WHERE CHANNEL_ID = ? AND ACCOUNT_ID = ?",
+            [channel,id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                var chat = results[0].MAX_CHAT_ID+1
+                if (chat === null) {
+                    chat = 0
+                }
+                //เพิ่มข้อความใหม่ลงฐานข้อมูล
+                connection.query(
+                    "INSERT INTO `channel`(`CHAT_ID`, `ACCOUNT_ID`, `CHANNEL_ID`, `TEXT`, `SENDER`) VALUES (?,?,?,?,?)",
+                    [chat, id, channel, text, sender],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    return res.status(200).json({status:"success", message: "Saving concern successfully!"})
+                })
+            }
+        )
+        
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+// //for question and concern
+// app.post("/concern", async (req, res) => {
+//     const {text, id} = req.body
+
+//     try {
+//         //เก็บข้อความไว้ในฐานข้อมูล
+//         connection.query(
+//             "INSERT INTO concern(`ACCOUNT_ID`, `TEXT`) VALUES (?,?)",
+//             [id,text],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 //ส่งอีเมลตอบกลับว่าได้รับข้อความแล้ว
+//                 connection.query(
+//                     "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
+//                     [id],
+//                     (err, results, fields) => {
+//                         if (err) {
+//                             console.log(err);
+//                             return res.status(400).send();
+//                         }
+
+//                         const text_sending = {
+//                             from: process.env.MYMAIL,
+//                             to: results[0].ACCOUNT_EMAIL,
+//                             subject: 'Thank you for your feedback to Orange',
+//                             text:"Dear User :\n\nThank you for taking time to contact Orange to explain the issues you have encountered recently. We regret any inconvenience you have experienced, and we assure you that we are anxious to retain you as a satisfied customer.\n\nOur Customer Satisfaction Team is reviewing the information you sent us and conducting a full investigation in order to resolve this matter fairly.\n\nSincerely,\nOrange Team"
+//                         };
+
+//                         transporter.sendMail(text_sending, (err, info) => {
+//                             if (err) {
+//                                 console.log(err);
+//                                 return res.status(400).send();
+//                             }
+//                             return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
+//                         });
+//                     }
+//                 )
+//             }
+//         )
+        
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })
 
 //----------------------------update selection--------------------------------------//
 
@@ -1336,7 +1496,7 @@ app.delete("/delete_content", async (req, res) => {
 app.get("/unanswer_concern", async (req, res) => {
     try {
         connection.query(
-            "SELECT TEXT FROM concern WHERE ANSWER IS NULL",
+            "SELECT account.ACCOUNT_EMAIL, concern.CHANNEL_ID, concern.TITLE FROM `concern` JOIN `account` ON account.ACCOUNT_ID = concern.ACCOUNT_ID WHERE 'IS_FINISH' = 0",
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
@@ -1344,7 +1504,7 @@ app.get("/unanswer_concern", async (req, res) => {
                 }
                 if (results.length === 0)
                 {
-                    return res.status(400).json({status:"fail", message: "Error, Can't find any unanswer question and concern"});
+                    return res.status(400).json({status:"fail", message: "Can't find any unanswer question and concern"});
                 }
                 return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
             }
@@ -1356,55 +1516,103 @@ app.get("/unanswer_concern", async (req, res) => {
     }
 })
 
-//for admin to question and concern
-app.patch("/ans_concern", async (req, res) => {
-    const {id,text} = req.body
-
+//for showing answered question and concern to admin
+app.get("/answered_concern", async (req, res) => {
     try {
-        //เก็บข้อความตอบกลับไว้ในฐานข้อมูล
         connection.query(
-            "INSERT INTO concern(`ANSWER`) VALUES (?)",
-            [text],
+            "SELECT account.ACCOUNT_EMAIL, concern.CHANNEL_ID, concern.TITLE FROM `concern` JOIN `account` ON account.ACCOUNT_ID = concern.ACCOUNT_ID WHERE 'IS_FINISH' = 1",
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).send();
                 }
-                //ส่งข้อความตอบกลับไปที่อีเมลของผู้ใช้
-                connection.query(
-                    "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
-                    [id],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-
-                        const text_sending = {
-                            from: process.env.MYMAIL,
-                            to: results[0].ACCOUNT_EMAIL,
-                            subject: 'Thank you for your feedback to Orange',
-                            text: text
-                        };
-
-                        transporter.sendMail(text_sending, (err, info) => {
-                            if (err) {
-                                console.log(err);
-                                return res.status(400).send();
-                            }
-                            return res.status(200).json({status:"success", message : "User's question and concern answered successfully!"})
-                        });
-                    }
-                )
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Can't find any answered question and concern"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
             }
         )
-        
     }
     catch(err) {
         console.log(err);
         return res.status(500).send();
     }
 })
+
+// //for showing unanswer question and concern to admin
+// app.get("/unanswer_concern", async (req, res) => {
+//     try {
+//         connection.query(
+//             "SELECT TEXT FROM concern WHERE ANSWER IS NULL",
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (results.length === 0)
+//                 {
+//                     return res.status(400).json({status:"fail", message: "Error, Can't find any unanswer question and concern"});
+//                 }
+//                 return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+//             }
+//         )
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })
+
+// //for admin to question and concern
+// app.patch("/ans_concern", async (req, res) => {
+//     const {id,text} = req.body
+
+//     try {
+//         //เก็บข้อความตอบกลับไว้ในฐานข้อมูล
+//         connection.query(
+//             "INSERT INTO concern(`ANSWER`) VALUES (?)",
+//             [text],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 //ส่งข้อความตอบกลับไปที่อีเมลของผู้ใช้
+//                 connection.query(
+//                     "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
+//                     [id],
+//                     (err, results, fields) => {
+//                         if (err) {
+//                             console.log(err);
+//                             return res.status(400).send();
+//                         }
+
+//                         const text_sending = {
+//                             from: process.env.MYMAIL,
+//                             to: results[0].ACCOUNT_EMAIL,
+//                             subject: 'Thank you for your feedback to Orange',
+//                             text: text
+//                         };
+
+//                         transporter.sendMail(text_sending, (err, info) => {
+//                             if (err) {
+//                                 console.log(err);
+//                                 return res.status(400).send();
+//                             }
+//                             return res.status(200).json({status:"success", message : "User's question and concern answered successfully!"})
+//                         });
+//                     }
+//                 )
+//             }
+//         )
+        
+//     }
+//     catch(err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })
 
 //for showing answered question and concern to admin
 app.get("/answered_concern", async (req, res) => {

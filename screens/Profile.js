@@ -1,8 +1,9 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal } from 'react-native'
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import Icon from 'react-native-vector-icons/Feather'
 import EditProfile from './EditProfile'
 import axios from 'axios'
+const sessionstorage = require('sessionstorage');
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -15,13 +16,29 @@ const AppButton = ({ onPress, title }) => (
 )
 
 const Profile = ({navigation}) => {
+  const url = "http://192.168.1.192:3360/profile";
+  const [Data, setData] = useState({});
+  useEffect(() => {
+    axios.post(url)
+      .then(({ data }) => {
+        console.log(data.status)
+        if (data.status === 'success') {
+          setData(data.results[0]);
+        }
+      })
+      .catch(error => {
+        console.error("AXIOS ERROR:");
+        console.error(error);
+      });
+    // navigation.navigate('VerifyEmail')
+  },[])
+
   const onPressEditProfile = () => {
     navigation.navigate('EditProfile')
   }
   const onPressCardInfo = () => {
     navigation.navigate('CardInfo')
   }
-  
   
   return (
     <SafeAreaView>
@@ -38,27 +55,27 @@ const Profile = ({navigation}) => {
           <AppText style={styles.normalText2}>Waist : </AppText>
           <AppText style={styles.normalText2}>Hip : </AppText>
           <View style={{ top:-345, width:Dimensions.get('window').width*0.8}}>
-            <AppText style={styles.normalText3}>sample@email.com </AppText>
+            <AppText style={styles.normalText3}>{Data?.ACCOUNT_EMAIL ?? "-"} </AppText>
             <AppText style={styles.normalText3}>●●●●●●●● </AppText>
-            <AppText style={styles.normalText3}>50 </AppText>
-            <AppText style={styles.normalText3}>160 </AppText>
-            <AppText style={styles.normalText3}>35 </AppText>
-            <AppText style={styles.normalText3}>33 </AppText>
-            <AppText style={styles.normalText3}>26 </AppText>
-            <AppText style={styles.normalText3}>35 </AppText>
+            <AppText style={styles.normalText3}>{Data?.WEIGHT ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.HEIGHT ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.SHOULDER ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.BUST ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.WAIST ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.HIP ?? "-"} </AppText>
           </View>
           <View>
           <AppButton 
           title = {'Upgrade to premium'}
           onPress={onPressCardInfo}
           />
-          <AppText style={{top:-345, left: 60}}>35Baht per month</AppText>
+          <AppText style={{top:-345, left: 60}}>35 Baht per month</AppText>
           </View>
         </View>
       </View>
     </SafeAreaView>
   )
-}
+};
 
 const styles = StyleSheet.create({
   squareTop: {

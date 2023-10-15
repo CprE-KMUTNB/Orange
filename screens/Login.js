@@ -28,7 +28,7 @@ const Login = ({ navigation }) => {
   }
   const onPressResetPassword = () => {
     // navigation.navigate('ResetPassword')
-    const url = "http://10.90.4.93:3360/forgot_password";
+    const url = "http://10.90.4.206:3360/forgot_password";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,
@@ -45,7 +45,7 @@ const Login = ({ navigation }) => {
       });
   }
   const onPressVerifyEmail = () => {
-    const url = "http://10.90.4.93:3360/login";
+    const url = "http:/192.168.1.192:3360/login";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,

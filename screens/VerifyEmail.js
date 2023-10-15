@@ -46,7 +46,7 @@ const VerifyEmail = ( {navigation}) => {
   const onPressNewContent = () => {
     console.log(otpInput);
     // navigation.navigate('New Content')
-    const url = "http://10.90.4.93:3360/verify_OTP";
+    const url = "http://192.168.1.192:3360/verify_OTP";
     console.log("Sending request to", url);
     axios.post(url, {
       user_OTP: otpInput
@@ -63,7 +63,7 @@ const VerifyEmail = ( {navigation}) => {
     });
   }
   const onPressResend = () => {
-    const url = "http://10.90.4.93:3360/send_login_OTP";
+    const url = "http://192.168.1.192:3360/send_login_OTP";
     console.log("Sending request to", url);
     axios.post(url)
     .then(({data}) => { 

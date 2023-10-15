@@ -18,7 +18,7 @@ const CardInfo = ({navigation}) => {
     const [number3, onChangeCVV] = React.useState('');
     const [text, onChangeText] = React.useState('');
     const onPressProfilePremium = () => {
-      const url = "http://10.90.4.93:3360/upgrade_premium";
+      const url = "http://192.168.1.192:3360/upgrade_premium";
       console.log("Sending request to", url);
       axios.post(url, {
         card_num: number1,

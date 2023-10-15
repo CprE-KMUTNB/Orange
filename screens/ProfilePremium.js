@@ -51,6 +51,42 @@ const ModalButtonN = ({ onPress, title }) => (
 
 const ProfilePremium = ({navigation}) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
+
+  const url = "http://192.168.1.192:3360/profile";
+  const [Data, setData] = useState({});
+  // navigation.navigate('VerifyEmail')
+  const url1 = "http://192.168.1.192:3360/payment_detail";
+  const [Data1, setData1] = useState({});
+  useEffect(() => {
+    axios.post(url)
+    .then(({ data }) => {
+      console.log('profile', data.status)
+      if (data.status === 'success') {
+        setData(data.results[0]);
+      }
+    })
+    .catch(error => {
+      console.error("AXIOS ERROR:");
+      console.error(error);
+    });
+    console.log('pp')
+
+    
+  },[])
+  useEffect(()=>{
+    axios.post(url1)
+    .then(({data}) => {
+      console.log('payment detail',data.status)
+      if (data.status === 'success') {
+        setData1(data.results);
+      }
+    })
+    .catch(error => {
+      console.error("AXIOS ERROR:");
+      console.error(error);
+    });
+  },[])
+
   const onPressProfile = () => {
     navigation.navigate('Profile')
     setIsModalVisible(false)
@@ -62,7 +98,7 @@ const ProfilePremium = ({navigation}) => {
     navigation.navigate('CardInfo')
   }
   const showPaymentDetail = () => {
-    const url = "http://10.90.4.93:3360/payment_detail";
+    const url = "http://192.168.1.192:3360/payment_detail";
     console.log("Sending request to", url);
     axios.post(url)
     .then(({data}) => { 
@@ -97,14 +133,14 @@ const ProfilePremium = ({navigation}) => {
           <AppText style={styles.normalText2}>Waist : </AppText>
           <AppText style={styles.normalText2}>Hip : </AppText>
           <View style={{ top:-345, width:Dimensions.get('window').width*0.8}}>
-            <AppText style={styles.normalText3}>sample@email.com </AppText>
+            <AppText style={styles.normalText3}>{Data?.ACCOUNT_EMAIL ?? "-"} </AppText>
             <AppText style={styles.normalText3}>●●●●●●●● </AppText>
-            <AppText style={styles.normalText3}>50 </AppText>
-            <AppText style={styles.normalText3}>160 </AppText>
-            <AppText style={styles.normalText3}>80 </AppText>
-            <AppText style={styles.normalText3}>33 </AppText>
-            <AppText style={styles.normalText3}>26 </AppText>
-            <AppText style={styles.normalText3}>35 </AppText>
+            <AppText style={styles.normalText3}>{Data?.WEIGHT ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.HEIGHT ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.SHOULDER ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.BUST ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.WAIST ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{Data?.HIP ?? "-"} </AppText>
           </View>
           {/* <AppButton 
           title = {'Cancel Premium'}
@@ -116,8 +152,8 @@ const ProfilePremium = ({navigation}) => {
                 <Text style={styles.iconPos2}> <Icon name='settings' size={22} onPress={onPressCardInfo}/> </Text>
                 </AppText>
                 <View style={styles.modaltextcon}>
-                  <AppText style={styles.normalText2}>Payment method : *3342</AppText>
-                  <AppText style={styles.normalText2}>Next billing date : 30/10/2023</AppText>
+                  <AppText style={styles.normalText2}>Payment method : {Data1?.CARD_NUM ?? "-"}</AppText>
+                  <AppText style={styles.normalText2}>Next billing date : {Data1?.NEXT_BILL_DATE ?? "-"}</AppText>
                   <Text style={styles.modalhistory}>History</Text>
                 </View>
           </View>
