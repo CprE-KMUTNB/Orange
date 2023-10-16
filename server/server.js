@@ -173,7 +173,7 @@ app.post("/login", async (req, res) => {
                     return res.status(400).send();
                 }
                 // ไม่ใช่แอดมิน
-                if (admin.length === 0) {
+                if (results.length === 0) {
                     connection.query(
                         "SELECT * FROM account WHERE ACCOUNT_EMAIL = ? ", //ดึงข้อมูล
                         [email],
@@ -182,6 +182,7 @@ app.post("/login", async (req, res) => {
                                 console.log(err);
                                 return res.status(400).send();
                             }
+                            console.log(results[0])
                             //เช้คว่ามีอีเมลนี้ใน db มั้ย
                             if (results.length === 0) {
                                 return res.status(400).json({status:"fail", message: "No account with this email"});
@@ -192,25 +193,19 @@ app.post("/login", async (req, res) => {
                             }
                             sessionstorage.setItem('email', email);
                             sessionstorage.setItem('id', results[0].ACCOUNT_ID);
-                            // sessionstorage.setItem('is_premium', results[0].IS_PREMIUM);
-                            // sessionstorage.setItem('weight', results[0].WEIGHT);
-                            // sessionstorage.setItem('height', results[0].HEIGHT);
-                            // sessionstorage.setItem('shoulder', results[0].SHOULDER);
-                            // sessionstorage.setItem('bust', results[0].BUST);
-                            // sessionstorage.setItem('waist', results[0].WAIST);
-                            // sessionstorage.setItem('hip', results[0].HIP);
+                            sessionstorage.setItem('is_premium', results[0].IS_PREMIUM);
                             //ส่ง OTP ไปที่ email
                             fetch('http://' + process.env.REACT_NATIVE_APP_MYIP + '/send_login_OTP', {
                                 method: 'POST', 
                             })
                             .then(res => res.json())
                             .then(outcome => {
-                                return res.status(200).json({status:"success", message: "can go to Verify Email", results: results[0], token: outcome.token});
+                                return res.status(200).json({status:"success", message: "can go to Verify Email", results: results, token: outcome.token});
                             })
                     })
                 }
                 //เช้คว่า password ถูกมั้ย
-                else if (admin[0].PASSWORD != password) {
+                if (admin[0].PASSWORD != password) {
                     return res.status(400).json({status:"fail", message: "username or Password is incorrect"}); 
                 }
         })
@@ -507,8 +502,8 @@ app.post("/profile", async (req, res) => {
 //upgrade to premium
 app.post("/upgrade_premium", async (req, res) => {
     const {card_num,expire_date,cvv,holder} = req.body
-    const id = sessionstorage.getItem('id')
-    // const id = req.body.id
+    // const id = sessionstorage.getItem('id')
+    const id = req.body.id
 
     var expiration = expire_date.split("/")
     let cardDetails = {
@@ -695,33 +690,33 @@ app.post("/payment_detail",  async(req, res) => {
     }
 })
 
-// //for payment detail history
-// app.get("/payment_history", async (req, res) => {
-//     const id = sessionstorage.getItem('id');
+//for payment detail history
+app.get("/payment_history", async (req, res) => {
+    const id = sessionstorage.getItem('id');
 
-//     try {
-//         connection.query(
-//             "SELECT DATE_FORMAT(history.bill_date, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID AND account.ACCOUNT_ID = ? ORDER BY HISTORY_ID DESC LIMIT 5",
-//             // SELECT premium.CARD_NUM, premium.EXPIRE_DATE, premium.CVV, premium.CARD_HOLDER, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, history.bill_date FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = 1 ORDER BY history.HISTORY_ID DESC LIMIT 20
-//             [id],
-//             (err, results, fields) => {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.status(400).send();
-//                 }
-//                 if (results.length === 0)
-//                 {
-//                     return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
-//                 }
-//                 return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
-//             }
-//         )
-//     }
-//     catch(err) {
-//         console.log(err);
-//         return res.status(500).send();
-//     }
-// })
+    try {
+        connection.query(
+            "SELECT DATE_FORMAT(history.bill_date, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID AND account.ACCOUNT_ID = ? ORDER BY HISTORY_ID DESC LIMIT 5",
+            // SELECT premium.CARD_NUM, premium.EXPIRE_DATE, premium.CVV, premium.CARD_HOLDER, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, history.bill_date FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = 1 ORDER BY history.HISTORY_ID DESC LIMIT 20
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                if (results.length === 0)
+                {
+                    return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
+                }
+                return res.status(200).json({status:"success", message : "Get information successfully!", results: results})
+            }
+        )
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
 
 //เปลี่ยนเลขบัตร
 app.patch("/change_method", async (req, res) => {
@@ -935,8 +930,8 @@ app.get("/recommend", async (req, res) => {
 
 // show question and concern's channel
 app.post("/show_channel", async (req, res) => {
-    const id = sessionstorage.getItem('id')
-    // const id = req.body.id
+    // const id = sessionstorage.getItem('id')
+    const id = req.body.id
 
     try {
         connection.query(
@@ -1004,8 +999,8 @@ app.post("/new_channel", async (req, res) => {
 // show question and concern for each channel
 app.post("/show_concern", async (req, res) => {
     const channel = req.body.channel
-    const id = sessionstorage.getItem('id')
-    // const id = req.body.id
+    // const id = sessionstorage.getItem('id')
+    const id = req.body.id
 
     try {
         connection.query(
@@ -1033,8 +1028,8 @@ app.post("/show_concern", async (req, res) => {
 //for saving question and concern chat
 app.post("/save_concern", async (req, res) => {
     const {text, channel, sender} = req.body
-    const id = sessionstorage.getItem('id')
-    // const id = req.body.id
+    // const id = sessionstorage.getItem('id')
+    const id = req.body.id
 
     try {
         //ดึงข้อมูลล่าสุด
