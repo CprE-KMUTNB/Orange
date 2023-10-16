@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, Modal} from 'react-native'
-import { UserContext } from './StackNavigation'
-import React, {useContext} from 'react'
+import React, {useState, useContext} from 'react'
+import { AuthContext } from './StackNavigation'
 
 const ModalButtonY = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.modalButtonYContainer}>
@@ -15,8 +15,10 @@ const ModalButtonN = ({ onPress, title }) => (
 )
 
 const SignOut = ({navigation}) => {
-    const {isModalVisible, setIsModalVisible} = useContext(UserContext);
-    const onPressLogin = () => {
+    const { signout } = useContext(AuthContext)
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const onPressLogin = async () => {
+        await signout()
         navigation.navigate('Login')
       }
   return (

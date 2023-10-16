@@ -1,20 +1,39 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect  } from 'react'
 import { Dropdown } from 'react-native-element-dropdown'
-  
-  const dataTheme = [
-    { label: 'White', value: '1' },
-    { label: 'Black', value: '2' },
-    { label: 'Dark', value: '3' },
-    { label: 'Vivid', value: '4' },
-    { label: 'Earth tone', value: '5' },
-    { label: 'Pastel', value: '6' },
-   ,
-  ]
+import axios from 'axios'
 
   const DropdownComponent2 = () => {
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
+
+    const url = "http://10.90.4.206:3360/theme";
+      const [dataTheme, setDataTheme] = useState([]);
+    
+      useEffect(() => {
+        axios.get(url)
+        .then(response => {
+          const data = response.data;
+          console.log("API response:", data);
+          if (data.status === 'success') {
+            if (Array.isArray(data.results)) {
+              const newDataTheme = data.results.map(item => ({
+                label: item.CHOICE,
+                value: item.THEME_ID,
+              }));
+              console.log("New dataTheme:", newDataTheme);
+              setDataTheme(newDataTheme);
+            } else if (data.results && typeof data.results.CHOICE === 'string' && typeof data.results.THEME_ID === 'string') {
+              setDataTheme([{ label: data.results.CHOICE, value: data.results.THEME_ID }]);
+            } else {
+              console.error("Unexpected data structure");
+            }
+          }
+        })
+        .catch(error => {
+          console.error("AXIOS ERROR:", error);
+        });
+    }, []);
 
     const renderLabel = () => {
       if (value || isFocus) {

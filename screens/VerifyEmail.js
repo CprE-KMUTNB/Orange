@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView, Button, TouchableOpacity,  KeyboardAvoidingView, Dimensions} from 'react-native'
-import React , { useState, useRef } from 'react'
+import React , { useState, useRef, useContext } from 'react'
+import { AuthContext } from './StackNavigation'
 import OTPTextView from 'react-native-otp-textinput'
 import axios from 'axios'
-const sessionstorage = require('sessionstorage');
+// require('dotenv').config();
 
 const AppButton = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -27,6 +28,7 @@ const AppText = (props) => (
 )
 
 const VerifyEmail = ( {navigation}) => {
+  const { verify } = useContext(AuthContext);
   const [otpInput, setOtpInput] = useState("");
   const input = useRef(null);
   const clear = () => input.current?.clear();
@@ -46,14 +48,15 @@ const VerifyEmail = ( {navigation}) => {
   const onPressNewContent = () => {
     console.log(otpInput);
     // navigation.navigate('New Content')
-    const url = "http://192.168.1.192:3360/verify_OTP";
+    const url = "http://10.90.4.206:3360/verify_OTP";
     console.log("Sending request to", url);
     axios.post(url, {
       user_OTP: otpInput
     })
-    .then(({data}) => { 
+    .then(async ({data}) => { 
       console.log(data)
       if(data.status === 'success') {
+        await verify()
         navigation.navigate('New Content')
       }
     })
@@ -63,7 +66,7 @@ const VerifyEmail = ( {navigation}) => {
     });
   }
   const onPressResend = () => {
-    const url = "http://192.168.1.192:3360/send_login_OTP";
+    const url = "http://192.168.3.9:3360/send_login_OTP";
     console.log("Sending request to", url);
     axios.post(url)
     .then(({data}) => { 

@@ -1,9 +1,11 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal } from 'react-native'
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
+import { AuthContext } from './StackNavigation'
 import Icon from 'react-native-vector-icons/Feather'
 import Profile from './Profile'
 import EditProfile from './EditProfile'
 import axios from 'axios'
+// require('dotenv').config();
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -16,24 +18,24 @@ const AppButton = ({ onPress, title }) => (
 )
 
 const ModalButtonY = ({ onPress, title }) => {
-  // useEffect(() => {
-  //   const url = "http://10.90.4.93:3360/cancel_premium";
-  //   console.log("Sending request to", url);
-  //   const onPressProfile = () => {
-  //     setIsModalVisible(false)
-  //     navigation.navigate('Profile')
-  //   }
-  //   axios.post(url, {
-  //     confirm: "yes"
-  //   })
-  //   .then(({ data }) => {
-  //     console.log(data);
-  //   })
-  //   .catch(error => {
-  //     console.error("AXIOS ERROR:");
-  //     console.error(error);
-  //   });
-  // }, []); // The empty dependency array ensures this effect runs only once when the component mounts.
+  useEffect(() => {
+    const url = "http://192.168.3.9:3360/cancel_premium";
+    console.log("Sending request to", url);
+    const onPressProfile = () => {
+      setIsModalVisible(false)
+      navigation.navigate('Profile')
+    }
+    axios.post(url, {
+      confirm: "yes"
+    })
+    .then(({ data }) => {
+      console.log(data);
+    })
+    .catch(error => {
+      console.error("AXIOS ERROR:");
+      console.error(error);
+    });
+  }, []); // The empty dependency array ensures this effect runs only once when the component mounts.
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.modalButtonYContainer}>
@@ -50,17 +52,17 @@ const ModalButtonN = ({ onPress, title }) => (
 )
 
 const ProfilePremium = ({navigation}) => {
+  const { user } = useContext(AuthContext)
   const [isModalVisible, setIsModalVisible] = useState(false)
 
-  const url = "http://192.168.1.192:3360/profile";
+  const url = "http://192.168.3.9:3360/profile";
   const [Data, setData] = useState({});
   // navigation.navigate('VerifyEmail')
-  const url1 = "http://192.168.1.192:3360/payment_detail";
+  const url1 = "http://192.168.3.9:3360/payment_detail";
   const [Data1, setData1] = useState({});
   useEffect(() => {
     axios.post(url)
     .then(({ data }) => {
-      console.log('profile', data.status)
       if (data.status === 'success') {
         setData(data.results[0]);
       }
@@ -69,16 +71,14 @@ const ProfilePremium = ({navigation}) => {
       console.error("AXIOS ERROR:");
       console.error(error);
     });
-    console.log('pp')
-
     
   },[])
   useEffect(()=>{
     axios.post(url1)
     .then(({data}) => {
-      console.log('payment detail',data.status)
+      console.log('payment detail',data)
       if (data.status === 'success') {
-        setData1(data.results);
+        setData1(data.results[0]);
       }
     })
     .catch(error => {
@@ -97,21 +97,21 @@ const ProfilePremium = ({navigation}) => {
   const onPressCardInfo = () => {
     navigation.navigate('CardInfo')
   }
-  const showPaymentDetail = () => {
-    const url = "http://192.168.1.192:3360/payment_detail";
-    console.log("Sending request to", url);
-    axios.post(url)
-    .then(({data}) => { 
-      console.log(data)
-      if(data.status === 'success') {
-        navigation.navigate('New Content')
-      }
-    })
-    .catch(async error => {
-      console.error("AXIOS ERROR:");
-      console.error(await error);
-    });
-  }
+  // const showPaymentDetail = () => {
+  //   const url = "http://192.168.3.9:3360/payment_detail";
+  //   console.log("Sending request to", url);
+  //   axios.post(url)
+  //   .then(({data}) => { 
+  //     console.log(data)
+  //     if(data.status === 'success') {
+  //       navigation.navigate('New Content')
+  //     }
+  //   })
+  //   .catch(async error => {
+  //     console.error("AXIOS ERROR:");
+  //     console.error(await error);
+  //   });
+  // }
 
   return (
     <SafeAreaView>
@@ -152,7 +152,7 @@ const ProfilePremium = ({navigation}) => {
                 <Text style={styles.iconPos2}> <Icon name='settings' size={22} onPress={onPressCardInfo}/> </Text>
                 </AppText>
                 <View style={styles.modaltextcon}>
-                  <AppText style={styles.normalText2}>Payment method : {Data1?.CARD_NUM ?? "-"}</AppText>
+                  <AppText style={styles.normalText2}>Payment method : {user?.card_number ?? "-"}</AppText>
                   <AppText style={styles.normalText2}>Next billing date : {Data1?.NEXT_BILL_DATE ?? "-"}</AppText>
                   <Text style={styles.modalhistory}>History</Text>
                 </View>

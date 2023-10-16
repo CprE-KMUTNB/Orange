@@ -1,19 +1,42 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Dropdown } from 'react-native-element-dropdown'
-
-const dataPlace = [
-    { label: 'Work', value: '1' },
-    { label: 'Date night', value: '2' },
-    { label: 'Holiday Vacation', value: '3' },
-    { label: 'Beach', value: '4' },
-    { label: 'Picnic', value: '5' },
-   ,
-  ]
+import axios from 'axios'
 
   const DropdownComponent = () => {
-    const [value, setValue] = useState(null);
-    const [isFocus, setIsFocus] = useState(false);
+
+      const [value, setValue] = useState(null);
+      const [isFocus, setIsFocus] = useState(false);
+      const url = "http://10.90.4.206:3360/place";
+      const [dataPlace, setDataPlace] = useState([]);
+    
+      useEffect(() => {
+        axios.get(url)
+        .then(response => {
+          const data = response.data;
+          console.log("API response:", data);
+          if (data.status === 'success') {
+            if (Array.isArray(data.results)) {
+              const newDataPlace = data.results.map(item => ({
+                label: item.CHOICE,
+                value: item.PLACE_ID,
+              }));
+              console.log("New dataPlace:", newDataPlace);
+              setDataPlace(newDataPlace);
+            } else if (data.results && typeof data.results.CHOICE === 'string' && typeof data.results.PLACE_ID === 'string') {
+              setDataPlace([{ label: data.results.CHOICE, value: data.results.PLACE_ID }]);
+            } else {
+              console.error("Unexpected data structure");
+            }
+          }
+        })
+        .catch(error => {
+          console.error("AXIOS ERROR:", error);
+        });
+    }, []);
+
+ 
+
 
     const renderLabel = () => {
       if (value || isFocus) {

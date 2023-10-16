@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity,} from 'react-native'
-import React from 'react'
+import React, {useContext} from 'react'
 import axios from 'axios'
+import { AuthContext } from './StackNavigation'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black', marginRight: 'auto', paddingLeft: 15}}>{props.children}</Text>
@@ -13,12 +14,13 @@ const AppButton = ({ onPress, title }) => (
   )
 
 const CardInfo = ({navigation}) => {
+    const { updateUser } = useContext(AuthContext);
     const [number1, onChangeNumber] = React.useState('');
     const [number2, onChangeDate] = React.useState('');
     const [number3, onChangeCVV] = React.useState('');
     const [text, onChangeText] = React.useState('');
     const onPressProfilePremium = () => {
-      const url = "http://192.168.1.192:3360/upgrade_premium";
+      const url = "http://10.90.4.206:3360/upgrade_premium";
       console.log("Sending request to", url);
       axios.post(url, {
         card_num: number1,
@@ -29,6 +31,10 @@ const CardInfo = ({navigation}) => {
       .then(({data}) => { 
         console.log(data)
         if(data.status === 'success') {
+          updateUser({
+            premium: true,
+            card_number: number1
+          });
           navigation.navigate('ProfilePremium')
         }
       })
@@ -57,9 +63,9 @@ const CardInfo = ({navigation}) => {
             style={styles.input}
             onChangeText={onChangeDate}
             value={number2}
-            placeholder="MM/YY"
+            placeholder="MM/YYYY"
             keyboardType="numeric"
-            maxLength={4}
+            maxLength={7}
         />
         <AppText>CVV</AppText>
         <TextInput

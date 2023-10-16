@@ -173,7 +173,7 @@ app.post("/login", async (req, res) => {
                     return res.status(400).send();
                 }
                 // ไม่ใช่แอดมิน
-                if (results.length === 0) {
+                if (admin.length === 0) {
                     connection.query(
                         "SELECT * FROM account WHERE ACCOUNT_EMAIL = ? ", //ดึงข้อมูล
                         [email],
@@ -182,7 +182,6 @@ app.post("/login", async (req, res) => {
                                 console.log(err);
                                 return res.status(400).send();
                             }
-                            console.log(results[0])
                             //เช้คว่ามีอีเมลนี้ใน db มั้ย
                             if (results.length === 0) {
                                 return res.status(400).json({status:"fail", message: "No account with this email"});
@@ -205,7 +204,7 @@ app.post("/login", async (req, res) => {
                     })
                 }
                 //เช้คว่า password ถูกมั้ย
-                if (admin[0].PASSWORD != password) {
+                else if (admin[0].PASSWORD != password) {
                     return res.status(400).json({status:"fail", message: "username or Password is incorrect"}); 
                 }
         })
@@ -312,11 +311,9 @@ app.post("/verify_OTP", async (req, res) => {
                 })
                 return res.status(200).json({status:"success", message: "OTP is correct"});
             }
-            console.log('ok')
             return res.status(400).json({status:"fail", message: "OTP is incorrect"});
         }
         //หมดอายุแล้ว
-        console.log('no ok')
         res.status(400).json({status:"fail", message: "OTP is expired"});
     }
     catch(err) {
@@ -502,8 +499,8 @@ app.post("/profile", async (req, res) => {
 //upgrade to premium
 app.post("/upgrade_premium", async (req, res) => {
     const {card_num,expire_date,cvv,holder} = req.body
-    // const id = sessionstorage.getItem('id')
-    const id = req.body.id
+    const id = sessionstorage.getItem('id')
+    // const id = req.body.id
 
     var expiration = expire_date.split("/")
     let cardDetails = {
@@ -515,8 +512,10 @@ app.post("/upgrade_premium", async (req, res) => {
         'expiration_month': expiration[0],
         'expiration_year':  expiration[1],
         },
-        
     };
+
+    var save_date = expiration[1] + '-' + expiration[0] + '-' + '01'
+
     try {
         // หาอีเมล
         connection.query(
@@ -528,34 +527,13 @@ app.post("/upgrade_premium", async (req, res) => {
                     return res.status(400).send();
                 }
 
-                // //Omise: Auto capture a charge
-                // omise.tokens.create(cardDetails).then(function(token) {
-                //     console.log(token);
-                //     return omise.customers.create({
-                //         'email':       results[0].ACCOUNT_EMAIL,
-                //         'description': 'account id: ' + results[0].ACCOUNT_ID,
-                //         'card':        token.id,
-                // });
-                // }).then(function(customer) {
-                // console.log(customer);
-                // return omise.charges.create({
-                //     'amount':   10000,
-                //     'currency': 'thb',
-                //     'customer': customer.id,
-                // });
-                // }).then(function(charge) {
-                // console.log(charge);
-                // }).catch(function(err) {
-                // console.log(err);
-                // }).finally();
-
                 //ตาราง premium
                 if (results.length === 0)
                 {
                     //ยังไม่เคยสมัคร premium มาก่อน
                     connection.query(
                         "INSERT INTO premium(ACCOUNT_ID, CARD_NUM, EXPIRE_DATE, CVV, CARD_HOLDER, NEXT_BILL_DATE) VALUES(?,?,?,?,?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
-                        [id,card_num,expire_date,cvv,holder],
+                        [id,card_num,save_date,cvv,holder],
                         (err, results, fields) => {
                             if (err) {
                                 console.log(err);
@@ -567,8 +545,8 @@ app.post("/upgrade_premium", async (req, res) => {
                 else {
                     //เคยสมัคร premium แล้ว
                     connection.query(
-                        "UPDATE premium JOIN account SET STATUS = 1, premium.CARD_NUM = ?, premium.EXPIRE_DATE = ?, premium.CVV = ?, premium.CARD_HOLDER = ?, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
-                        [card_num,expire_date,cvv,holder,id],
+                        "UPDATE premium JOIN account SET premium.STATUS = 1, premium.CARD_NUM = ?, premium.EXPIRE_DATE = ?, premium.CVV = ?, premium.CARD_HOLDER = ?, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
+                        [card_num,save_date,cvv,holder,id],
                         (err, results, fields) => {
                             if (err) {
                                 console.log(err);
@@ -590,9 +568,9 @@ app.post("/upgrade_premium", async (req, res) => {
                     }
                 )
 
-                //อัพเดต IS_PREMIUM
+                //อัพเดต IS_PREMIUM, status
                 connection.query(
-                    "UPDATE account SET IS_PREMIUM = 1 WHERE ACCOUNT_ID = ?",
+                    "UPDATE premium JOIN account ON account.ACCOUNT_ID = premium.ACCOUNT_ID  SET premium.STATUS = 1, account.IS_PREMIUM = 1 WHERE account.ACCOUNT_ID = 12",
                     [id],
                     (err, results, fields) => {
                         if (err) {
@@ -602,20 +580,51 @@ app.post("/upgrade_premium", async (req, res) => {
                     }
                 )
 
-                //ส่งเมลยืนยันการสมัคร premium
-                const text_sending = {
-                    from: process.env.MYMAIL,
-                    to: results[0].ACCOUNT_EMAIL,
-                    subject: 'Thank you for your subscription to Orange premium',
-                    text:"Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 35.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\nOrange Team"
-                };
+                connection.query(
+                    "SELECT * FROM account WHERE ACCOUNT_ID = ?",
+                    [id],
+                    (err, payment, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
 
-                transporter.sendMail(text_sending, (err, info) => {
-                    if (err) {
-                        console.log(err);
-                        return res.status(400).send();
-                    }
-                });
+                    //Omise: Auto capture a charge
+                    omise.tokens.create(cardDetails).then(function(token) {
+                        console.log(token);
+                        return omise.customers.create({
+                            'email':        payment[0].ACCOUNT_EMAIL,
+                            'description': 'account id: ' +  payment[0].ACCOUNT_ID,
+                            'card':        token.id,
+                    });
+                    }).then(function(customer) {
+                    console.log(customer);
+                    return omise.charges.create({
+                        'amount':   10000,
+                        'currency': 'thb',
+                        'customer': customer.id,
+                    });
+                    }).then(function(charge) {
+                    console.log(charge);
+                    }).catch(function(err) {
+                    console.log(err);
+                    }).finally();
+
+                    //ส่งเมลยืนยันการสมัคร premium
+                    const text_sending = {
+                        from: process.env.MYMAIL,
+                        to: payment[0].ACCOUNT_EMAIL,
+                        subject: 'Thank you for your subscription to Orange premium',
+                        text:"Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 35.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\nOrange Team"
+                    };
+
+                    transporter.sendMail(text_sending, (err, info) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+                    });
+                })
 
                 return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
             }
@@ -665,7 +674,6 @@ app.post("/edit_profile", async (req, res) => {
 app.post("/payment_detail",  async(req, res) => {
     const id = sessionstorage.getItem('id')
     // const id = req.body.id
-    console.log('oo3')
     try {
         connection.query(
             "SELECT premium.CARD_NUM, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, history.BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
@@ -679,8 +687,8 @@ app.post("/payment_detail",  async(req, res) => {
                 {
                     return res.status(400).json({status:"fail", message: "Error, Can't find this id in the database"});
                 }
-                
-                return res.status(200).json({ message : "Get information successfully!", results: results[0], status:"success"});
+                console.log(results[0].CARD_NUM)
+                return res.status(200).json({ message : "Get information successfully!", results: results[0], status:"success", cardNum: results[0].CARD_NUM});
             }
         )
     }
@@ -802,7 +810,7 @@ app.post("/cancel_premium", async (req, res) => {
 app.get("/place", async (req, res) => {
     try {
         connection.query(
-            "SELECT CHOICE FROM place",
+            "SELECT * FROM place",
             (err, results, fields) => {
                 if (err) {
                     console.log(err);

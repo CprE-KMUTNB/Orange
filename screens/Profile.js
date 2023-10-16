@@ -1,9 +1,11 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal } from 'react-native'
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
+import { useFocusEffect } from '@react-navigation/native'
+import { AuthContext } from './StackNavigation'
 import Icon from 'react-native-vector-icons/Feather'
 import EditProfile from './EditProfile'
 import axios from 'axios'
-const sessionstorage = require('sessionstorage');
+// require('dotenv').config();
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -16,8 +18,17 @@ const AppButton = ({ onPress, title }) => (
 )
 
 const Profile = ({navigation}) => {
-  const url = "http://192.168.1.192:3360/profile";
+  const { user } = useContext(AuthContext);
+  const url = "http://192.168.3.9:3360/profile";
   const [Data, setData] = useState({});
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?.premium) {
+        navigation.navigate("ProfilePremium")
+      }
+    }, [user])
+  );
+
   useEffect(() => {
     axios.post(url)
       .then(({ data }) => {
@@ -55,7 +66,7 @@ const Profile = ({navigation}) => {
           <AppText style={styles.normalText2}>Waist : </AppText>
           <AppText style={styles.normalText2}>Hip : </AppText>
           <View style={{ top:-345, width:Dimensions.get('window').width*0.8}}>
-            <AppText style={styles.normalText3}>{Data?.ACCOUNT_EMAIL ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.email ?? "-"} </AppText>
             <AppText style={styles.normalText3}>●●●●●●●● </AppText>
             <AppText style={styles.normalText3}>{Data?.WEIGHT ?? "-"} </AppText>
             <AppText style={styles.normalText3}>{Data?.HEIGHT ?? "-"} </AppText>

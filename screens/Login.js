@@ -1,6 +1,9 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, {useContext} from 'react'
+import { useFocusEffect } from '@react-navigation/native'
 import axios from 'axios'
+import { AuthContext } from './StackNavigation'
+// require('dotenv').config();
 
 const AppButton = ({ onPress, title }) => (
   <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -23,12 +26,14 @@ const AppText = (props) => (
 )
 
 const Login = ({ navigation }) => {
+  const { user, login } = useContext(AuthContext)
   const onPressSignup = () => {
     navigation.navigate('Sign_up')
   }
+
   const onPressResetPassword = () => {
     // navigation.navigate('ResetPassword')
-    const url = "http://10.90.4.206:3360/forgot_password";
+    const url = "http://192.168.3.9:3360/forgot_password";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,
@@ -45,15 +50,18 @@ const Login = ({ navigation }) => {
       });
   }
   const onPressVerifyEmail = () => {
-    const url = "http:/192.168.1.192:3360/login";
+    const url = "http://10.90.4.206:3360/login";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,
       password: password
     })
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         console.log(data.status)
         if (data.status === 'success') {
+          await login({
+            email: text
+          })
           navigation.navigate('VerifyEmail')
         }
       })
