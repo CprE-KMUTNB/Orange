@@ -13,6 +13,7 @@ const AppText = (props) => (
     <Text {...props} style={{ fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black' }}>{props.children}</Text>
 )
 
+//history หน้า Questions and concern
 const QHistory = ({navigation}) => {
     const onPressQuestions = () => {
         navigation.navigate('Questions and Concerns')

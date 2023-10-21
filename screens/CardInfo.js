@@ -15,14 +15,16 @@ const AppButton = ({ onPress, title }) => (
 
 const CardInfo = ({navigation}) => {
     const { updateUser } = useContext(AuthContext);
+    const { user, login } = useContext(AuthContext)
     const [number1, onChangeNumber] = React.useState('');
     const [number2, onChangeDate] = React.useState('');
     const [number3, onChangeCVV] = React.useState('');
     const [text, onChangeText] = React.useState('');
     const onPressProfilePremium = () => {
-      const url = "http://10.90.4.206:3360/upgrade_premium";
+      const url = "http://192.168.167.90:3360/upgrade_premium";
       console.log("Sending request to", url);
       axios.post(url, {
+        id: user?.id,
         card_num: number1,
         expire_date: number2,
         cvv: number3,
@@ -32,7 +34,7 @@ const CardInfo = ({navigation}) => {
         console.log(data)
         if(data.status === 'success') {
           updateUser({
-            premium: true,
+            is_premium: true,
             card_number: number1
           });
           navigation.navigate('ProfilePremium')

@@ -1,14 +1,52 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
+const EventCard = (props) => {
+  const {link, eventName, detailName, date } = props;
+  return (
+    <View style={{alignItems: 'center'}}>
+      <View style={styles.ImgCon1}>
+        <Image style={styles.ImgCon} source={{ uri: link }} />
+      </View>
+      <Text style={styles.eventName}>{eventName}</Text>
+      <Text style={styles.detailName}>{detailName}</Text>
+      <Text style={styles.dateName}>{date}</Text>
+    </View>
+  )
+}
 
 const NewContent = () => {
+  const url = "http://192.168.167.90:3360/new_content";
+  const [EventData, setEventData] = useState([]);
+  useEffect(() => {
+    axios.get(url)
+      .then(response => {
+        const data = response.data;
+        // console.log("API response:", data);
+        if (data.status === 'success' && Array.isArray(data.message)) {
+          const newEventData = data.message.map(event => ({
+            key: event.CONTENT_ID,
+            link: event.PIC,
+            eventName: event.TITLE,
+            detailName: event.DETAIL,
+            date: event.DATE
+          }));
+          // console.log("New EventData:", newEventData);
+          setEventData(newEventData);
+        } else {
+          console.error("Unexpected data structure");
+        }
+      })
+      .catch(error => {
+        console.error("AXIOS ERROR:", error);
+      });
+  }, []);
   return (
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.insideCon}>
-          <View style={styles.ImgCon1}>
+          {/* <View style={styles.ImgCon1}>
             <Image style={styles.ImgCon} source={{ uri: 'https://i.pinimg.com/736x/5c/33/c1/5c33c10bf16cbb56aeef599352830f01.jpg' }} />
           </View>
           <Text style={styles.eventName}>Black Pink</Text>
@@ -28,8 +66,11 @@ const NewContent = () => {
           <View style={styles.ImgCon}>
             <Image style={styles.ImgCon} source={{uri: 'https://image.freepik.com/free-vector/minimal-valentine-heart-background_76243-44.jpg'}} />
           </View>
-          <Text style={styles.eventName}>Valentine</Text>
-          <Text style={styles.dateName}>14.02.23</Text>
+          <Text style={styles.eventName}>Valenstine</Text>
+          <Text style={styles.dateName}>14.02.23</Text> */}
+          {EventData.map((event, index) => {
+            return <EventCard key={index} link={event.link} eventName={event.eventName} detailName={event.detailName} date={event.date} />
+          })}
         </View>
 
       </View>
@@ -40,7 +81,9 @@ const NewContent = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: '#FAEBDC'
+    backgroundColor: '#FAEBDC',
+    justifyContent: 'center',
+    flex: 1
   },
   scrollView: {
     backgroundColor: "black",

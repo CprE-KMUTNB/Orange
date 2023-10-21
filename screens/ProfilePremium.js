@@ -18,18 +18,22 @@ const AppButton = ({ onPress, title }) => (
 )
 
 const ModalButtonY = ({ onPress, title }) => {
+  const { updateUser } = useContext(AuthContext);
+  const { user, login } = useContext(AuthContext)
   useEffect(() => {
-    const url = "http://192.168.3.9:3360/cancel_premium";
+    const url = "http://192.168.167.90:3360/cancel_premium";
     console.log("Sending request to", url);
-    const onPressProfile = () => {
-      setIsModalVisible(false)
-      navigation.navigate('Profile')
-    }
+    
     axios.post(url, {
-      confirm: "yes"
+      confirm: "yes",
+      id: user?.id
     })
     .then(({ data }) => {
-      console.log(data);
+      if(data.status === 'success') {
+        updateUser({
+          is_premium: 0,
+        });
+      }
     })
     .catch(error => {
       console.error("AXIOS ERROR:");
@@ -53,15 +57,19 @@ const ModalButtonN = ({ onPress, title }) => (
 
 const ProfilePremium = ({navigation}) => {
   const { user } = useContext(AuthContext)
+  const { user1, login } = useContext(AuthContext)
+  const { updateUser } = useContext(AuthContext);
   const [isModalVisible, setIsModalVisible] = useState(false)
 
-  const url = "http://192.168.3.9:3360/profile";
+  const url = "http://192.168.167.90:3360/profile";
   const [Data, setData] = useState({});
   // navigation.navigate('VerifyEmail')
-  const url1 = "http://192.168.3.9:3360/payment_detail";
-  const [Data1, setData1] = useState({});
+  const url1 = "http://192.168.167.90:3360/payment_detail";
+  const [Data1, setData1] = useState([]);
   useEffect(() => {
-    axios.post(url)
+    axios.post(url, {
+      id : user?.id
+    })
     .then(({ data }) => {
       if (data.status === 'success') {
         setData(data.results[0]);
@@ -74,11 +82,19 @@ const ProfilePremium = ({navigation}) => {
     
   },[])
   useEffect(()=>{
-    axios.post(url1)
+    axios.post(url1, {
+      id : user?.id
+    })
     .then(({data}) => {
-      console.log('payment detail',data)
       if (data.status === 'success') {
-        setData1(data.results[0]);
+        updateUser({
+          card_num: data.results.CARD_NUM,
+          next_bill_date: data.results.NEXT_BILL_DATE,
+          bill_date: data.results.BILL_DATE,
+          premium_status: data.results.STATUS
+          
+        });
+        setData1(data.history);
       }
     })
     .catch(error => {
@@ -87,10 +103,15 @@ const ProfilePremium = ({navigation}) => {
     });
   },[])
 
+  // const onPressProfile = () => {
+  //   navigation.navigate('Profile')
+  //   setIsModalVisible(false)
+  // }
   const onPressProfile = () => {
-    navigation.navigate('Profile')
     setIsModalVisible(false)
+    navigation.navigate('Profile')
   }
+
   const onPressEditProfile = () => {
     navigation.navigate('EditProfile')
   }
@@ -98,7 +119,7 @@ const ProfilePremium = ({navigation}) => {
     navigation.navigate('CardInfo')
   }
   // const showPaymentDetail = () => {
-  //   const url = "http://192.168.3.9:3360/payment_detail";
+  //   const url = "http://192.168.167.90:3360/payment_detail";
   //   console.log("Sending request to", url);
   //   axios.post(url)
   //   .then(({data}) => { 
@@ -128,19 +149,19 @@ const ProfilePremium = ({navigation}) => {
           <AppText style={styles.normalText2}>Password : </AppText>
           <AppText style={styles.normalText2}>Weight : </AppText>
           <AppText style={styles.normalText2}>Height : </AppText>
-          <AppText style={styles.normalText2}>Shoulder: </AppText>
+          <AppText style={styles.normalText2}>Shoulder : </AppText>
           <AppText style={styles.normalText2}>Bust : </AppText>
           <AppText style={styles.normalText2}>Waist : </AppText>
           <AppText style={styles.normalText2}>Hip : </AppText>
-          <View style={{ top:-345, width:Dimensions.get('window').width*0.8}}>
-            <AppText style={styles.normalText3}>{Data?.ACCOUNT_EMAIL ?? "-"} </AppText>
+          <View style={{ top:-312, width:Dimensions.get('window').width*0.8}}>
+          <AppText style={styles.normalText3}>{user?.email ?? "-"} </AppText>
             <AppText style={styles.normalText3}>●●●●●●●● </AppText>
-            <AppText style={styles.normalText3}>{Data?.WEIGHT ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.HEIGHT ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.SHOULDER ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.BUST ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.WAIST ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.HIP ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.weight ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.height ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.shoulder ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.bust ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.waist ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.hip ?? "-"} </AppText>
           </View>
           {/* <AppButton 
           title = {'Cancel Premium'}
@@ -152,9 +173,22 @@ const ProfilePremium = ({navigation}) => {
                 <Text style={styles.iconPos2}> <Icon name='settings' size={22} onPress={onPressCardInfo}/> </Text>
                 </AppText>
                 <View style={styles.modaltextcon}>
-                  <AppText style={styles.normalText2}>Payment method : {user?.card_number ?? "-"}</AppText>
-                  <AppText style={styles.normalText2}>Next billing date : {Data1?.NEXT_BILL_DATE ?? "-"}</AppText>
-                  <Text style={styles.modalhistory}>History</Text>
+                  <AppText style={styles.normalText2}>Payment method : {user?.card_num ?? "-"}</AppText>
+                  <AppText style={styles.normalText2}>Next billing date : {user?.next_bill_date ?? "-"}</AppText>
+                  <Text style={{...styles.modalhistory, top: 10}}>History</Text>
+                  <AppText>
+                    {user?.bill_date ?? "-"}                               35 Baht
+                    {/* {Data1.map((historyItem, index) => (
+                    <AppText style={styles.modalsmalltext} key={index}>
+                      {historyItem}
+                    </AppText>
+                    ))} */}
+                  </AppText>
+                  {/* {Data1.map((historyItem, index) => (
+                  <AppText style={styles.modalsmalltext} key={index}>
+                    {historyItem}
+                  </AppText>
+                  )} */}
                 </View>
           </View>
             <View>
@@ -232,7 +266,7 @@ innerCon: {
 innerCon2: {
   backgroundColor: 'white',
   width: Dimensions.get('window').width*0.8,
-  height: Dimensions.get('window').height*0.3,
+  height: Dimensions.get('window').height*0.25,
   borderRadius: 8,
   marginTop: 10,
   alignItems: 'center',
@@ -305,7 +339,7 @@ modalButtonYContainer: {
     marginRight: 'auto'
   },
   normalText3: {
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingRight: 10,
     // marginRight: 'auto',
     marginLeft:'auto'

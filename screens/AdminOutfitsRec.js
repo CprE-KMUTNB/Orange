@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal, KeyboardAvoidingView } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import DropdownComponent from './Dropdown'
 import DropdownComponent2 from './Dropdown2'
@@ -33,6 +33,28 @@ const AdminOutfitsRec = () => {
   )
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [isModalVisible2, setIsModalVisible2] = useState(false)
+  const [place, setPlace] = useState([]);
+
+  useEffect(()=>{
+    if(onChangev1) {
+      setPlace() 
+    }
+  },[])
+  // useEffect(()=>{
+  //   if(onChangev2) {
+  //     setPlace(3) 
+  //   }
+  // },[])
+  // useEffect(()=>{
+  //   if(onChangev3) {
+  //     setPlace(4) 
+  //   }
+  // },[])
+  // useEffect(()=>{
+  //   if(onChangev4) {
+  //     setPlace(5) 
+  //   }
+  // },[])
 
   const [v1, onChangev1] = React.useState('');
   const [v2, onChangev2] = React.useState('');
@@ -45,6 +67,70 @@ const AdminOutfitsRec = () => {
   const [v04, onChangev04] = React.useState('');
   const [v05, onChangev05] = React.useState('');
 
+  const placeHandler = () => {
+    // const url1 = "http://192.168.167.90:3360/place";
+    // const [dataPlace, setDataPlace] = useState([]);
+    // axios.get(url1)
+    //   .then(response => {
+    //     const data = response.data;
+    //     console.log("API response:", data);
+        
+    //     if (data.status === 'success') {
+    //       if (Array.isArray(data.results)) {
+    //         const newDataPlace = data.results.map(item => ({
+    //           label: item.CHOICE,
+    //           value: item.PLACE_ID,
+    //         }));
+    //         console.log("New dataPlace:", newDataPlace);
+    //         setDataPlace(newDataPlace);
+    //       } else if (data.results && typeof data.results.CHOICE === 'string' && typeof data.results.PLACE_ID === 'string') {
+    //         setDataPlace([{ label: data.results.CHOICE, value: data.results.PLACE_ID }]);
+    //       } else {
+    //         console.error("Unexpected data structure");
+    //       }
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.error("AXIOS ERROR:", error);
+    //   });
+
+    const url = "http://192.168.167.90:3360/update_place";
+      console.log('Sending request to', url)
+      console.log('new_place', v1)
+      axios.post(url, {
+        // old_place: '123',
+        new_place: v1,
+        id: 1
+      })
+      .then(({ data }) => {
+        if (data.status === 'success') {
+
+        }
+      })
+      .catch(error => {
+        console.error("AXIOS ERROR:");
+        console.error(error);
+      });
+    }
+
+    const themeHandler = () => {
+      const url = "http://192.168.167.90:3360/update_theme";
+        console.log('Sending request to', url)
+        axios.post(url, {
+          id: 1,
+          new_theme: 'white'
+        })
+        .then(({ data }) => {
+          if (data.status === 'success') {
+  
+          }
+        })
+        .catch(error => {
+          console.error("AXIOS ERROR:");
+          console.error(error);
+        });
+      }
+
   return (
     // <ScrollView>
     <View style={styles.container}>
@@ -53,144 +139,141 @@ const AdminOutfitsRec = () => {
           {/* <View> */}
           <AppText style={styles.normalText}>Place <Icon style={styles.iconPos} name='settings' size={25} onPress={() => setIsModalVisible(true)} /></AppText>
           <DropdownComponent />
-          <Modal
-            visible={isModalVisible}
-            backdropColor='white'
-            backdropOpacity={50}
-            onRequestClose={() => setIsModalVisible(false)}
-            animationType='slide'
-            presentationStyle='overFullScreen'
-            transparent={true}
-            style={{ margin: 0 }}
-          >
-            <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1}></TouchableOpacity>
-            <View style={styles.centerStyle}>
-              <Text style={styles.modalheadtext}>Edit Place</Text>
-              <Text style={styles.modalsmalltext}>value 1: </Text>
-              <TextInput
-                style={styles.input}
-                value={v1}
-                onChangeText={onChangev1}
-                placeholder='Work'
-              />
-              <Text style={styles.modalsmalltext}>value 2: </Text>
-              <TextInput
-                style={styles.input}
-                value={v2}
-                onChangeText={onChangev2}
-                placeholder='Date night'
-              />
-              <Text style={styles.modalsmalltext}>value 3: </Text>
-              <TextInput
-                style={styles.input}
-                value={v3}
-                onChangeText={onChangev3}
-                placeholder='Holiday'
-              />
-              <Text style={styles.modalsmalltext}>value 4: </Text>
-              <TextInput
-                style={styles.input}
-                value={v4}
-                onChangeText={onChangev4}
-                placeholder='Beach'
-              />
-              <Text style={styles.modalsmalltext}>value 5: </Text>
-              <TextInput
-                style={styles.input}
-                value={v5}
-                onChangeText={onChangev5}
-                placeholder='Picnic'
-              />
-              <View>
-                <AppButtonCancel
-                  title='Cancel'
-                  onPress={() => setIsModalVisible(false)}
+          {/* <KeyboardAvoidingView
+            behavior='position'
+            // keyboardVerticalOffset={200} // You may need to adjust this value based on your layout
+            style={styles.keyboardAvoidingContainer}
+            enabled
+          > */}
+            <Modal
+              visible={isModalVisible}
+              backdropColor='white'
+              backdropOpacity={50}
+              onRequestClose={() => setIsModalVisible(false)}
+              animationType='slide'
+              presentationStyle='overFullScreen'
+              transparent={true}
+              style={{ margin: 0 }}
+              statusBarTranslucent={true}
+            >
+
+              <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1}></TouchableOpacity>
+              <View style={styles.centerStyle1}>
+                <Text style={styles.modalheadtext}>Edit Place</Text>
+                <Text style={styles.modalsmalltext}>value 1: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v1}
+                  onChangeText={onChangev1}
+                  // placeholder='cafe'
                 />
-                <AppButtonConfirm
-                  title='Confirm'
-                  onPress={() => setIsModalVisible(false)}
+                <Text style={styles.modalsmalltext}>value 2: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v2}
+                  onChangeText={onChangev2}
+                  // placeholder='work'
                 />
+                <Text style={styles.modalsmalltext}>value 3: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v3}
+                  onChangeText={onChangev3}
+                  // placeholder='date night'
+                />
+                <Text style={styles.modalsmalltext}>value 4: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v4}
+                  onChangeText={onChangev4}
+                  // placeholder='beach'
+                />
+                {/* <Text style={styles.modalsmalltext}>value 5: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v5}
+                  onChangeText={onChangev5}
+                  placeholder='Picnic'
+                /> */}
+                <View>
+                  <AppButtonCancel
+                    title='Cancel'
+                    onPress={() => setIsModalVisible(false)}
+                  />
+                  <AppButtonConfirm
+                    title='Confirm'
+                    onPress={() => {setIsModalVisible(false), placeHandler()}}
+                  />
+                </View>
               </View>
-              <View>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-              </View>
-            </View>
-          </Modal>
-          {/* </View> */}
+            </Modal>
+
           <AppText style={styles.normalText}>Theme <Icon style={styles.iconPos} name='settings' size={25} onPress={() => setIsModalVisible2(true)} /></AppText>
           <DropdownComponent2 />
-          <Modal
-            visible={isModalVisible2}
-            backdropColor='white'
-            backdropOpacity={50}
-            onRequestClose={() => setIsModalVisible2(false)}
-            animationType='slide'
-            presentationStyle='overFullScreen'
-            transparent={true}
-            style={{ margin: 0 }}
-          >
-            <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1}></TouchableOpacity>
-            <View style={styles.centerStyle}>
-              <Text style={styles.modalheadtext}>Edit Theme</Text>
-              <Text style={styles.modalsmalltext}>value 1: </Text>
-              <TextInput
-                style={styles.input}
-                value={v01}
-                onChangeText={onChangev01}
-                placeholder='White'
-              />
-              <Text style={styles.modalsmalltext}>value 2: </Text>
-              <TextInput
-                style={styles.input}
-                value={v02}
-                onChangeText={onChangev02}
-                placeholder='Black'
-              />
-              <Text style={styles.modalsmalltext}>value 3: </Text>
-              <TextInput
-                style={styles.input}
-                value={v03}
-                onChangeText={onChangev03}
-                placeholder='Dark'
-              />
-              <Text style={styles.modalsmalltext}>value 4: </Text>
-              <TextInput
-                style={styles.input}
-                value={v04}
-                onChangeText={onChangev04}
-                placeholder='Vivid'
-              />
-              <Text style={styles.modalsmalltext}>value 5: </Text>
-              <TextInput
-                style={styles.input}
-                value={v05}
-                onChangeText={onChangev05}
-                placeholder='Earth tone'
-              />
-              
-              <View>
-                <AppButtonCancel
-                  title='Cancel'
-                  onPress={() => setIsModalVisible2(false)}
+
+            <Modal
+              visible={isModalVisible2}
+              backdropColor='white'
+              backdropOpacity={50}
+              onRequestClose={() => setIsModalVisible2(false)}
+              animationType='slide'
+              presentationStyle='overFullScreen'
+              transparent={true}
+              style={{ margin: 0 }}
+              statusBarTranslucent={true}
+            >
+              <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1}></TouchableOpacity>
+              <View style={styles.centerStyle}>
+                <Text style={styles.modalheadtext}>Edit Theme</Text>
+                <Text style={styles.modalsmalltext}>value 1: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v01}
+                  onChangeText={onChangev01}
+                  placeholder='White'
                 />
-                <AppButtonConfirm
-                  title='Confirm'
-                  onPress={() => setIsModalVisible2(false)}
+                <Text style={styles.modalsmalltext}>value 2: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v02}
+                  onChangeText={onChangev02}
+                  placeholder='Black'
                 />
+                <Text style={styles.modalsmalltext}>value 3: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v03}
+                  onChangeText={onChangev03}
+                  placeholder='Dark'
+                />
+                <Text style={styles.modalsmalltext}>value 4: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v04}
+                  onChangeText={onChangev04}
+                  placeholder='Vivid'
+                />
+                <Text style={styles.modalsmalltext}>value 5: </Text>
+                <TextInput
+                  style={styles.input}
+                  value={v05}
+                  onChangeText={onChangev05}
+                  placeholder='Earth tone'
+                />
+
+                <View>
+                  <AppButtonCancel
+                    title='Cancel'
+                    onPress={() => setIsModalVisible2(false)}
+                  />
+                  <AppButtonConfirm
+                    title='Confirm'
+                    onPress={() => {setIsModalVisible2(false), themeHandler()}}
+                  />
+                </View>
               </View>
-              <View>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-                <Icon1 style={styles.iconPos} name='trash-outline' size={25} color={'black'}/>
-              </View>
-            </View>
-          </Modal>
+            </Modal>
+
           {/* {placeLoop} connect backend */}
         </View>
       </View>
@@ -204,9 +287,9 @@ const AdminOutfitsRec = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: '#FBD5BC',
+    backgroundColor: '#FAEBDC',
     width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height
+    height: Dimensions.get('window').height,
   },
   scrollView: {
     backgroundColor: "black",
@@ -253,6 +336,20 @@ const styles = StyleSheet.create({
     fontFamily: "Cuprum-Bold",
     paddingVertical: 12,
     color: 'black',
+  },
+  modalheadtext3: {
+    fontSize: 25,
+    color: "black",
+    alignSelf: "center",
+    fontFamily: "Cuprum-Bold",
+    marginBottom: 0,
+    paddingTop: 20,
+    paddingBottom: 10
+  },
+  keyboardAvoidingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modaltextcon: {
     alignItems: 'flex-start',
@@ -350,7 +447,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     borderRadius: 10,
-    elevation: 8
+    elevation: 8,
+  },
+  centerStyle1: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    backgroundColor: '#FAEBDC',
+    padding: 0,
+    width: '85%',
+    height: '50%',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    borderRadius: 10,
+    elevation: 8,
   },
   centerStyle3: {
     marginLeft: 'auto',
@@ -367,17 +478,18 @@ const styles = StyleSheet.create({
     elevation: 8
   },
   input: {
-    width: 220,
-    height: 40,
+    width: 250,
+    height: 35,
     margin: 0,
     borderWidth: 1,
-    padding: 10,
+    paddingVertical: 5,
+    paddingLeft: 10,
     fontSize: 18,
     color: 'black',
     backgroundColor: 'white',
     borderRadius: 7,
     fontFamily: "Cuprum-VariableFont_wght",
-    left: 10,
+    left: 25,
     top: -25
   },
   iconPos: {
@@ -390,3 +502,4 @@ const styles = StyleSheet.create({
 })
 
 export default AdminOutfitsRec
+

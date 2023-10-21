@@ -1,9 +1,12 @@
 import { View, Text, StyleSheet, ScrollView, TextInput, SafeAreaView, Button, TouchableOpacity,  KeyboardAvoidingView, Dimensions} from 'react-native'
-import React , { useState, useRef, useContext } from 'react'
+import React , { useState, useRef, useEffect, useContext } from 'react'
 import { AuthContext } from './StackNavigation'
 import OTPTextView from 'react-native-otp-textinput'
+import CountDown from 'react-native-countdown-component';
 import axios from 'axios'
 // require('dotenv').config();
+
+// const MY_IP = '192.168.167.90:3360'
 
 const AppButton = ({ onPress, title }) => (
     <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -28,15 +31,38 @@ const AppText = (props) => (
 )
 
 const VerifyEmail = ( {navigation}) => {
-  const { verify } = useContext(AuthContext);
+  const { user, verify } = useContext(AuthContext)
+  const { updateUser } = useContext(AuthContext);
   const [otpInput, setOtpInput] = useState("");
   const input = useRef(null);
   const clear = () => input.current?.clear();
   const updateOtpText = () => input.current?.setValue(otpInput);
   const showTextAlert = () => otpInput && Alert.alert(otpInput);
+
+  useEffect(()=>{
+    const url = "http://192.168.167.90:3360/payment_detail";
+    axios.post(url, {
+      id : user?.id
+    })
+    .then(({data}) => {
+      if (data.status === 'success') {
+        updateUser({
+          card_num: data.results.CARD_NUM,
+          next_bill_date: data.results.NEXT_BILL_DATE,
+          premium_status: data.results.STATUS
+        });
+        // setData1(data.results[0]);
+      }
+    })
+    .catch(error => {
+      console.error("AXIOS ERROR:");
+      console.error(error);
+    });
+  },[])
+
   const handleCellTextChange = async (text, i) => {
     if (i === 0) {
-      const clippedText = await REACT_NATIVE_APP_MYIP.getString();
+      const clippedText = await "192.168.167.90:3360".toString();
       if (clippedText.slice(0, 1) === text) {
         input.current?.setValue(clippedText, true);
       }
@@ -48,16 +74,24 @@ const VerifyEmail = ( {navigation}) => {
   const onPressNewContent = () => {
     console.log(otpInput);
     // navigation.navigate('New Content')
-    const url = "http://10.90.4.206:3360/verify_OTP";
+    const url = "http://192.168.167.90:3360/verify_OTP";
     console.log("Sending request to", url);
     axios.post(url, {
-      user_OTP: otpInput
+      user_OTP: otpInput,
+      token : user?.token
     })
     .then(async ({data}) => { 
       console.log(data)
       if(data.status === 'success') {
-        await verify()
+        await verify({
+          verify: true
+        })
         navigation.navigate('New Content')
+      }
+      else {
+        await verify({
+          verify: false
+        })
       }
     })
     .catch(async error => {
@@ -66,9 +100,11 @@ const VerifyEmail = ( {navigation}) => {
     });
   }
   const onPressResend = () => {
-    const url = "http://192.168.3.9:3360/send_login_OTP";
+    const url = "http://192.168.167.90:3360/send_login_OTP";
     console.log("Sending request to", url);
-    axios.post(url)
+    axios.post(url, {
+      email: user?.email
+    })
     .then(({data}) => { 
       console.log(data)
       // if(data.status === 'success') {
@@ -87,7 +123,7 @@ const VerifyEmail = ( {navigation}) => {
             <View style={styles.circle}> 
               <Text style={{color:'black', fontSize:45, fontFamily: "Cuprum-Bold"}}>Verify your email</Text>
               <AppText style={{color:'black', marginTop: 10}}>A 4-digit code has been sent to</AppText>
-              <Text style={{color:'black', fontFamily: "Cuprum-Bold", left:-32, fontSize: 18}}>sample@email.com</Text>
+              <Text style={{color:'black', fontFamily: "Cuprum-Bold", left:-35, fontSize: 18}}>{user?.email}</Text>
               <AppButtonClear 
                 title={"Change"}
                 onPress={onPressLogin}
@@ -102,13 +138,24 @@ const VerifyEmail = ( {navigation}) => {
                   keyboardType="numeric"
                 />
               </SafeAreaView>
-              <AppText style={{color:'black', marginTop: 5, left: -20}}>The OTP will be expired in</AppText>
-              <Text style={{color:'black', top: -20, fontFamily: "Cuprum-Bold", fontSize: 18, left: 90}}>9:59</Text>
+              <AppText style={{color:'black', marginTop: 5, left: -20}}>The OTP will be expired in      :</AppText>
+              <Text style={{top: -34, left: 90}}>
+              <CountDown
+                until={60 * 10 + 0}
+                size={18}
+                // onFinish={() => alert('Finished')}
+                digitStyle={{backgroundColor: '#FAEBDC', width: 30}}
+                digitTxtStyle={{color: 'black', fontFamily: 'Cuprum-VariableFont_wght'}}
+                timeToShow={['M', 'S']}
+                timeLabels={{m: null, s: null}}      
+              />
+              </Text>
+              <Text style={{top: -69, left: 90, color: 'black', fontSize: 18, fontFamily: 'Cuprum-Bold'}}> : </Text>
               <AppButton 
                 title={'Verify'}
                 onPress={onPressNewContent}
               />
-            <AppText style={{color:'black', marginTop: 5, top:210, left: -30}}>Didn't recieve the code?</AppText>
+            <AppText style={{color:'black', marginTop: 5, top:176, left: -30}}>Didn't recieve the code?</AppText>
             <AppButtonButtom 
               title={'Resend'} 
               onPress={onPressResend}/>
@@ -183,7 +230,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 0,
         marginTop: 0,
         top: -23,
-        left: 63
+        left: 80
       },
       appButtonTextClear: {
         fontSize: 18,
@@ -200,7 +247,7 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
         paddingHorizontal: 2,
         marginTop: 0,
-        top: 184,
+        top: 150,
         left: 80
       },
       appButtonTextButtom: {

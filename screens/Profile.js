@@ -19,30 +19,53 @@ const AppButton = ({ onPress, title }) => (
 
 const Profile = ({navigation}) => {
   const { user } = useContext(AuthContext);
-  const url = "http://192.168.3.9:3360/profile";
+  const { updateUser } = useContext(AuthContext);
+  // const url = "http://192.168.167.90:3360/payment_detail";
   const [Data, setData] = useState({});
+  // useEffect(()=>{
+  //   axios.post(url, {
+  //     id : user?.id
+  //   })
+  //   .then(({data}) => {
+  //     console.log('payment detail',data.results.CARD_NUM,data.results.NEXT_BILL_DATE,data.results.STATUS)
+  //     if (data.status === 'success') {
+  //       updateUser({
+  //         card_num: data.results.CARD_NUM,
+  //         next_bill_date: data.results.NEXT_BILL_DATE,
+  //         premium_status: data.results.STATUS
+  //       });
+  //       // setData1(data.results[0]);
+  //     }
+  //   })
+  //   .catch(error => {
+  //     console.error("AXIOS ERROR:");
+  //     console.error(error);
+  //   });
+  // },[])
+
   useFocusEffect(
     React.useCallback(() => {
-      if (user?.premium) {
+      if (user?.is_premium) {
         navigation.navigate("ProfilePremium")
       }
     }, [user])
   );
 
-  useEffect(() => {
-    axios.post(url)
-      .then(({ data }) => {
-        console.log(data.status)
-        if (data.status === 'success') {
-          setData(data.results[0]);
-        }
-      })
-      .catch(error => {
-        console.error("AXIOS ERROR:");
-        console.error(error);
-      });
-    // navigation.navigate('VerifyEmail')
-  },[])
+  // useEffect(() => {
+  //   axios.post(url)
+  //     .then(({ data }) => {
+  //       console.log(data.status)
+  //       if (data.status === 'success') {
+  //         const userData = setData(data.results[0]);
+  //         setData(userData);
+  //       }
+  //     })
+  //     .catch(error => {
+  //       console.error("AXIOS ERROR:");
+  //       console.error(error);
+  //     });
+  //   // navigation.navigate('VerifyEmail')
+  // },[])
 
   const onPressEditProfile = () => {
     navigation.navigate('EditProfile')
@@ -68,12 +91,12 @@ const Profile = ({navigation}) => {
           <View style={{ top:-345, width:Dimensions.get('window').width*0.8}}>
             <AppText style={styles.normalText3}>{user?.email ?? "-"} </AppText>
             <AppText style={styles.normalText3}>●●●●●●●● </AppText>
-            <AppText style={styles.normalText3}>{Data?.WEIGHT ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.HEIGHT ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.SHOULDER ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.BUST ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.WAIST ?? "-"} </AppText>
-            <AppText style={styles.normalText3}>{Data?.HIP ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.weight ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.height ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.shoulder ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.bust ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.waist ?? "-"} </AppText>
+            <AppText style={styles.normalText3}>{user?.hip ?? "-"} </AppText>
           </View>
           <View>
           <AppButton 

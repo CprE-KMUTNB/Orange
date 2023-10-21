@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity,} from 'react-native'
-import React from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import { useFocusEffect } from '@react-navigation/native'
+import { AuthContext } from './StackNavigation'
 import axios from 'axios'
 import Sign_up from './Sign_up'
 
@@ -14,11 +16,14 @@ const AppText = (props) => (
 )
 
 const FillInformation = ({navigation}) => {
+  const { user, signup } = useContext(AuthContext)
   const onPressNewContent = () => {
     // navigation.navigate('New Content')
-    const url = "http://172.20.10.8:3360/fill_information";
+    const url = "http://192.168.167.90:3360/fill_information";
     console.log("Sending request to", url);
     axios.post(url, {
+      email: user?.email,
+      password: user?.password,
       weight: number1, 
       height: number2, 
       shoulder: number3, 

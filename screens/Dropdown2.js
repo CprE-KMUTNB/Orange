@@ -3,11 +3,11 @@ import React, { useState, useEffect  } from 'react'
 import { Dropdown } from 'react-native-element-dropdown'
 import axios from 'axios'
 
-  const DropdownComponent2 = () => {
+  const DropdownComponent2 = ({ setTheme }) => {
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
 
-    const url = "http://10.90.4.206:3360/theme";
+    const url = "http://192.168.167.90:3360/theme";
       const [dataTheme, setDataTheme] = useState([]);
     
       useEffect(() => {
@@ -60,7 +60,7 @@ import axios from 'axios'
           maxHeight={300}
           labelField="label"
           valueField="value"
-        //   placeholder={!isFocus ? 'Select item' : '...'}
+          placeholder={!isFocus ? 'Select item' : '...'}
         //   searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}
@@ -68,6 +68,7 @@ import axios from 'axios'
           onChange={item => {
             setValue(item.value);
             setIsFocus(false);
+            setTheme(item.label);
           }}
         //   renderLeftIcon={() => (
         //     <AntDesign

@@ -33,6 +33,8 @@ import Ads from './Ads';
 import CardInfo from './CardInfo';
 import NewFashion from './NewFashion';
 import QHistory from './QHistory';
+import QuestionDetail from './QuestionDetail';
+import AdminQDetail from './AdminQDetail';
 
 // const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -77,12 +79,19 @@ const StackNavigator = () => {
     })
   }
 
-  const verify = async () => {
+  const signup = async (data) => {
+    await AsyncStorage.setItem("user", JSON.stringify(data));
+    setUser({
+      ...data
+    })
+  }
+
+  const verify = async (data) => {
     await AsyncStorage.mergeItem("user", JSON.stringify({ verified: true }));
     setUser({
       ...user,
-      verified: true,
-      admin: true
+      ...data,
+      // admin: false
     })
   }
 
@@ -117,14 +126,15 @@ const StackNavigator = () => {
     login,
     verify,
     signout,
-    updateUser
+    updateUser,
+    signup
   }
 
   if (user?.admin) {
     return (
       <AuthContext.Provider value={contextValue}>
         <Drawer.Navigator
-          initialRouteName="Admin New Content"
+          initialRouteName="New Content"
           drawerContent={(props) => <CustomDrawerContent {...props} />}>
           <Drawer.Screen
             name="EditNewFashion"
@@ -139,6 +149,36 @@ const StackNavigator = () => {
           <Drawer.Screen
             name="UserChatScreen"
             component={UserChatScreen}
+            options={nonDrawerOptions}
+          />
+          <Drawer.Screen
+            name="Splash"
+            component={Splash}
+            options={nonDrawerOptions}
+          />
+          <Drawer.Screen
+            name="AdminQDetail"
+            component={AdminQDetail}
+            options={nonDrawerOptions}
+          />
+          <Drawer.Screen
+            name="Sign_up"
+            component={Sign_up}
+            options={nonDrawerOptions}
+          />
+          <Drawer.Screen
+            name="ResetPassword"
+            component={ResetPassword}
+            options={nonDrawerOptions}
+          />
+          <Drawer.Screen
+            name="FillInformation"
+            component={FillInformation}
+            options={nonDrawerOptions}
+          />
+          <Drawer.Screen
+            name="VerifyEmail"
+            component={VerifyEmail}
             options={nonDrawerOptions}
           />
           <Drawer.Screen
@@ -277,6 +317,11 @@ const StackNavigator = () => {
         <Drawer.Screen
           name="Ads"
           component={Ads}
+          options={nonDrawerOptions}
+        />
+        <Drawer.Screen
+          name="QuestionHistory"
+          component={QuestionDetail}
           options={nonDrawerOptions}
         />
         <Drawer.Screen

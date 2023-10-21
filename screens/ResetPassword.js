@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity} from 'react-native'
-import React from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import { useFocusEffect } from '@react-navigation/native'
+import { AuthContext } from './StackNavigation'
 import axios from 'axios'
 
 const AppButton = ({ onPress, title }) => (
@@ -13,16 +15,18 @@ const AppText = (props) => (
 )
 
 const ResetPassword = ({navigation}) => {
+  const { user, login } = useContext(AuthContext)
   const [text, onChangeText] = React.useState('');
   const [password, onChangePassword] = React.useState('');
   const [number, onChangeNumber] = React.useState('');
   const onPressLogin2 = () => {
     // navigation.navigate('Login')
-    const url = "http://172.20.10.8:3360/reset_password";
+    const url = "http://192.168.167.90:3360/reset_password";
     console.log("Sending request to", url);
     axios.post(url, {
       password: text, 
-      confirm: password
+      confirm: password,
+      id: user?.id
     })
     .then(({data}) => { 
       console.log(data)

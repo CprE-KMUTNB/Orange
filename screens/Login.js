@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity } from 'react-native'
-import React, {useContext} from 'react'
+import { View, Text, StyleSheet, Dimensions, TextInput, SafeAreaView, Image, TouchableOpacity, Alert } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
 import { useFocusEffect } from '@react-navigation/native'
-import axios from 'axios'
 import { AuthContext } from './StackNavigation'
+import axios from 'axios'
 // require('dotenv').config();
+
+const MY_IP = '192.168.167.90:3360'
 
 const AppButton = ({ onPress, title }) => (
   <TouchableOpacity onPress={onPress} style={styles.appButtonContainer}>
@@ -27,13 +29,14 @@ const AppText = (props) => (
 
 const Login = ({ navigation }) => {
   const { user, login } = useContext(AuthContext)
+  const { updateUser } = useContext(AuthContext);
   const onPressSignup = () => {
     navigation.navigate('Sign_up')
   }
 
   const onPressResetPassword = () => {
     // navigation.navigate('ResetPassword')
-    const url = "http://192.168.3.9:3360/forgot_password";
+    const url = "http://192.168.167.90:3360/forgot_password";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,
@@ -50,19 +53,66 @@ const Login = ({ navigation }) => {
       });
   }
   const onPressVerifyEmail = () => {
-    const url = "http://10.90.4.206:3360/login";
+    const url = "http://192.168.167.90:3360/login";
     console.log("Sending request to", url);
     axios.post(url, {
       email: text,
       password: password
     })
       .then(async ({ data }) => {
-        console.log(data.status)
-        if (data.status === 'success') {
+        if (data.status === 'user success') {
           await login({
-            email: text
+            email: text,
+            weight: data.results[0].WEIGHT,
+            height: data.results[0].HEIGHT,
+            shoulder: data.results[0].SHOULDER,
+            bust: data.results[0].BUST,
+            waist: data.results[0].WAIST,
+            hip: data.results[0].HIP,
+            id: data.results[0].ACCOUNT_ID,
+            is_premium: data.results[0].IS_PREMIUM,
+            token: data.token,
+            verified: false,
+            admin: false,
+            card_num: null,
+            next_bill_date: null,
+            premium_status: 0
           })
+          // if (data.results[0].IS_PREMIUM) {
+          //   const url1 = "http://192.168.167.90:3360/payment_detail";
+          //   console.log("Sending request to", url1);
+          //   axios.post(url1, {
+          //     id: data.results[0].ACCOUNT_ID
+          //   })
+          //     .then(async ({ data1 }) => {
+          //       console.log('hereeeee',data1)
+          //       if (data1.status === 'success') {
+          //         await login({
+          // //           card_num: data.results.CARD_NUM,
+          // //           next_bill_date: data.results.NEXT_BILL_DATE,
+          //           premium_status: data1.results.STATUS
+          //         })
+          //       }
+          //       console.log('thissss', user?.premium_status)
+          //     })
+          //     .catch(async error => {
+          //       console.error("AXIOS ERROR:");
+          //       console.error(await error);
+          //     });
+          // }
           navigation.navigate('VerifyEmail')
+        }
+        else if (data.status === 'admin success') {
+          await login({
+            admin: true
+          })
+          navigation.navigate('New Content')
+        }
+        else {
+          await login({
+            verified: false,
+            admin: false
+          })
         }
       })
       .catch(async error => {

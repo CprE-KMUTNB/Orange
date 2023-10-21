@@ -1,7 +1,10 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, TextInput, Modal } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import Icon from 'react-native-vector-icons/Feather'
 import UserChatScreen from './UserChatScreen'
+import QuestionDetail from './QuestionDetail'
+import { AuthContext } from './StackNavigation'
+import axios from 'axios'
 
 const AppText = (props) => (
   <Text {...props} style={{ fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black' }}>{props.children}</Text>
@@ -31,60 +34,162 @@ const QHistoryButton = ({ onPress, title }) => (
   </TouchableOpacity>
 )
 
-const Questions = ({navigation}) => {
+const Questions = ({ navigation }) => {
   const [text, onChangeText] = React.useState('');
   const [text2, onChangeText2] = React.useState('');
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const { user, login } = useContext(AuthContext)
+  const { updateUser } = useContext(AuthContext);
+  const [results, setResults] = useState([]);
+
+  useEffect(()=>{
+      const url = "http://192.168.167.90:3360/show_question";
+      axios.post(url, {
+        id : user?.id
+      })
+      .then(({data}) => {
+        if (data.status === 'success') {
+          setResults(data.results.reverse());
+        }
+      })
+      .catch(error => {
+        console.error("AXIOS ERROR:");
+        console.error(error);
+      });
+    },[])
+
   const onPressQHistory = () => {
     navigation.navigate('QHistory')
   }
   const onPressUserChatScreen = () => {
     navigation.navigate('UserChatScreen')
   }
+  // const onPressView = () => {
+  //   setData1(Data1);
+  // }
+  const onPressQuestionHistory = (info) => {
+    updateUser({
+      title: info.TITLE,
+      body: info.BODY,
+      status: info.STATUS,
+      date: info.DATE,
+    });
+    navigation.navigate('QuestionHistory')
+  }
+  const OnPressSend = () => {
+    const url = "http://192.168.167.90:3360/new_question";
+    axios.post(url, {
+      title: text2, 
+      body: text, 
+      id: user?.id
+    })
+    .then(({ data }) => {
+      if (data.status === 'success') {
+        }
+      })
+      .catch(error => {
+        console.error("AXIOS ERROR:");
+        console.error(error);
+      });
+    }
 
   return (
     <ScrollView>
       <View style={styles.container}>
-      <View style={styles.container}>
-        <Text style={styles.textheader}>Chat History</Text>
-            <View style={styles.headerCon}>
-                <Text style={styles.headText}>    Date           Subject          Status</Text>
-            </View>
-            <View style={styles.detailCon}>
-                <View style={styles.detailCon1}>
-                    <Text style={styles.detailText}>29/09/23</Text>
-                    <Text style={styles.detailText}>14/09/23</Text>
-                    <Text style={styles.detailText}>19/08/23</Text>
-                    <Text style={styles.detailText}>17/09/23</Text>
-                </View>
-                <View style={styles.detailCon2}>
-                    <Text style={styles.detailText}>Problem 4</Text>
-                    <Text style={styles.detailText}>Problem 3</Text>
-                    <Text style={styles.detailText}>Problem 2</Text>
-                    <Text style={styles.detailText}>Problem 1</Text>
-                </View>
-                <View style={styles.detailCon3}>
-                    <Text style={styles.detailText}>on hold</Text>
-                    <Text style={styles.detailText}>in process</Text>
-                    <Text style={styles.detailText}>completed</Text>
-                    <Text style={styles.detailText}>completed</Text>
-                </View>
-                <View style={styles.detailCon4}>
-                    <AppButton2
-                        title={'view'} />
-                    <AppButton2
-                        title={'view'} />
-                    <AppButton2
-                        title={'view'} />
-                    <AppButton2
-                        title={'view'} />
-                </View>
-            </View>
+
+        {/* <Text style={styles.textheader}>Send new questions and concerns</Text> */}
+        <Text style={styles.headtext}>Subject : </Text>
+        <View style={styles.inputContainer2}>
+          <TextInput
+            onChangeText={text2 => onChangeText2(text2)}
+            style={styles.input}
+            placeholder='Type subject here...'
+          />
         </View>
- 
+        <Text style={styles.headtext}>Detail : </Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            editable
+            multiline
+            numberOfLines={2}
+            onChangeText={text => onChangeText(text)}
+            style={styles.input}
+            placeholder='Type questions or concerns here...'
+          />
+        </View>
+
         <AppButton
-        title={'Send new chat'}
-        onPress={onPressUserChatScreen}/>
+          title={'Send'}
+          onPress={OnPressSend}
+        />
+        <Text style={styles.textheader}>History</Text>
+        <View style={styles.headerCon}>
+          <Text style={styles.headText}>       Date             Subject      Status      Detail</Text>
+        </View>
+        <View style={styles.detailCon}>
+          <View style={styles.detailCon1}>
+            {results.map((result, index) => (
+              <Text key={index} style={styles.detailText}>
+                {result.DATE}
+              </Text>
+            ))}
+            {/* <Text style={styles.detailText}>29/09/23</Text>
+            <Text style={styles.detailText}>14/09/23</Text>
+            <Text style={styles.detailText}>19/08/23</Text>
+            <Text style={styles.detailText}>17/09/23</Text> */}
+          </View>
+          <View style={styles.detailCon2}>
+            {results.map((result, index) => (
+              <Text key={index} style={styles.detailText}>
+                {result.TITLE}
+              </Text>
+            ))}
+            {/* <Text style={styles.detailText}>Payment issue</Text>
+            <Text style={styles.detailText}>Problem 3</Text>
+            <Text style={styles.detailText}>Problem 2</Text>
+            <Text style={styles.detailText}>Problem 1</Text> */}
+          </View>
+          <View style={styles.detailCon3}>
+            {results.map((result, index) => (
+              <Text key={index} style={styles.detailText}>
+                {result.STATUS}
+              </Text>
+            ))}
+            {/* <Text style={styles.detailText}>on hold</Text>
+            <Text style={styles.detailText}>in process</Text>
+            <Text style={styles.detailText}>complete</Text>
+            <Text style={styles.detailText}>complete</Text> */}
+          </View>
+          <View style={styles.detailCon4}>
+            {results.map((result, index) => (
+              <Text key={index} style={styles.detailText}>
+                <AppButton2
+                  title={'view'}
+                  onPress={() => onPressQuestionHistory(result)}
+                />
+              </Text>
+            ))}
+            {/* <AppButton2
+              title={'view'}
+              onPress={onPressQuestionHistory}
+            />
+            <AppButton2
+              title={'view'}
+              onPress={onPressQuestionHistory}
+            />
+            <AppButton2
+              title={'view'}
+              onPress={onPressQuestionHistory}
+            />
+            <AppButton2
+              title={'view'}
+              onPress={onPressQuestionHistory}
+            /> */}
+          </View>
+        </View>
+      </View>
+      <View>
+
         {/* <QHistoryButton
             title={'View history'}
             onPress={onPressQHistory}
@@ -133,10 +238,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    marginTop: 10,
+    marginVertical: 15,
     width: 240,
     alignItems: 'center',
-    top: -400
+    top: 0
   },
   appButtonText: {
     fontSize: 22,
@@ -146,16 +251,17 @@ const styles = StyleSheet.create({
   },
   appButtonContainer2: {
     elevation: 0,
-    paddingVertical: 10,
-    justifyContent: 'center'
-},
-appButtonText2: {
+    paddingTop: 10,
+    justifyContent: 'center',
+
+  },
+  appButtonText2: {
     fontSize: 18,
     color: "black",
     alignSelf: "center",
     fontFamily: "Cuprum-VariableFont_wght",
     textDecorationLine: 'underline'
-},
+  },
   normalText1: {
     paddingLeft: 15,
     paddingTop: 20,
@@ -167,8 +273,8 @@ appButtonText2: {
     marginRight: 'auto'
   },
   inputContainer: {
-    width: Dimensions.get('window').width * 0.8,
-    height: Dimensions.get('window').width * 0.7,
+    width: Dimensions.get('window').width * 0.9,
+    height: Dimensions.get('window').height * 0.3,
     marginTop: 5,
     backgroundColor: 'white',
     borderWidth: 1,
@@ -177,7 +283,7 @@ appButtonText2: {
     // justifyContent: 'flex-start'
   },
   inputContainer2: {
-    width: Dimensions.get('window').width * 0.8,
+    width: Dimensions.get('window').width * 0.9,
     height: 40,
     marginTop: 10,
     backgroundColor: 'white',
@@ -215,7 +321,7 @@ appButtonText2: {
     marginTop: 10,
     marginBottom: 5,
     marginRight: 'auto',
-    marginLeft: 40
+    marginLeft: 20
   },
   centerStyle: {
     marginLeft: 'auto',
@@ -276,8 +382,8 @@ appButtonText2: {
     borderRightColor: 'white',
     borderBottomColor: '#f2a676',
     justifyContent: 'center',
-},
-detailCon: {
+  },
+  detailCon: {
     backgroundColor: "white",
     // alignItems: "center",
     width: Dimensions.get('window').width * 0.96,
@@ -289,25 +395,25 @@ detailCon: {
     borderRadius: 5,
     top: -30,
     flexDirection: 'row'
-},
-detailCon1: {
+  },
+  detailCon1: {
     // backgroundColor: "red",
     // alignItems: "center",
-    width: Dimensions.get('window').width * 0.2,
+    width: Dimensions.get('window').width * 0.3,
     height: 650,
     padding: 0,
-    marginLeft: 3,
+    marginLeft: 0,
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
     borderRadius: 5,
     top: 0,
     flexDirection: 'column'
 
-},
-detailCon2: {
+  },
+  detailCon2: {
     // backgroundColor: "blue",
     // alignItems: "center",
-    width: Dimensions.get('window').width * 0.35,
+    width: Dimensions.get('window').width * 0.28,
     height: 650,
     padding: 0,
     marginLeft: 0,
@@ -315,11 +421,11 @@ detailCon2: {
     borderTopLeftRadius: 0,
     borderRadius: 5,
     top: 0
-},
-detailCon3: {
+  },
+  detailCon3: {
     // backgroundColor: "green",
     // alignItems: "center",
-    width: Dimensions.get('window').width * 0.2,
+    width: Dimensions.get('window').width * 0.17,
     height: 650,
     padding: 0,
     margin: 0,
@@ -327,8 +433,8 @@ detailCon3: {
     borderTopLeftRadius: 0,
     borderRadius: 5,
     top: 0
-},
-detailCon4: {
+  },
+  detailCon4: {
     // backgroundColor: "yellow",
     // alignItems: "center",
     width: Dimensions.get('window').width * 0.2,
@@ -338,33 +444,32 @@ detailCon4: {
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
     borderRadius: 5,
-    top: 0
-},
-headText: {
-  fontFamily: "Cuprum-VariableFont_wght",
-  color: 'black',
-  fontSize: 22,
+    top: -10
+  },
+  headText: {
+    fontFamily: "Cuprum-VariableFont_wght",
+    color: 'black',
+    fontSize: 22,
+  },
+  detailText: {
+    fontFamily: "Cuprum-VariableFont_wght",
+    color: 'black',
+    fontSize: 18,
+    paddingVertical: 10,
+    // height: '100%',
+    // width: '100%',
+    marginRight: 'auto',
+    marginLeft: 'auto'
 
-},
-detailText: {
-  fontFamily: "Cuprum-VariableFont_wght",
-  color: 'black',
-  fontSize: 18,
-  paddingVertical: 10,
-  // height: '100%',
-  // width: '100%',
-  marginRight: 'auto',
-  marginLeft: 'auto'
-
-},
-textheader: {
-  fontFamily: 'Cuprum-Bold', 
-  fontSize: 25, 
-  color: 'black', 
-  marginRight: 'auto', 
-  marginLeft: 10, 
-  marginTop: 10
-}
+  },
+  textheader: {
+    fontFamily: 'Cuprum-Bold',
+    fontSize: 25,
+    color: 'black',
+    marginRight: 'auto',
+    marginLeft: 10,
+    marginTop: 10
+  }
 }
 )
 

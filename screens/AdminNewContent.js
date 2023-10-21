@@ -1,15 +1,64 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Modal, TextInput } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Icon from 'react-native-vector-icons/Feather'
 
 const MyModal = (props) => {
   const [link, onChangelink] = React.useState('');
+  const [name, onChangename] = React.useState('');
   const [des, onChangedes] = React.useState('');
   const [date, onChangedate] = React.useState('');
   const [isModalVisible2, setIsModalVisible2] = useState(false)
+  // if (isModalVisible2 === true) {
+  const confirmHandler = () => {
+    const url = "http://192.168.167.90:3360/update_content";
+    // useEffect(() => {
+      console.log('Sending request to', url)
+      axios.post(url, {
+        title: name, 
+        pic: link, 
+        body: des,
+        date: date
+      })
+      .then(({ data }) => {
+        if (data.status === 'success') {
+          setIsModalVisible2(false); 
+          props.setIsModalVisible(false)
+        }
+      })
+      .catch(error => {
+        console.error("AXIOS ERROR:");
+        console.error(error);
+      });
+    }
+
+    const confirmDeleteHandler = () => {
+      console.log('confirmHandler called');
+      console.log('link:', link);
+      console.log('des:', des);
+      console.log('date:', date);
+      console.log('newwwwwwwwwwwww',link,des,date)
+      const url = "http://192.168.167.90:3360/delete_content";
+      // useEffect(() => {
+        console.log('Sending request to', url)
+        axios.post(url, {
+          title: name
+        })
+        .then(({ data }) => {
+          if (data.status === 'success') {
+            setIsModalVisible2(false); 
+            props.setIsModalVisible(false)
+          }
+        })
+        .catch(error => {
+          console.error("AXIOS ERROR:");
+          console.error(error);
+        });
+      }
+
+
   return (
-    <Modal 
+    <Modal
       visible={props.isModalVisible}
       backdropColor='white'
       backdropOpacity={50}
@@ -18,6 +67,7 @@ const MyModal = (props) => {
       presentationStyle='overFullScreen'
       transparent={true}
       style={{ margin: 0 }}
+      statusBarTranslucent={true}
 
     >
       <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1}></TouchableOpacity>
@@ -29,6 +79,13 @@ const MyModal = (props) => {
             style={styles.input}
             onChangeText={onChangelink}
             value={link}
+            placeholder="place url here"
+          />
+          <Text style={styles.modalsmalltext}> Name : </Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangename}
+            value={name}
             placeholder="place url here"
           />
           <Text style={styles.modalsmalltext}> Description : </Text>
@@ -68,11 +125,11 @@ const MyModal = (props) => {
                 <View>
                   <AppButtonCancel
                     title='Cancel'
-                    onPress={() => setIsModalVisible2(false)}
+                    onPress={() => {setIsModalVisible2(false), props.setIsModalVisible(false); }}
                   />
-                 <AppButtonConfirm
+                  <AppButtonConfirm
                     title='Confirm'
-                    onPress={() => {setIsModalVisible2(false); props.setIsModalVisible(false);}}
+                    onPress={() => { confirmDeleteHandler(); setIsModalVisible2(false); props.setIsModalVisible(false); }}
                   />
                 </View>
 
@@ -82,7 +139,7 @@ const MyModal = (props) => {
           <AppButton
             style={styles.buttonstyle}
             title='Confirm'
-            onPress={() => props.setIsModalVisible(false)}
+            onPress={() => {confirmHandler(), props.setIsModalVisible(false)}}
           />
         </View>
 
@@ -116,13 +173,13 @@ const AppButtonCancel = ({ onPress, title }) => (
 )
 
 const EventCard = (props) => {
-  const { link, eventName, detailName, date } = props;
+  const { link, eventName, detailName, date, setIsModalVisible } = props;
   return (
     <View>
       <View style={styles.ImgCon1}>
         <Image style={styles.ImgCon} source={{ uri: link }} />
       </View>
-      <Text style={styles.eventName}>{eventName}<Icon style={styles.iconPos} name='settings' size={35}  onPress={() => props.setIsModalVisible(true)} /> </Text>
+      <Text style={styles.eventName}>{eventName}<Icon style={styles.iconPos} name='settings' size={35} onPress={() => setIsModalVisible(true)} /> </Text>
       <Text style={styles.detailName}>{detailName}</Text>
       <Text style={styles.dateName}>{date}</Text>
     </View>
@@ -131,33 +188,32 @@ const EventCard = (props) => {
 
 const AdminNewContent = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
-  
-  const data = [
-    {
-      link: 'https://i.pinimg.com/736x/5c/33/c1/5c33c10bf16cbb56aeef599352830f01.jpg',
-      eventName: 'Black Pink ',
-      detailName: "World tour Born Pink",
-      date: '14.11.23'
-    },
-    {
-      link: 'https://cdn.kpopconcerts.com/wp-content/uploads/2022/08/04114609/2022-TOUR-SEVENTEEN-BE-THE-SUN-NORTH-AMERICA-tour-poster-1350x1909.jpg',
-      eventName: 'Seventeen ',
-      detailName: "World tour Be the Sun",
-      date: '09.12.23'
-    },
-    {
-      link: 'http://cdn.designbump.com/wp-content/uploads/2015/12/colorful-christmas-trees-inspiration-5.jpg',
-      eventName: 'Christmas ',
-      detailName: "Cristmas Party Night",
-      date: '25.12.23'
-    },
-    {
-      link: 'https://image.freepik.com/free-vector/minimal-valentine-heart-background_76243-44.jpg',
-      eventName: 'Valentine ',
-      detailName: "Special at Central",
-      date: '14.02.24'
-    },
-  ]
+  const url = "http://192.168.167.90:3360/new_content";
+  const [EventData, setEventData] = useState([]);
+  useEffect(() => {
+    axios.get(url)
+      .then(response => {
+        const data = response.data;
+        // console.log("API response:", data);
+        if (data.status === 'success' && Array.isArray(data.message)) {
+          const newEventData = data.message.map(event => ({
+            key: event.CONTENT_ID,
+            link: event.PIC,
+            eventName: event.TITLE,
+            detailName: event.DETAIL,
+            date: event.DATE
+          }));
+          // console.log("New EventData:", newEventData);
+          setEventData(newEventData);
+        } else {
+          console.error("Unexpected data structure");
+        }
+      })
+      .catch(error => {
+        console.error("AXIOS ERROR:", error);
+      });
+  }, []);
+
 
   return (
     <ScrollView>
@@ -185,11 +241,11 @@ const AdminNewContent = ({ navigation }) => {
           </View>
           <Text style={styles.eventName}>Valentine <Icon style={styles.iconPos} name='settings' size={35} onPress={() => setIsModalVisible(true)} /> </Text>
           <Text style={styles.dateName}>14.02.23</Text> */}
-          {data.map((event, index) => {
-            return <EventCard key={index} link={event.link} eventName={event.eventName} detailName={event.detailName} date={event.date} setIsModalVisible={setIsModalVisible} />
+          {EventData.map((event, index) => {
+            return <EventCard key={index} link={event.link} eventName={event.eventName} detailName={event.detailName} date={event.date} setIsModalVisible={setIsModalVisible}/>
           })}
         </View>
-        <MyModal  isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible}  />
+        <MyModal isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible} />
       </View>
     </ScrollView>
   )
@@ -409,7 +465,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAEBDC',
     padding: 0,
     width: '85%',
-    height: '50%',
+    height: '60%',
     alignItems: 'center',
     justifyContent: 'flex-start',
     borderRadius: 10,

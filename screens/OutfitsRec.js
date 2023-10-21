@@ -1,8 +1,10 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet, SafeAreaView, Dimensions, Image, TouchableOpacity, Button, Modal } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import DropdownComponent from './Dropdown'
 import DropdownComponent2 from './Dropdown2'
 import Icon from 'react-native-vector-icons/Feather'
+import { AuthContext } from './StackNavigation'
+import axios from 'axios'
 
 const AppText = (props) => (
     <Text {...props} style={{fontFamily: "Cuprum-VariableFont_wght", ...props.style, fontSize: 18, color: 'black'}}>{props.children}</Text>
@@ -21,11 +23,79 @@ const ModalButton = ({ onPress, title }) => (
 )
 
 const OutfitsRec = ({navigation}) => {
+  const { user } = useContext(AuthContext);
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [place, setPlace] = useState(null);
+  const [theme, setTheme] = useState(null);
   const onPressAds = () => {
     setIsModalVisible(false)
-    navigation.navigate('Ads')
+    if (user?.is_premium) {
+      navigation.navigate("Outfit recommendation");
+    } else {
+      navigation.navigate('Ads');
+    }
   }
+  
+  
+  const [Data1, setData] = useState("https://d29c1z66frfv6c.cloudfront.net/pub/media/catalog/product/large/dccd42338afd27d189e8eb7f3d4d5322a3c16f33_xxl-1.jpg");
+  const [Data2, setData2] = useState("https://d29c1z66frfv6c.cloudfront.net/pub/media/catalog/product/large/03e3a4dabb1ef458f164c576d71acd4fc5479718_xxl-1.jpg");
+  const OnPressSubmit = () => {
+    const url = "http://192.168.167.90:3360/recommend"
+    console.log('Selected place:', place);
+    console.log('Selected theme:', theme);
+    axios.post(url, {
+      id: user?.id, 
+      theme: theme, 
+      place: place
+    })
+      .then(response => {
+        const data = response.data;
+        if (data?.results && typeof data.results === 'object' && data?.results2 && typeof data.results2 === 'object') {
+          setData(data.results.PIC);
+          setData2(data.results2.PIC);
+          console.log('pic recccc', Data1, Data2)
+        } else {
+          console.error("Invalid data format:", data);
+        }
+        // if (data?.results2 && typeof data.results2 === 'object') {
+        //   const bottom = data.results1.PIC;
+        //   console.log('PIC:', bottom);
+        // } else {
+        //   console.error("Invalid data format:", data);
+        // }
+        // // Check if 'results' property is present and it's an array
+        // if (data?.results && Array.isArray(data.results) && data.results.length > 0) {
+        //   setData(data.results[0]);
+        //   console.log('recommend', data.results[0], data.results1[0]);
+        // } else {
+        //   console.error("Invalid data format:", data);
+        // }
+      })
+      .catch(error => {
+        console.error("AXIOS ERROR:", error);
+      });
+  }  
+
+  // const OnPressSubmit = () => {
+  //   console.log('presss')
+  //   const url = "http://192.168.167.90:3360/recommend";
+  //   axios.post(url, {
+  //     id: user?.id, 
+  //     theme: "pastel", 
+  //     place: "beach"
+  //   })
+  //     .then(response => {
+  //       const data = response.data;
+  //       if (data.status === 'success') {
+  //         setData(data.results[0]);
+  //         console.log('reccommend',data.results[0],data.results1[0])
+  //       }
+  //     })
+  //     .catch(error => {
+  //       console.error("AXIOS ERROR:", error);
+  //     });
+  // }
+
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -36,13 +106,13 @@ const OutfitsRec = ({navigation}) => {
         <Text style={styles.iconPos}> <Icon name='menu' size={25}/> </Text>
         <View style={styles.innerCon}>
           <AppText style={styles.normalText}>Place</AppText>
-          <DropdownComponent/>
+          <DropdownComponent setPlace={setPlace}/>
           <AppText style={styles.normalText}>Theme</AppText>
-          <DropdownComponent2/>
+          <DropdownComponent2 setTheme={ setTheme }/>
           <View>
             <AppButton 
               title={'Submit'}
-              onPress= {() => setIsModalVisible(true)} 
+              onPress= {() => {OnPressSubmit(); setIsModalVisible(true);}}
             />
             <Modal
                 visible={isModalVisible}
@@ -60,11 +130,13 @@ const OutfitsRec = ({navigation}) => {
                   <View style={styles.modalInsideFrame}>
                     <Image 
                     style={styles.logo}
-                    source={{uri: 'https://d29c1z66frfv6c.cloudfront.net/pub/media/catalog/product/large/bbcccc3200dc0003616887a926701ac52e9b70a7_xxl-1.jpg'}}
+                    source={{uri: Data1}}
+                    // source={{uri: 'https://d29c1z66frfv6c.cloudfront.net/pub/media/catalog/product/large/bbcccc3200dc0003616887a926701ac52e9b70a7_xxl-1.jpg'}}
                     />
                     <Image 
                     style={styles.logo}
-                    source={{uri: 'https://d29c1z66frfv6c.cloudfront.net/pub/media/catalog/product/large/f2586f636ec6baabb18c5b9bac3fa3e14423ac17_xxl-1.jpg'}}
+                    source={{uri: Data2}}
+                    // source={{uri: 'https://d29c1z66frfv6c.cloudfront.net/pub/media/catalog/product/large/f2586f636ec6baabb18c5b9bac3fa3e14423ac17_xxl-1.jpg'}}
                     />
                       <ModalButton
                       title='Close'
@@ -114,12 +186,12 @@ const styles = StyleSheet.create({
   appButtonContainer: {
     elevation: 0,
     backgroundColor: "#E67738",
-    borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 12,
     marginTop: 10,
     width: 240,
-    alignItems: 'center'
+    alignItems: 'center',
+    borderRadius: 14
   },
   appButtonText: {
     fontSize: 22,
