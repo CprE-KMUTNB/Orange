@@ -4,6 +4,7 @@ const mysql = require('mysql');
 const cors = require("cors");
 const { networkInterfaces } = require('os');
 const sessionstorage = require('sessionstorage');
+// const localStorage = require('local-storage');
 
 const nets = networkInterfaces();
 const results = Object.create(null); // Or just '{}', an empty object
@@ -146,7 +147,10 @@ app.post("/fill_information", async (req, res) => {
                 return res.status(200).json({ status: "success", message: "Sign up successfully!" })
             }
         )
-
+        // }
+        // return res.status(400).json({status:"fail", message: "ํTheese information should only be numbers"})
+        // }
+        // return res.status(400).json({status:"fail", message: "You need to fill all informations"})
     }
     catch (err) {
         console.log(err);
@@ -200,9 +204,9 @@ app.post("/login", async (req, res) => {
                                         return res.status(400).send();
                                     }
                                     // เคยสมัคร premium
-                                    if (premium.length !== 0) {
+                                    if (premium.length !== 0){
                                         //premium หมดอายุ และยังต่อการจ่ายตัง
-                                        if (new Date(premium[0].NEXT_BILL_DATE) < new Date() && premium[0].STATUS === 1) {
+                                        if (new Date(premium[0].NEXT_BILL_DATE) < new Date() && premium[0].STATUS === 1){
                                             var expiration = premium[0].EXPIRE_DATE.split("-")
                                             let cardDetails = {
                                                 card: {
@@ -278,7 +282,7 @@ app.post("/login", async (req, res) => {
                                             })
                                         }
                                         //premium หมดอายุ และไม่ต่อบัตร
-                                        else if (new Date(premium[0].NEXT_BILL_DATE) < new Date() && premium[0].STATUS === 0) {
+                                        else if (new Date(premium[0].NEXT_BILL_DATE) < new Date() && premium[0].STATUS === 0){
                                             connection.query(
                                                 //อัพเดตข้อมูลใน db ยกเลิก IS_PREMIUM
                                                 "UPDATE account SET IS_PREMIUM = 0 WHERE ACCOUNT_ID = ?",
@@ -322,9 +326,9 @@ app.post("/login", async (req, res) => {
                                         console.log(err);
                                         return res.status(400).send();
                                     }
-                                    return res.status(200).json({ status: "user success", message: "can go to Verify Email", results: result, token: token });
+                                    return res.status(200).json({ status: "user success", message: "can go to Verify Email", results: result, token: token});
                                 })
-
+                                
                             // fetch('http://192.168.167.90:3360/send_login_OTP', {
                             //     method: 'POST',
                             //     body: {
@@ -339,10 +343,10 @@ app.post("/login", async (req, res) => {
                 }
                 //เช้คว่า password ถูกมั้ย
                 else if (admin[0].PASSWORD != password) {
-                    return res.status(400).json({ status: "fail", message: "username or Password is incorrect" });
+                        return res.status(400).json({ status: "fail", message: "username or Password is incorrect" });
                 }
                 else {
-                    return res.status(200).json({ status: "admin success", message: "Admin login successfully!" });
+                return res.status(200).json({ status: "admin success", message: "Admin login successfully!" });
                 }
             }
         )
@@ -357,7 +361,7 @@ app.post("/login", async (req, res) => {
 app.post("/forgot_password", async (req, res) => {
     const email = req.body.email;
     // const email = sessionstorage.getItem('email');
-
+    
     try {
         connection.query(
             "SELECT * FROM account WHERE ACCOUNT_EMAIL = ?",
@@ -375,17 +379,17 @@ app.post("/forgot_password", async (req, res) => {
                 //ส่ง OTP ไปที่ email
                 const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
                 const token = jwt.sign({ OTP: OTP }, token_obj, { expiresIn: '10m' });
-
+        
                 console.log(OTP)
                 sessionstorage.setItem('token', token);
-
+        
                 const text_sending = {
                     from: process.env.MYMAIL,
                     to: email,
                     subject: 'OTP verification to reset password on Orange',
                     text: "Dear User :\n\nA request has been received to change the password for your Orange account. Please use this OTP to reset your password. Do not share this OTP to anyone.\n\n" + OTP + "\n\nIf you did not initiate this request, please contact us immediately at our Question and concern.\n\nRegards,\nOrange Team"
                 };
-
+        
                 transporter.sendMail(text_sending, (err, info) => {
                     if (err) {
                         console.log(err);
@@ -473,10 +477,10 @@ app.post("/verify_OTP", async (req, res) => {
                     })
                 return res.status(200).json({ status: "success", message: "OTP is correct" });
             }
-            return res.status(400).json({status:"fail", message:"OTP is incorrect" });
+            return res.status(400).json({ status: "fail", message: "OTP is incorrect" });
         }
         //หมดอายุแล้ว
-        res.status(400).json({status: "fail", message: "OTP is expired" });
+        res.status(400).json({ status: "fail", message: "OTP is expired" });
     }
     catch (err) {
         console.log(err);
@@ -521,21 +525,21 @@ app.post("/reset_password", async (req, res) => {
 
 //send otp / for resend otp
 app.get("/send_password_OTP/:email", async (req, res) => {
-    const email = sessionstorage.getItem('email');
+    // const email = sessionstorage.getItem('email');
+    const email = req.body.email
 
     try {
         const OTP = Math.floor(Math.random() * (9999 - 1000)) + 1000
-        const token = jwt.sign({OTP : OTP}, token_obj, {expiresIn: '10m'});
+        const token = jwt.sign({ OTP: OTP }, token_obj, { expiresIn: '10m' });
 
         console.log(OTP)
         sessionstorage.setItem('token', token);
-
 
         const text_sending = {
             from: process.env.MYMAIL,
             to: email,
             subject: 'OTP verification to reset password on Orange',
-            text:"Dear User :\n\nA request has been received to change the password for your Orange account. Please use this OTP to reset your password. Do not share this OTP to anyone.\n\n" + OTP + "\n\nIf you did not initiate this request, please contact us immediately at our Question and concern.\n\nRegards,\nOrange Team"
+            text: "Dear User :\n\nA request has been received to change the password for your Orange account. Please use this OTP to reset your password. Do not share this OTP to anyone.\n\n" + OTP + "\n\nIf you did not initiate this request, please contact us immediately at our Question and concern.\n\nRegards,\nOrange Team"
         };
 
         transporter.sendMail(text_sending, (err, info) => {
@@ -545,9 +549,9 @@ app.get("/send_password_OTP/:email", async (req, res) => {
             }
         });
 
-        return res.status(200).json({token: token});
+        return res.status(200).json({ token: token });
     }
-    catch(err) {
+    catch (err) {
         console.log(err);
         return res.status(500).send();
     }
@@ -580,7 +584,7 @@ app.post("/new_fashion", async (req, res) => {
 })
 
 //for new clothes
-app.post("/new_clothes", async (req, res) => {
+app.get("/new_clothes", async (req, res) => {
     try {
         connection.query(
             //ดึงข้อมูลของ content มา
@@ -633,7 +637,8 @@ app.get("/new_content", async (req, res) => {
 
 //for see profile IS_PREMIUM ไว้บอกว่าตอนนี้บัญชีนั้นอยู่ในเวอร์ชั่นอะไร 0 = user ปกติ 1 = premium
 app.post("/profile", async (req, res) => {
-    const id = sessionstorage.getItem('id');
+    // const id = sessionstorage.getItem('id');
+    const id = req.body.id
     try {
         connection.query(
             //ดึงข้อมูลของแอคเค้ามา
@@ -647,7 +652,7 @@ app.post("/profile", async (req, res) => {
                 if (results.length === 0) {
                     return res.status(400).json({ status: "fail", message: "Error, Can't find this id in the database" });
                 }
-                res.status(200).json({status: "success", results: results });
+                res.status(200).json({ status: "success", results: results });
             }
         )
     }
@@ -659,10 +664,10 @@ app.post("/profile", async (req, res) => {
 
 //upgrade to premium
 app.post("/upgrade_premium", async (req, res) => {
-    const {card_num,expire_date,cvv,holder} = req.body
+    const { card_num, expire_date, cvv, holder } = req.body
 
-    const id = sessionstorage.getItem('id')
-    // const id = req.body.id
+    // const id = sessionstorage.getItem('id')
+    const id = req.body.id
 
     var expiration = expire_date.split("/")
     let cardDetails = {
@@ -690,12 +695,11 @@ app.post("/upgrade_premium", async (req, res) => {
                 }
 
                 //ตาราง premium
-                if (results.length === 0)
-                {
+                if (results.length === 0) {
                     //ยังไม่เคยสมัคร premium มาก่อน
                     connection.query(
                         "INSERT INTO premium(ACCOUNT_ID, CARD_NUM, EXPIRE_DATE, CVV, CARD_HOLDER, NEXT_BILL_DATE) VALUES(?,?,?,?,?, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 28 DAY))",
-                        [id,card_num,save_date,cvv,holder],
+                        [id, card_num, save_date, cvv, holder],
                         (err, results, fields) => {
                             if (err) {
                                 console.log(err);
@@ -708,7 +712,7 @@ app.post("/upgrade_premium", async (req, res) => {
                     //เคยสมัคร premium แล้ว
                     connection.query(
                         "UPDATE premium JOIN account SET premium.STATUS = 1, premium.CARD_NUM = ?, premium.EXPIRE_DATE = ?, premium.CVV = ?, premium.CARD_HOLDER = ?, premium.NEXT_BILL_DATE = DATE_ADD(CURRENT_DATE(), INTERVAL 28 DAY) WHERE account.ACCOUNT_ID = premium.ACCOUNT_ID AND account.ACCOUNT_ID = ?",
-                        [card_num,save_date,cvv,holder,id],
+                        [card_num, save_date, cvv, holder, id],
                         (err, results, fields) => {
                             if (err) {
                                 console.log(err);
@@ -718,21 +722,9 @@ app.post("/upgrade_premium", async (req, res) => {
                     )
                 }
 
-                //update history
-                connection.query(
-                    "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
-                    [id],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-                    }
-                )
-
                 //อัพเดต IS_PREMIUM, status
                 connection.query(
-                    "UPDATE premium JOIN account ON account.ACCOUNT_ID = premium.ACCOUNT_ID  SET premium.STATUS = 1, account.IS_PREMIUM = 1 WHERE account.ACCOUNT_ID = 12",
+                    "UPDATE premium JOIN account ON account.ACCOUNT_ID = premium.ACCOUNT_ID  SET premium.STATUS = 1, account.IS_PREMIUM = 1 WHERE account.ACCOUNT_ID = ?",
                     [id],
                     (err, results, fields) => {
                         if (err) {
@@ -742,62 +734,76 @@ app.post("/upgrade_premium", async (req, res) => {
                     }
                 )
 
-                connection.query(
-                    "SELECT * FROM account WHERE ACCOUNT_ID = ?",
-                    [id],
-                    (err, payment, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
+                //จ่ายเมื่อหมดอายุแล้วเท่านั้น
+                if (new Date(results[0].NEXT_BILL_DATE) < new Date() && results[0].STATUS === 1){
+                    //update history
+                    connection.query(
+                        "INSERT INTO history(`ACCOUNT_ID`, `bill_date`) VALUES (?,CURRENT_DATE)",
+                        [id],
+                        (err, results, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
                         }
+                    )
+                    
+                    //การจ่ายเงิน
+                    connection.query(
+                        "SELECT * FROM account WHERE ACCOUNT_ID = ?",
+                        [id],
+                        (err, payment, fields) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
 
-                    //Omise: Auto capture a charge
-                    omise.tokens.create(cardDetails).then(function(token) {
-                        console.log(token);
-                        return omise.customers.create({
-                            'email':        payment[0].ACCOUNT_EMAIL,
-                            'description': 'account id: ' +  payment[0].ACCOUNT_ID,
-                            'card':        token.id,
-                    });
-                    }).then(function(customer) {
-                    console.log(customer);
-                    return omise.charges.create({
-                        'amount':   10000,
-                        'currency': 'thb',
-                        'customer': customer.id,
-                    });
-                    }).then(function(charge) {
-                    console.log(charge);
-                    }).catch(function(err) {
-                    console.log(err);
-                    }).finally();
+                            //Omise: Auto capture a charge
+                            omise.tokens.create(cardDetails).then(function (token) {
+                                console.log(token);
+                                return omise.customers.create({
+                                    'email': payment[0].ACCOUNT_EMAIL,
+                                    'description': 'account id: ' + payment[0].ACCOUNT_ID,
+                                    'card': token.id,
+                                });
+                            }).then(function (customer) {
+                                console.log(customer);
+                                return omise.charges.create({
+                                    'amount': 10000,
+                                    'currency': 'thb',
+                                    'customer': customer.id,
+                                });
+                            }).then(function (charge) {
+                                console.log(charge);
+                            }).catch(function (err) {
+                                console.log(err);
+                            }).finally();
 
-                    //ส่งเมลยืนยันการสมัคร premium
-                    const text_sending = {
-                        from: process.env.MYMAIL,
-                        to: payment[0].ACCOUNT_EMAIL,
-                        subject: 'Thank you for your subscription to Orange premium',
-                        text:"Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 35.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\nOrange Team"
-                    };
+                            //ส่งเมลยืนยันการสมัคร premium
+                            const text_sending = {
+                                from: process.env.MYMAIL,
+                                to: payment[0].ACCOUNT_EMAIL,
+                                subject: 'Thank you for your subscription to Orange premium',
+                                text: "Dear User :\n\nThank you for your subscription to Orange premium! We've successfully processed your payment of 35.00฿\n\nIf you've any further questions please visit our Question and concern.\n\nRegards,\nOrange Team"
+                            };
 
-                    transporter.sendMail(text_sending, (err, info) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-                    });
-                })
-
-                return res.status(200).json({status:"success", message : "Upgrade to premium successfully!"})
+                            transporter.sendMail(text_sending, (err, info) => {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(400).send();
+                                }
+                            });
+                        })
+                }
+                return res.status(200).json({ status: "success", message: "Upgrade to premium successfully!" })
             }
         )
     }
-    catch(err) {
+    catch (err) {
         console.log(err);
         return res.status(500).send();
     }
 })
-
 
 //----------------------------Edit profile--------------------------------------//
 
@@ -836,12 +842,12 @@ app.post("/edit_profile", async (req, res) => {
 
 //for payment detail payment method, next bill date
 app.post("/payment_detail", async (req, res) => {
-    const id = sessionstorage.getItem('id')
-    // const id = req.body.id
+    // const id = sessionstorage.getItem('id')
+    const id = req.body.id
     try {
         connection.query(
-            // "SELECT premium.CARD_NUM, premium.STATUS, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, DATE_FORMAT(history.BILL_DATE, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
-            "SELECT premium.CARD_NUM, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, history.BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
+            "SELECT premium.CARD_NUM, premium.STATUS, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE, DATE_FORMAT(history.BILL_DATE, '%d %M %Y') AS BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID JOIN history ON account.ACCOUNT_ID = history.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
+            // "SELECT premium.CARD_NUM, premium.STATUS, DATE_FORMAT(premium.NEXT_BILL_DATE, '%d %M %Y') AS NEXT_BILL_DATE FROM account JOIN premium ON account.ACCOUNT_ID = premium.ACCOUNT_ID WHERE account.ACCOUNT_ID = ?",
             [id],
             (err, results, fields) => {
                 if (err) {
@@ -851,7 +857,7 @@ app.post("/payment_detail", async (req, res) => {
                 if (results.length === 0) {
                     return res.status(400).json({ status: "fail", message: "Error, Can't find this id in the database" });
                 }
-                return res.status(200).json({ message: "Get information successfully!", results: results[0], history: results, status: "success" });
+                return res.status(200).json({ message: "Get information successfully!", results: results[0], history: results, status: "success"});
             }
         )
     }
@@ -890,7 +896,7 @@ app.get("/payment_history", async (req, res) => {
 
 //เปลี่ยนเลขบัตร
 app.patch("/change_method", async (req, res) => {
-    const { card_num,expire_date,cvv,holder } = req.body
+    const { card_num, expire_date, cvv, holder } = req.body
     const id = sessionstorage.getItem('id');
 
     try {
@@ -1058,23 +1064,23 @@ app.post("/recommend", async (req, res) => {
                             // var i = 0
                             // var found = 0
                             // while (found === 0 && i < pair.length) {
-                            connection.query(
-                                "SELECT * FROM clothes WHERE " + figure + " = 1 AND TYPE = 'BOTTOM' AND (TAG = '" + place + "') AND (COLOR = '" + theme + "')",
-                                // "SELECT * FROM clothes WHERE " + figure + " = 1 AND TYPE = 'BOTTOM' AND (TAG = '" + place + "') AND (COLOR = '" + theme + "') AND CLOTHES_ID = ?",
-                                // [pair[i]],
-                                (err, outcome, fields) => {
-                                    if (err) {
-                                        console.log(err);
-                                        return res.status(400).send();
+                                connection.query(
+                                    "SELECT * FROM clothes WHERE " + figure + " = 1 AND TYPE = 'BOTTOM' AND (TAG = '" + place + "') AND (COLOR = '" + theme + "')",
+                                    // "SELECT * FROM clothes WHERE " + figure + " = 1 AND TYPE = 'BOTTOM' AND (TAG = '" + place + "') AND (COLOR = '" + theme + "') AND CLOTHES_ID = ?",
+                                    // [pair[i]],
+                                    (err, outcome, fields) => {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(400).send();
+                                        }
+                                        if (outcome.length != 0) {
+                                            // found = 1
+                                            var pick_bottom = Math.floor(Math.random() * outcome.length)
+                                            return res.status(200).json({ status: "success", message: "Select outfit successfully!", results: results[pick], results2: outcome[pick_bottom] });
+                                        }
                                     }
-                                    if (outcome.length != 0) {
-                                        // found = 1
-                                        var pick_bottom = Math.floor(Math.random() * outcome.length)
-                                        return res.status(200).json({ status: "success", message: "Select outfit successfully!", results: results[pick], results2: outcome[pick_bottom] });
-                                    }
-                                }
-                            )
-                            // i = i + 1
+                                )
+                                // i = i + 1
                             // }
                         }
                         else {
@@ -1095,232 +1101,24 @@ app.post("/recommend", async (req, res) => {
 
 //----------------------------Ask Question and concern--------------------------------------//
 
-// // // show question and concern's channel
-// // app.post("/show_channel", async (req, res) => {
-// //     // const id = sessionstorage.getItem('id')
-// //     const id = req.body.id
-
-// //     try {
-// //         connection.query(
-// //             "SELECT * FROM `concern` WHERE ACCOUNT_ID = ?",
-// //             [id],
-// //             (err, results, fields) => {
-// //                 if (err) {
-// //                     console.log(err);
-// //                     return res.status(400).send();
-// //                 }
-// //                 if (results.length === 0) {
-// //                     return res.status(400).json({ status: "fail", message: "There are no channels yet" });
-// //                 }
-// //                 return res.status(200).json({ status: "success", message: "Show channels successfully!", results: results });
-// //             }
-// //         )
-
-// //     }
-// //     catch (err) {
-// //         console.log(err);
-// //         return res.status(500).send();
-// //     }
-// // })
-
-// // // create new question and concern's channel
-// // app.post("/new_channel", async (req, res) => {
-// //     const text = req.body.text
-// //     // const id = req.body.id
-// //     const id = sessionstorage.getItem('id')
-
-// //     try {
-// //         connection.query(
-// //             "SELECT MAX(CHANNEL_ID) AS MAX_CHANNEL_ID FROM `concern` WHERE ACCOUNT_ID = ?",
-// //             [id],
-// //             (err, results, fields) => {
-// //                 if (err) {
-// //                     console.log(err);
-// //                     return res.status(400).send();
-// //                 }
-// //                 var channel = results[0].MAX_CHANNEL_ID + 1
-// //                 if (channel === null) {
-// //                     channel = 0
-// //                 }
-// //                 //เพิ่มข้อความใหม่ลงฐานข้อมูล
-// //                 connection.query(
-// //                     "INSERT INTO `concern`(`ACCOUNT_ID`, `CHANNEL_ID`, `TITLE`) VALUES (?,?,?)",
-// //                     [id, channel, text],
-// //                     (err, results, fields) => {
-// //                         if (err) {
-// //                             console.log(err);
-// //                             return res.status(400).send();
-// //                         }
-// //                         return res.status(200).json({ status: "success", message: "Creating new channel successfully!" })
-// //                     })
-// //             }
-// //         )
-
-// //     }
-// //     catch (err) {
-// //         console.log(err);
-// //         return res.status(500).send();
-// //     }
-// // })
-
-// // // show question and concern for each channel
-// // app.post("/show_concern", async (req, res) => {
-// //     const channel = req.body.channel
-// //     // const id = sessionstorage.getItem('id')
-// //     const id = req.body.id
-
-// //     try {
-// //         connection.query(
-// //             "SELECT * FROM `channel` WHERE CHANNEL_ID = ? AND ACCOUNT_ID = ?",
-// //             [channel, id],
-// //             (err, results, fields) => {
-// //                 if (err) {
-// //                     console.log(err);
-// //                     return res.status(400).send();
-// //                 }
-// //                 if (results.length === 0) {
-// //                     return res.status(400).json({ status: "fail", message: "There are no messages yet" });
-// //                 }
-// //                 return res.status(200).json({ status: "success", message: "Show each channel successfully!", results: results });
-// //             }
-// //         )
-
-// //     }
-// //     catch (err) {
-// //         console.log(err);
-// //         return res.status(500).send();
-// //     }
-// // })
-
-// // //for saving question and concern chat
-// // app.post("/save_concern", async (req, res) => {
-// //     const { text, channel, sender } = req.body
-// //     // const id = sessionstorage.getItem('id')
-// //     const id = req.body.id
-
-// //     try {
-// //         //ดึงข้อมูลล่าสุด
-// //         connection.query(
-// //             "SELECT MAX(CHAT_ID) AS MAX_CHAT_ID FROM `channel` WHERE CHANNEL_ID = ? AND ACCOUNT_ID = ?",
-// //             [channel, id],
-// //             (err, results, fields) => {
-// //                 if (err) {
-// //                     console.log(err);
-// //                     return res.status(400).send();
-// //                 }
-// //                 var chat = results[0].MAX_CHAT_ID + 1
-// //                 if (chat === null) {
-// //                     chat = 0
-// //                 }
-// //                 //เพิ่มข้อความใหม่ลงฐานข้อมูล
-// //                 connection.query(
-// //                     "INSERT INTO `channel`(`CHAT_ID`, `ACCOUNT_ID`, `CHANNEL_ID`, `TEXT`, `SENDER`) VALUES (?,?,?,?,?)",
-// //                     [chat, id, channel, text, sender],
-// //                     (err, results, fields) => {
-// //                         if (err) {
-// //                             console.log(err);
-// //                             return res.status(400).send();
-// //                         }
-// //                         return res.status(200).json({ status: "success", message: "Saving concern successfully!" })
-// //                     })
-// //             }
-// //         )
-
-// //     }
-// //     catch (err) {
-// //         console.log(err);
-// //         return res.status(500).send();
-// //     }
-// // })
-
-// //for question and concern
-// app.post("/new_question", async (req, res) => {
-//     const { title, body, id } = req.body
-
-//     try {
-//         connection.query(
-//             "INSERT INTO question(`ACCOUNT_ID`, `TITLE`, `BODY`, `DATE`, `STATUS`) VALUES (?,?,?,CURRENT_DATE(),'on hold')",
-//             [id, title, body],
-//             (err, results, fields) => {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.status(400).send();
-//                 }
-//                 //ส่งอีเมลตอบกลับว่าได้รับข้อความแล้ว
-//                 connection.query(
-//                     "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
-//                     [id],
-//                     (err, results, fields) => {
-//                         if (err) {
-//                             console.log(err);
-//                             return res.status(400).send();
-//                         }
-
-//                         const text_sending = {
-//                             from: process.env.MYMAIL,
-//                             to: results[0].ACCOUNT_EMAIL,
-//                             subject: 'Thank you for your feedback to Orange',
-//                             text: "Dear User :\n\nThank you for taking time to contact Orange to explain the issues you have encountered recently. We regret any inconvenience you have experienced, and we assure you that we are anxious to retain you as a satisfied customer.\n\nOur Customer Satisfaction Team is reviewing the information you sent us and conducting a full investigation in order to resolve this matter fairly.\n\nSincerely,\nOrange Team"
-//                         };
-
-//                         transporter.sendMail(text_sending, (err, info) => {
-//                             if (err) {
-//                                 console.log(err);
-//                                 return res.status(400).send();
-//                             }
-//                             return res.status(200).json({ status: "success", message: "Question and concern received successfully!" })
-//                         });
-//                     }
-//                 )
-//             }
-//         )
-
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return res.status(500).send();
-//     }
-// })
-
-// // for showing question and concern
-// app.post("/show_question", async (req, res) => {
-//     const { id } = req.body
-
-//     try {
-//         connection.query(
-//             "SELECT `QUESTION_ID`, `TITLE`, `BODY`, DATE_FORMAT( `DATE`, '%d %M %Y') AS DATE, `STATUS` FROM `question` WHERE ACCOUNT_ID = ?",
-//             [id],
-//             (err, results, fields) => {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.status(400).send();
-//                 }
-//                 return res.status(200).json({ status: "success", message: "Question and concern show successfully!", results: results })
-//             }
-//         )
-
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return res.status(500).send();
-//     }
-// })
-
-// // for showing question and concern detail
-// app.post("/question_detail", async (req, res) => {
+// // show question and concern's channel
+// app.post("/show_channel", async (req, res) => {
+//     // const id = sessionstorage.getItem('id')
 //     const id = req.body.id
-//     console.log(id)
+
 //     try {
 //         connection.query(
-//             "SELECT `TITLE`, `BODY`, DATE_FORMAT( `DATE`, '%d %M %Y') AS DATE, `STATUS` FROM `question` WHERE `QUESTION_ID` = ?",
+//             "SELECT * FROM `concern` WHERE ACCOUNT_ID = ?",
 //             [id],
 //             (err, results, fields) => {
 //                 if (err) {
 //                     console.log(err);
 //                     return res.status(400).send();
 //                 }
-//                 console.log(results)
-//                 return res.status(200).json({ status: "success", message: "Question and concern show successfully!", results: results })
+//                 if (results.length === 0) {
+//                     return res.status(400).json({ status: "fail", message: "There are no channels yet" });
+//                 }
+//                 return res.status(200).json({ status: "success", message: "Show channels successfully!", results: results });
 //             }
 //         )
 
@@ -1331,260 +1129,282 @@ app.post("/recommend", async (req, res) => {
 //     }
 // })
 
-// // show question and concern to admin
-// app.get("/admins_question", async (req, res) => {
-//     // const {status} = req.body
+// // create new question and concern's channel
+// app.post("/new_channel", async (req, res) => {
+//     const text = req.body.text
+//     // const id = req.body.id
+//     const id = sessionstorage.getItem('id')
 
 //     try {
 //         connection.query(
-//             "SELECT * FROM question ORDER BY QUESTION_ID DESC;",
-//             // [status],
+//             "SELECT MAX(CHANNEL_ID) AS MAX_CHANNEL_ID FROM `concern` WHERE ACCOUNT_ID = ?",
+//             [id],
 //             (err, results, fields) => {
 //                 if (err) {
 //                     console.log(err);
 //                     return res.status(400).send();
 //                 }
-//                 return res.status(200).json({ status: "success", message: "Question and concern show successfully!", results: results })
-//             }
-//         )
-
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return res.status(500).send();
-//     }
-// })
-
-
-// // for admin to update question and concern
-// app.post("/update_question", async (req, res) => {
-//     const { status, id } = req.body
-
-//     try {
-//         connection.query(
-//             "UPDATE `question` SET `STATUS`= ? WHERE QUESTION_ID = ?",
-//             [status, id],
-//             (err, results, fields) => {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.status(400).send();
+//                 var channel = results[0].MAX_CHANNEL_ID + 1
+//                 if (channel === null) {
+//                     channel = 0
 //                 }
-//                 return res.status(200).json({ status: "success", message: "Question and concern updated successfully!" })
-//             }
-//         )
-
-//     }
-//     catch (err) {
-//         console.log(err);
-//         return res.status(500).send();
-//     }
-// })
-
-// show question and concern's channel
-app.post("/show_channel", async (req, res) => {
-    // const id = sessionstorage.getItem('id')
-    const id = req.body.id
-
-    try {
-        connection.query(
-            "SELECT * FROM `concern` WHERE ACCOUNT_ID = ?",
-            [id],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                if (results.length === 0) {
-                    return res.status(400).json({status:"fail", message: "There are no channels yet"});
-                }
-                return res.status(200).json({status:"success", message: "Show channels successfully!", results: results});
-            }
-        )
-        
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
-
-// create new question and concern's channel
-app.post("/new_channel", async (req, res) => {
-    const text = req.body.text
-    // const id = req.body.id
-    const id = sessionstorage.getItem('id')
-
-    try {
-        connection.query(
-            "SELECT MAX(CHANNEL_ID) AS MAX_CHANNEL_ID FROM `concern` WHERE ACCOUNT_ID = ?",
-            [id],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                var channel = results[0].MAX_CHANNEL_ID+1
-                if (channel === null) {
-                    channel = 0
-                }
-                //เพิ่มข้อความใหม่ลงฐานข้อมูล
-                connection.query(
-                    "INSERT INTO `concern`(`ACCOUNT_ID`, `CHANNEL_ID`, `TITLE`) VALUES (?,?,?)",
-                    [id, channel, text],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-                    return res.status(200).json({status:"success", message: "Creating new channel successfully!"})
-                })
-            }
-        )
-        
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
-
-// show question and concern for each channel
-app.post("/show_concern", async (req, res) => {
-    const channel = req.body.channel
-    // const id = sessionstorage.getItem('id')
-    const id = req.body.id
-
-    try {
-        connection.query(
-            "SELECT * FROM `channel` WHERE CHANNEL_ID = ? AND ACCOUNT_ID = ?",
-            [channel,id],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                if (results.length === 0) {
-                    return res.status(400).json({status:"fail", message: "There are no messages yet"});
-                }
-                return res.status(200).json({status:"success", message: "Show each channel successfully!", results: results});
-            }
-        )
-        
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
-
-//for saving question and concern chat
-app.post("/save_concern", async (req, res) => {
-    const {text, channel, sender} = req.body
-    // const id = sessionstorage.getItem('id')
-    const id = req.body.id
-
-    try {
-        //ดึงข้อมูลล่าสุด
-        connection.query(
-            "SELECT MAX(CHAT_ID) AS MAX_CHAT_ID FROM `channel` WHERE CHANNEL_ID = ? AND ACCOUNT_ID = ?",
-            [channel,id],
-            (err, results, fields) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(400).send();
-                }
-                var chat = results[0].MAX_CHAT_ID+1
-                if (chat === null) {
-                    chat = 0
-                }
-                //เพิ่มข้อความใหม่ลงฐานข้อมูล
-                connection.query(
-                    "INSERT INTO `channel`(`CHAT_ID`, `ACCOUNT_ID`, `CHANNEL_ID`, `TEXT`, `SENDER`) VALUES (?,?,?,?,?)",
-                    [chat, id, channel, text, sender],
-                    (err, results, fields) => {
-                        if (err) {
-                            console.log(err);
-                            return res.status(400).send();
-                        }
-                    return res.status(200).json({status:"success", message: "Saving concern successfully!"})
-                })
-            }
-        )
-        
-    }
-    catch(err) {
-        console.log(err);
-        return res.status(500).send();
-    }
-})
-
-// //for question and concern
-// app.post("/concern", async (req, res) => {
-//     const {text, id} = req.body
-
-//     try {
-//         //เก็บข้อความไว้ในฐานข้อมูล
-//         connection.query(
-//             "INSERT INTO concern(`ACCOUNT_ID`, `TEXT`) VALUES (?,?)",
-//             [id,text],
-//             (err, results, fields) => {
-//                 if (err) {
-//                     console.log(err);
-//                     return res.status(400).send();
-//                 }
-//                 //ส่งอีเมลตอบกลับว่าได้รับข้อความแล้ว
+//                 //เพิ่มข้อความใหม่ลงฐานข้อมูล
 //                 connection.query(
-//                     "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
-//                     [id],
+//                     "INSERT INTO `concern`(`ACCOUNT_ID`, `CHANNEL_ID`, `TITLE`) VALUES (?,?,?)",
+//                     [id, channel, text],
 //                     (err, results, fields) => {
 //                         if (err) {
 //                             console.log(err);
 //                             return res.status(400).send();
 //                         }
-
-//                         const text_sending = {
-//                             from: process.env.MYMAIL,
-//                             to: results[0].ACCOUNT_EMAIL,
-//                             subject: 'Thank you for your feedback to Orange',
-//                             text:"Dear User :\n\nThank you for taking time to contact Orange to explain the issues you have encountered recently. We regret any inconvenience you have experienced, and we assure you that we are anxious to retain you as a satisfied customer.\n\nOur Customer Satisfaction Team is reviewing the information you sent us and conducting a full investigation in order to resolve this matter fairly.\n\nSincerely,\nOrange Team"
-//                         };
-
-//                         transporter.sendMail(text_sending, (err, info) => {
-//                             if (err) {
-//                                 console.log(err);
-//                                 return res.status(400).send();
-//                             }
-//                             return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
-//                         });
-//                     }
-//                 )
+//                         return res.status(200).json({ status: "success", message: "Creating new channel successfully!" })
+//                     })
 //             }
 //         )
-        
+
 //     }
-//     catch(err) {
+//     catch (err) {
 //         console.log(err);
 //         return res.status(500).send();
 //     }
 // })
+
+// // show question and concern for each channel
+// app.post("/show_concern", async (req, res) => {
+//     const channel = req.body.channel
+//     // const id = sessionstorage.getItem('id')
+//     const id = req.body.id
+
+//     try {
+//         connection.query(
+//             "SELECT * FROM `channel` WHERE CHANNEL_ID = ? AND ACCOUNT_ID = ?",
+//             [channel, id],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 if (results.length === 0) {
+//                     return res.status(400).json({ status: "fail", message: "There are no messages yet" });
+//                 }
+//                 return res.status(200).json({ status: "success", message: "Show each channel successfully!", results: results });
+//             }
+//         )
+
+//     }
+//     catch (err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })
+
+// //for saving question and concern chat
+// app.post("/save_concern", async (req, res) => {
+//     const { text, channel, sender } = req.body
+//     // const id = sessionstorage.getItem('id')
+//     const id = req.body.id
+
+//     try {
+//         //ดึงข้อมูลล่าสุด
+//         connection.query(
+//             "SELECT MAX(CHAT_ID) AS MAX_CHAT_ID FROM `channel` WHERE CHANNEL_ID = ? AND ACCOUNT_ID = ?",
+//             [channel, id],
+//             (err, results, fields) => {
+//                 if (err) {
+//                     console.log(err);
+//                     return res.status(400).send();
+//                 }
+//                 var chat = results[0].MAX_CHAT_ID + 1
+//                 if (chat === null) {
+//                     chat = 0
+//                 }
+//                 //เพิ่มข้อความใหม่ลงฐานข้อมูล
+//                 connection.query(
+//                     "INSERT INTO `channel`(`CHAT_ID`, `ACCOUNT_ID`, `CHANNEL_ID`, `TEXT`, `SENDER`) VALUES (?,?,?,?,?)",
+//                     [chat, id, channel, text, sender],
+//                     (err, results, fields) => {
+//                         if (err) {
+//                             console.log(err);
+//                             return res.status(400).send();
+//                         }
+//                         return res.status(200).json({ status: "success", message: "Saving concern successfully!" })
+//                     })
+//             }
+//         )
+
+//     }
+//     catch (err) {
+//         console.log(err);
+//         return res.status(500).send();
+//     }
+// })
+
+//for question and concern
+app.post("/new_question", async (req, res) => {
+    const {title, body, id} = req.body
+
+    try {
+        //เก็บข้อความไว้ในฐานข้อมูล
+        connection.query(
+            "INSERT INTO question(`ACCOUNT_ID`, `TITLE`, `BODY`, `DATE`, `STATUS`) VALUES (?,?,?,CURRENT_DATE(),'on hold')",
+            [id, title, body],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                //ส่งอีเมลตอบกลับว่าได้รับข้อความแล้ว
+                connection.query(
+                    "SELECT ACCOUNT_EMAIL FROM account WHERE ACCOUNT_ID = ?",
+                    [id],
+                    (err, results, fields) => {
+                        if (err) {
+                            console.log(err);
+                            return res.status(400).send();
+                        }
+
+                        const text_sending = {
+                            from: process.env.MYMAIL,
+                            to: results[0].ACCOUNT_EMAIL,
+                            subject: 'Thank you for your feedback to Orange',
+                            text:"Dear User :\n\nThank you for taking time to contact Orange to explain the issues you have encountered recently. We regret any inconvenience you have experienced, and we assure you that we are anxious to retain you as a satisfied customer.\n\nOur Customer Satisfaction Team is reviewing the information you sent us and conducting a full investigation in order to resolve this matter fairly.\n\nSincerely,\nOrange Team"
+                        };
+
+                        transporter.sendMail(text_sending, (err, info) => {
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send();
+                            }
+                            return res.status(200).json({status:"success", message : "Question and concern received successfully!"})
+                        });
+                    }
+                )
+            }
+        )
+
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+// for showing question and concern
+app.post("/show_question", async (req, res) => {
+    const {id} = req.body
+
+    try {
+        connection.query(
+            "SELECT `QUESTION_ID`, `TITLE`, `BODY`, DATE_FORMAT( `DATE`, '%d %M %Y') AS DATE, `STATUS` FROM `question` WHERE ACCOUNT_ID = ?",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                return res.status(200).json({status:"success", message : "Question and concern show successfully!", results: results})
+            }
+        )
+
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+// for showing question and concern detail
+app.post("/question_detail", async (req, res) => {
+    const id = req.body.id
+    console.log(id)
+    try {
+        connection.query(
+            "SELECT `TITLE`, `BODY`, DATE_FORMAT( `DATE`, '%d %M %Y') AS DATE, `STATUS` FROM `question` WHERE `QUESTION_ID` = ?",
+            [id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                console.log(results)
+                return res.status(200).json({status:"success", message : "Question and concern show successfully!", results: results})
+            }
+        )
+
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+// show question and concern to admin
+app.get("/admins_question", async (req, res) => {
+    // const {status} = req.body
+
+    try {
+        connection.query(
+            "SELECT * FROM question ORDER BY QUESTION_ID DESC;",
+            // [status],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                return res.status(200).json({status:"success", message : "Question and concern show successfully!", results: results})
+            }
+        )
+
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+
+// for admin to update question and concern
+app.post("/update_question", async (req, res) => {
+    const {status,id} = req.body
+
+    try {
+        connection.query(
+            "UPDATE `question` SET `STATUS`= ? WHERE QUESTION_ID = ?",
+            [status, id],
+            (err, results, fields) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                return res.status(200).json({status:"success", message : "Question and concern updated successfully!"})
+            }
+        )
+
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 
 //----------------------------update selection--------------------------------------//
 
 //for admin to update place selection
 app.post("/update_place", async (req, res) => {
-    const { id, new_place } = req.body
-    console.log(id, new_place)
+    const {id,new_place} = req.body
+    console.log(id,new_place)
     try {
         connection.query(
             "UPDATE `place` SET `CHOICE`= ? WHERE `PLACE_ID`= ?",
             // "INSERT INTO place(`CHOICE`) VALUES (?)", //ดึงข้อมูล
-            [new_place, id],
+            [new_place,id],
             (err, results, fields) => {
                 if (err) {
                     console.log(err);
                     return res.status(400).send();
                 }
-                res.status(200).json({ status: "success", message: "update place successfully!" })
+                res.status(200).json({ status:"success" ,message: "update place successfully!" })
             })
     }
     catch (err) {
@@ -1596,7 +1416,7 @@ app.post("/update_place", async (req, res) => {
 
 //for admin to update theme selection
 app.post("/update_theme", async (req, res) => {
-    const { id, new_theme } = req.body
+    const {id, new_theme} = req.body
     console.log(id, new_theme)
     try {
         connection.query(
@@ -1959,7 +1779,7 @@ app.get("/unanswer_concern", async (req, res) => {
                     return res.status(400).send();
                 }
                 if (results.length === 0) {
-                    return res.status(400).json({status: "fail", message: "Can't find any unanswer question and concern" });
+                    return res.status(400).json({ status: "fail", message: "Can't find any unanswer question and concern" });
                 }
                 return res.status(200).json({ status: "success", message: "Get information successfully!", results: results })
             }
@@ -1984,11 +1804,11 @@ app.get("/answered_concern", async (req, res) => {
                 if (results.length === 0) {
                     return res.status(400).json({ status: "fail", message: "Can't find any answered question and concern" });
                 }
-                return res.status(200).json({status:"success", message:"Get information successfully!", results: results })
+                return res.status(200).json({ status: "success", message: "Get information successfully!", results: results })
             }
         )
     }
-    catch(err) {
+    catch (err) {
         console.log(err);
         return res.status(500).send();
     }
