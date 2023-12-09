@@ -7,7 +7,7 @@ Mobile application ที่สร้างขึ้นเพื่อช่ว�
 # List of contents
 - [Built With](https://github.com/CprE-KMUTNB/LetSGetDress-Thitirut/blob/main/README.md#built-with)
 - [Features](https://github.com/CprE-KMUTNB/LetSGetDress-Thitirut/blob/main/README.md#features)
-- [Benefit](https://github.com/CprE-KMUTNB/LetSGetDress-Thitirut/blob/main/README.md#objective)
+- [Benefit](https://github.com/CprE-KMUTNB/LetSGetDress-Thitirut/blob/main/README.md#benefit)
 - [Authors](https://github.com/CprE-KMUTNB/LetSGetDress-Thitirut/blob/main/README.md#authors)
 
 # Built With
@@ -63,7 +63,7 @@ Mobile application ที่สร้างขึ้นเพื่อช่ว�
    
    ภาพทางด้านขวา : หน้า profile ของผู้ใช้งานที่สมัคร Premium
 
-# benefit
+# Benefit
 ประโยชน์ของ Orange มีดังนี้
 1. ช่วยเลือกชุดให้เหมาะสมกับสถานที่และธีมที่อยากแต่ง เพื่อลดระยะเวลาการตัดสินใจเมื่อต้องการแต่งตัว
 2. ช่วยแนะนำชุดให้แก่ผู้ที่ต้องการแต่งตัวให้ทันสมัย
